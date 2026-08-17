@@ -13,7 +13,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 
-import { colors } from "../../theme/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -32,6 +32,7 @@ export const TimerButton: React.FC<TimerButtonProps> = ({
   onPressOut,
   ...rest
 }) => {
+  const { colors } = useTheme();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -46,7 +47,13 @@ export const TimerButton: React.FC<TimerButtonProps> = ({
       disabled={disabled}
       style={[
         styles.base,
-        isPrimary ? styles.primary : styles.secondary,
+        isPrimary
+          ? { backgroundColor: colors.focus }
+          : {
+              backgroundColor: "transparent",
+              borderWidth: 1,
+              borderColor: colors.border,
+            },
         disabled && styles.disabled,
         animatedStyle,
         style,
@@ -64,7 +71,11 @@ export const TimerButton: React.FC<TimerButtonProps> = ({
         <Text
           style={[
             styles.label,
-            isPrimary ? styles.primaryLabel : styles.secondaryLabel,
+            {
+              color: isPrimary ? colors.text : colors.textSecondary,
+              fontSize: isPrimary ? 18 : 16,
+              fontWeight: isPrimary ? "600" : "500",
+            },
             pressed && styles.pressedLabel,
           ]}
         >
@@ -85,29 +96,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  primary: {
-    backgroundColor: colors.focus,
-  },
-  secondary: {
-    backgroundColor: "transparent",
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
   disabled: {
     opacity: 0.4,
   },
-  label: {
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  primaryLabel: {
-    color: colors.text,
-  },
-  secondaryLabel: {
-    color: colors.textSecondary,
-    fontSize: 16,
-    fontWeight: "500",
-  },
+  label: {},
   pressedLabel: {
     opacity: 0.85,
   },

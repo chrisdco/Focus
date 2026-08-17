@@ -9,7 +9,7 @@ import Animated, {
 } from "react-native-reanimated";
 import Svg, { Circle } from "react-native-svg";
 
-import { colors as themeColors, modeColors } from "../../theme/colors";
+import { useTheme } from "../../context/ThemeContext";
 import type { TimerMode } from "../../types/timer";
 import { formatTime } from "../../utils/timer";
 
@@ -19,30 +19,35 @@ interface CircularTimerProps {
   remainingMs: number;
   durationMs: number;
   mode: TimerMode;
+  enlarged?: boolean;
 }
 
-const CIRCLE_SIZE = 260;
+const BASE_SIZE = 260;
+const ENLARGED_SIZE = 300;
 const STROKE_WIDTH = 8;
-const RADIUS = (CIRCLE_SIZE - STROKE_WIDTH) / 2;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-
-const MODE_COLOR_VALUES = {
-  focus: modeColors.focus,
-  shortBreak: modeColors.shortBreak,
-  longBreak: modeColors.longBreak,
-} as const;
 
 export const CircularTimer: React.FC<CircularTimerProps> = ({
   remainingMs,
   durationMs,
   mode,
+  enlarged = false,
 }) => {
+  const { colors, modeColors } = useTheme();
+  const circleSize = enlarged ? ENLARGED_SIZE : BASE_SIZE;
+  const radius = (circleSize - STROKE_WIDTH) / 2;
+  const circumference = 2 * Math.PI * radius;
+
   const formatted = formatTime(remainingMs);
   const progress = useSharedValue(
     durationMs > 0 ? remainingMs / durationMs : 0
   );
   const colorProgress = useSharedValue(0);
-  const prevModeRef = React.useRef(mode);
+
+  const modeColorValues = {
+    focus: modeColors.focus,
+    shortBreak: modeColors.shortBreak,
+    longBreak: modeColors.longBreak,
+  };
 
   useEffect(() => {
     progress.value = withTiming(
@@ -54,18 +59,17 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({
   useEffect(() => {
     const modeIndex = mode === "focus" ? 0 : mode === "shortBreak" ? 1 : 2;
     colorProgress.value = withTiming(modeIndex, { duration: 400 });
-    prevModeRef.current = mode;
   }, [mode, colorProgress]);
 
   const animatedCircleProps = useAnimatedProps(() => {
-    const strokeDashoffset = CIRCUMFERENCE * (1 - progress.value);
+    const strokeDashoffset = circumference * (1 - progress.value);
     const stroke = interpolateColor(
       colorProgress.value,
       [0, 1, 2],
       [
-        MODE_COLOR_VALUES.focus,
-        MODE_COLOR_VALUES.shortBreak,
-        MODE_COLOR_VALUES.longBreak,
+        modeColorValues.focus,
+        modeColorValues.shortBreak,
+        modeColorValues.longBreak,
       ]
     );
 
@@ -81,32 +85,45 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.circleWrapper}>
-        <Animated.View style={[styles.svgContainer, ringStyle]}>
-          <Svg width={CIRCLE_SIZE} height={CIRCLE_SIZE}>
+      <View
+        style={[
+          styles.circleWrapper,
+          { width: circleSize, height: circleSize },
+        ]}
+      >
+        <Animated.View
+          style={[
+            styles.svgContainer,
+            ringStyle,
+            { width: circleSize, height: circleSize },
+          ]}
+        >
+          <Svg width={circleSize} height={circleSize}>
             <Circle
-              cx={CIRCLE_SIZE / 2}
-              cy={CIRCLE_SIZE / 2}
-              r={RADIUS}
-              stroke="#1F2937"
+              cx={circleSize / 2}
+              cy={circleSize / 2}
+              r={radius}
+              stroke={colors.track}
               strokeWidth={STROKE_WIDTH}
-              fill={themeColors.surface}
+              fill={colors.surface}
             />
             <AnimatedCircle
-              cx={CIRCLE_SIZE / 2}
-              cy={CIRCLE_SIZE / 2}
-              r={RADIUS}
+              cx={circleSize / 2}
+              cy={circleSize / 2}
+              r={radius}
               stroke={modeColors[mode]}
               strokeWidth={STROKE_WIDTH}
               fill="transparent"
-              strokeDasharray={CIRCUMFERENCE}
+              strokeDasharray={circumference}
               strokeLinecap="round"
               animatedProps={animatedCircleProps}
             />
           </Svg>
         </Animated.View>
         <View style={styles.timeOverlay}>
-          <Text style={styles.timeText}>{formatted}</Text>
+          <Text style={[styles.timeText, { color: colors.text, fontSize: enlarged ? 56 : 48 }]}>
+            {formatted}
+          </Text>
         </View>
       </View>
     </View>
@@ -119,24 +136,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   circleWrapper: {
-    width: CIRCLE_SIZE,
-    height: CIRCLE_SIZE,
     alignItems: "center",
     justifyContent: "center",
   },
   svgContainer: {
     position: "absolute",
-    width: CIRCLE_SIZE,
-    height: CIRCLE_SIZE,
   },
   timeOverlay: {
     alignItems: "center",
     justifyContent: "center",
   },
   timeText: {
-    fontSize: 48,
     fontWeight: "600",
-    color: "#F9FAFB",
     letterSpacing: 2,
   },
 });

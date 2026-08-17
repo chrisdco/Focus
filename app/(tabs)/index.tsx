@@ -1,15 +1,25 @@
-import React, { useState } from "react";
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { Alert, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 import { CelebrationOverlay } from "../../components/timer/CelebrationOverlay";
 import { CircularTimer } from "../../components/timer/CircularTimer";
 import { TimerButton } from "../../components/timer/TimerButton";
+import { useFocusMode } from "../../context/FocusModeContext";
+import { useTheme } from "../../context/ThemeContext";
 import { usePomodoroTimer } from "../../hooks/usePomodoroTimer";
 import { usePersonalityMessage } from "../../hooks/usePersonalityMessage";
-import { modeColors, modeLabels } from "../../theme/colors";
+import { useSessionSound } from "../../hooks/useSessionSound";
+import { modeLabels } from "../../theme/colors";
 import { formatDurationLabel } from "../../utils/timer";
 
 const TimerScreen: React.FC = () => {
+  const { colors, modeColors } = useTheme();
+  const { isFocusMode } = useFocusMode();
   const {
     isRunning,
     remainingMs,
@@ -20,10 +30,14 @@ const TimerScreen: React.FC = () => {
     start,
     pause,
     reset,
+    skipBreak,
+    skipFocus,
     justCompleted,
   } = usePomodoroTimer();
 
   const [showCelebration, setShowCelebration] = useState(false);
+
+  useSessionSound(justCompleted);
 
   const personalityMessage = usePersonalityMessage({
     mode,
@@ -33,7 +47,17 @@ const TimerScreen: React.FC = () => {
     justCompleted,
   });
 
-  React.useEffect(() => {
+  const contentScale = useSharedValue(1);
+
+  useEffect(() => {
+    contentScale.value = withTiming(isFocusMode ? 1.08 : 1, { duration: 300 });
+  }, [isFocusMode, contentScale]);
+
+  const timerSectionStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: contentScale.value }],
+  }));
+
+  useEffect(() => {
     if (justCompleted) {
       setShowCelebration(true);
       const timeout = setTimeout(() => setShowCelebration(false), 2500);
@@ -51,35 +75,126 @@ const TimerScreen: React.FC = () => {
     }
   };
 
+  const handleSkipPress = () => {
+    if (mode === "focus") {
+      Alert.alert(
+        "Skip focus session?",
+        "This session won't count toward your stats or task progress.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Skip", style: "destructive", onPress: skipFocus },
+        ]
+      );
+      return;
+    }
+
+    skipBreak();
+  };
+
   const primaryLabel = isRunning ? "Pause" : "Start";
   const accentColor = modeColors[mode];
   const canReset = remainingMs !== durationMs || isRunning;
+  const showSkip = isRunning || remainingMs !== durationMs;
+  const skipLabel = mode === "focus" ? "Skip" : "Skip break";
+
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        safeArea: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        container: {
+          flex: 1,
+          paddingHorizontal: 24,
+          paddingTop: isFocusMode ? 48 : 16,
+          paddingBottom: 32,
+        },
+        title: {
+          fontSize: isFocusMode ? 22 : 28,
+          fontWeight: "700",
+          color: colors.text,
+          textAlign: "center",
+          marginBottom: 8,
+        },
+        focusBadge: {
+          fontSize: 14,
+          color: colors.textMuted,
+          textAlign: "center",
+          marginBottom: 8,
+          textTransform: "uppercase",
+          letterSpacing: 1,
+        },
+        sessionCounter: {
+          fontSize: 16,
+          color: colors.textMuted,
+          textAlign: "center",
+          marginBottom: 16,
+        },
+        timerSection: {
+          flex: 1,
+          justifyContent: "center",
+        },
+        controls: {
+          marginTop: 24,
+        },
+        modeLabel: {
+          textAlign: "center",
+          marginBottom: 12,
+          fontSize: 16,
+          fontWeight: "600",
+        },
+        personalityMessage: {
+          textAlign: "center",
+          color: colors.textSecondary,
+          fontSize: 15,
+          marginBottom: 16,
+          fontStyle: "italic",
+          paddingHorizontal: 16,
+        },
+        buttonsRow: {
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 12,
+          flexWrap: "wrap",
+        },
+      }),
+    [colors, isFocusMode]
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Text style={styles.title}>Foco</Text>
+        {!isFocusMode && <Text style={styles.title}>Foco</Text>}
 
-        {mode === "focus" && (
+        {isFocusMode && (
+          <Text style={styles.focusBadge}>Focus mode</Text>
+        )}
+
+        {mode === "focus" && !isFocusMode && (
           <Text style={styles.sessionCounter}>
             Session {sessionNumber} of {sessionsBeforeLongBreak}
           </Text>
         )}
 
-        <View style={styles.timerSection}>
+        <Animated.View style={[styles.timerSection, timerSectionStyle]}>
           <CircularTimer
             remainingMs={remainingMs}
             durationMs={durationMs}
             mode={mode}
+            enlarged={isFocusMode}
           />
-        </View>
+        </Animated.View>
 
         <View style={styles.controls}>
-          <Text style={[styles.modeLabel, { color: accentColor }]}>
-            {modeLabels[mode]} • {formatDurationLabel(durationMs)}
-          </Text>
+          {!isFocusMode && (
+            <Text style={[styles.modeLabel, { color: accentColor }]}>
+              {modeLabels[mode]} • {formatDurationLabel(durationMs)}
+            </Text>
+          )}
 
-          {personalityMessage.length > 0 && (
+          {!isFocusMode && personalityMessage.length > 0 && (
             <Text style={styles.personalityMessage}>{personalityMessage}</Text>
           )}
 
@@ -90,12 +205,21 @@ const TimerScreen: React.FC = () => {
               style={{ backgroundColor: accentColor }}
               onPress={handlePrimaryPress}
             />
-            <TimerButton
-              label="Reset"
-              variant="secondary"
-              disabled={!canReset}
-              onPress={reset}
-            />
+            {showSkip && (
+              <TimerButton
+                label={skipLabel}
+                variant="secondary"
+                onPress={handleSkipPress}
+              />
+            )}
+            {!isFocusMode && (
+              <TimerButton
+                label="Reset"
+                variant="secondary"
+                disabled={!canReset}
+                onPress={reset}
+              />
+            )}
           </View>
         </View>
       </View>
@@ -109,56 +233,3 @@ const TimerScreen: React.FC = () => {
 };
 
 export default TimerScreen;
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#020617",
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 32,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#F9FAFB",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  sessionCounter: {
-    fontSize: 16,
-    color: "#9CA3AF",
-    textAlign: "center",
-    marginBottom: 16,
-  },
-  timerSection: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  controls: {
-    marginTop: 24,
-  },
-  modeLabel: {
-    textAlign: "center",
-    marginBottom: 12,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  personalityMessage: {
-    textAlign: "center",
-    color: "#D1D5DB",
-    fontSize: 15,
-    marginBottom: 16,
-    fontStyle: "italic",
-    paddingHorizontal: 16,
-  },
-  buttonsRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 16,
-  },
-});

@@ -6,7 +6,9 @@ import { useTimerContext } from "../context/TimerContext";
 import {
   getCurrentSessionNumber,
   getDurationForMode,
+  getNextMode,
 } from "../domain/timerMachine";
+import type { TimerMode } from "../types/timer";
 
 const TICK_INTERVAL_MS = 1000;
 
@@ -67,6 +69,42 @@ export const usePomodoroTimer = () => {
     dispatch({ type: "RESET", durationMs: focusDuration });
   }, [dispatch, settings]);
 
+  const skipToMode = useCallback(
+    (nextMode: TimerMode, nextCompletedSessions: number) => {
+      if (settings.hapticsEnabled) {
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+
+      if (isRunning) {
+        dispatch({ type: "PAUSE", now: Date.now() });
+      }
+
+      dispatch({
+        type: "SKIP",
+        nextMode,
+        nextDurationMs: getDurationForMode(nextMode, settings),
+        completedFocusSessions: nextCompletedSessions,
+      });
+    },
+    [dispatch, isRunning, settings]
+  );
+
+  const skipBreak = useCallback(() => {
+    const nextCompleted = mode === "longBreak" ? 0 : completedFocusSessions;
+    skipToMode("focus", nextCompleted);
+  }, [mode, completedFocusSessions, skipToMode]);
+
+  const skipFocus = useCallback(() => {
+    const completedAfter = completedFocusSessions + 1;
+    const nextMode = getNextMode(
+      "focus",
+      completedAfter,
+      settings.sessionsBeforeLongBreak
+    );
+
+    skipToMode(nextMode, completedAfter);
+  }, [completedFocusSessions, settings.sessionsBeforeLongBreak, skipToMode]);
+
   useEffect(() => {
     if (isRunning && expectedEndTime !== null) {
       if (intervalRef.current !== null) {
@@ -113,6 +151,8 @@ export const usePomodoroTimer = () => {
     start,
     pause,
     reset,
+    skipBreak,
+    skipFocus,
     justCompleted,
   };
 };
