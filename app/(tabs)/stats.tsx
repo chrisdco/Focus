@@ -3,11 +3,12 @@ import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 
 import { useStats } from "../../context/StatsContext";
 import { useTheme } from "../../context/ThemeContext";
+import { cardElevation } from "../../theme/shadows";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const StatsScreen: React.FC = () => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const { stats, getWeeklyFocusCounts } = useStats();
   const weeklyCounts = getWeeklyFocusCounts();
   const maxCount = Math.max(...weeklyCounts, 1);
@@ -45,6 +46,7 @@ const StatsScreen: React.FC = () => {
           alignItems: "center",
           borderWidth: 1,
           borderColor: colors.border,
+          ...cardElevation(isDark),
         },
         cardValue: {
           fontSize: 32,
@@ -63,6 +65,7 @@ const StatsScreen: React.FC = () => {
           padding: 20,
           borderWidth: 1,
           borderColor: colors.border,
+          ...cardElevation(isDark),
         },
         sectionTitle: {
           fontSize: 18,
@@ -104,8 +107,15 @@ const StatsScreen: React.FC = () => {
           color: colors.textMuted,
           marginTop: 2,
         },
+        emptyHint: {
+          fontSize: 15,
+          color: colors.textMuted,
+          textAlign: "center",
+          lineHeight: 22,
+          paddingVertical: 24,
+        },
       }),
-    [colors]
+    [colors, isDark]
   );
 
   return (
@@ -137,22 +147,28 @@ const StatsScreen: React.FC = () => {
 
         <View style={styles.chartSection}>
           <Text style={styles.sectionTitle}>Last 7 days</Text>
-          <View style={styles.chart}>
-            {weeklyCounts.map((count, index) => (
-              <View key={DAY_LABELS[index]} style={styles.barColumn}>
-                <View style={styles.barTrack}>
-                  <View
-                    style={[
-                      styles.barFill,
-                      { height: `${(count / maxCount) * 100}%` },
-                    ]}
-                  />
+          {stats.totalFocusSessions === 0 ? (
+            <Text style={styles.emptyHint}>
+              Complete a focus session to see your activity here.
+            </Text>
+          ) : (
+            <View style={styles.chart}>
+              {weeklyCounts.map((count, index) => (
+                <View key={DAY_LABELS[index]} style={styles.barColumn}>
+                  <View style={styles.barTrack}>
+                    <View
+                      style={[
+                        styles.barFill,
+                        { height: `${(count / maxCount) * 100}%` },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.barCount}>{count}</Text>
+                  <Text style={styles.barLabel}>{DAY_LABELS[index]}</Text>
                 </View>
-                <Text style={styles.barCount}>{count}</Text>
-                <Text style={styles.barLabel}>{DAY_LABELS[index]}</Text>
-              </View>
-            ))}
-          </View>
+              ))}
+            </View>
+          )}
         </View>
       </View>
     </SafeAreaView>

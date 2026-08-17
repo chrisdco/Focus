@@ -13,6 +13,7 @@ import { useSettings } from "../../context/SettingsContext";
 import { useStats } from "../../context/StatsContext";
 import { useTheme } from "../../context/ThemeContext";
 import { clearAllData } from "../../storage";
+import { cardElevation } from "../../theme/shadows";
 
 interface DurationStepperProps {
   label: string;
@@ -64,13 +65,13 @@ const ToggleRow: React.FC<
       value={value}
       onValueChange={onValueChange}
       trackColor={{ false: colors.border, true: colors.focus }}
-      thumbColor={colors.text}
+      thumbColor="#FFFFFF"
     />
   </View>
 );
 
 const SettingsScreen: React.FC = () => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const { settings, updateSettings, resetSettings } = useSettings();
   const { resetStats } = useStats();
 
@@ -101,6 +102,7 @@ const SettingsScreen: React.FC = () => {
           marginBottom: 16,
           borderWidth: 1,
           borderColor: colors.border,
+          ...cardElevation(isDark),
         },
         sectionTitle: {
           fontSize: 16,
@@ -131,7 +133,7 @@ const SettingsScreen: React.FC = () => {
           textAlign: "center",
         },
       }),
-    [colors]
+    [colors, isDark]
   );
 
   const handleResetAll = () => {
