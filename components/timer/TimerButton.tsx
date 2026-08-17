@@ -72,7 +72,7 @@ export const TimerButton: React.FC<TimerButtonProps> = ({
           style={[
             styles.label,
             {
-              color: isPrimary ? colors.text : colors.textSecondary,
+              color: isPrimary ? colors.onPrimary : colors.textSecondary,
               fontSize: isPrimary ? 18 : 16,
               fontWeight: isPrimary ? "600" : "500",
             },

@@ -12,6 +12,10 @@ export interface ColorPalette {
   longBreak: string;
   track: string;
   danger: string;
+  /** Text/icons on accent-colored buttons */
+  onPrimary: string;
+  /** Modal/celebration scrim */
+  overlay: string;
 }
 
 export const darkColors: ColorPalette = {
@@ -26,6 +30,8 @@ export const darkColors: ColorPalette = {
   longBreak: "#3B82F6",
   track: "#1F2937",
   danger: "#EF4444",
+  onPrimary: "#FFFFFF",
+  overlay: "rgba(2, 6, 23, 0.78)",
 };
 
 export const lightColors: ColorPalette = {
@@ -40,6 +46,8 @@ export const lightColors: ColorPalette = {
   longBreak: "#2563EB",
   track: "#E5E7EB",
   danger: "#DC2626",
+  onPrimary: "#FFFFFF",
+  overlay: "rgba(17, 24, 39, 0.42)",
 };
 
 /** @deprecated Use useTheme() instead */
