@@ -1,15 +1,112 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 
 import { useStats } from "../../context/StatsContext";
-import { colors } from "../../theme/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const StatsScreen: React.FC = () => {
+  const { colors } = useTheme();
   const { stats, getWeeklyFocusCounts } = useStats();
   const weeklyCounts = getWeeklyFocusCounts();
   const maxCount = Math.max(...weeklyCounts, 1);
+
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        safeArea: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        container: {
+          flex: 1,
+          paddingHorizontal: 24,
+          paddingTop: 16,
+          paddingBottom: 32,
+        },
+        title: {
+          fontSize: 28,
+          fontWeight: "700",
+          color: colors.text,
+          textAlign: "center",
+          marginBottom: 24,
+        },
+        cardsRow: {
+          flexDirection: "row",
+          gap: 12,
+          marginBottom: 12,
+        },
+        card: {
+          flex: 1,
+          backgroundColor: colors.surface,
+          borderRadius: 16,
+          padding: 20,
+          alignItems: "center",
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        cardValue: {
+          fontSize: 32,
+          fontWeight: "700",
+          color: colors.text,
+          marginBottom: 4,
+        },
+        cardLabel: {
+          fontSize: 14,
+          color: colors.textMuted,
+        },
+        chartSection: {
+          marginTop: 24,
+          backgroundColor: colors.surface,
+          borderRadius: 16,
+          padding: 20,
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        sectionTitle: {
+          fontSize: 18,
+          fontWeight: "600",
+          color: colors.text,
+          marginBottom: 20,
+        },
+        chart: {
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+          height: 140,
+        },
+        barColumn: {
+          flex: 1,
+          alignItems: "center",
+        },
+        barTrack: {
+          width: 24,
+          height: 100,
+          backgroundColor: colors.track,
+          borderRadius: 6,
+          justifyContent: "flex-end",
+          overflow: "hidden",
+        },
+        barFill: {
+          width: "100%",
+          backgroundColor: colors.focus,
+          borderRadius: 6,
+          minHeight: 4,
+        },
+        barCount: {
+          fontSize: 12,
+          color: colors.textMuted,
+          marginTop: 6,
+        },
+        barLabel: {
+          fontSize: 11,
+          color: colors.textMuted,
+          marginTop: 2,
+        },
+      }),
+    [colors]
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -63,95 +160,3 @@ const StatsScreen: React.FC = () => {
 };
 
 export default StatsScreen;
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 32,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: colors.text,
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  cardsRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 12,
-  },
-  card: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 20,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  cardValue: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 4,
-  },
-  cardLabel: {
-    fontSize: 14,
-    color: colors.textMuted,
-  },
-  chartSection: {
-    marginTop: 24,
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: colors.text,
-    marginBottom: 20,
-  },
-  chart: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    height: 140,
-  },
-  barColumn: {
-    flex: 1,
-    alignItems: "center",
-  },
-  barTrack: {
-    width: 24,
-    height: 100,
-    backgroundColor: "#1F2937",
-    borderRadius: 6,
-    justifyContent: "flex-end",
-    overflow: "hidden",
-  },
-  barFill: {
-    width: "100%",
-    backgroundColor: colors.focus,
-    borderRadius: 6,
-    minHeight: 4,
-  },
-  barCount: {
-    fontSize: 12,
-    color: colors.textMuted,
-    marginTop: 6,
-  },
-  barLabel: {
-    fontSize: 11,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-});

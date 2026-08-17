@@ -126,6 +126,17 @@ const timerReducer = (state: TimerState, action: TimerAction): TimerState => {
         expectedEndTime: null,
       };
     }
+    case "SKIP": {
+      return {
+        ...state,
+        isRunning: false,
+        mode: action.nextMode,
+        completedFocusSessions: action.completedFocusSessions,
+        durationMs: action.nextDurationMs,
+        remainingMs: action.nextDurationMs,
+        expectedEndTime: null,
+      };
+    }
     case "HYDRATE": {
       const snapshot = action.snapshot;
       const now = Date.now();

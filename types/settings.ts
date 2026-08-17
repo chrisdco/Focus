@@ -7,6 +7,8 @@ export interface Settings {
   soundEnabled: boolean;
   darkMode: boolean;
   notificationsEnabled: boolean;
+  autoStartNextSession: boolean;
+  autoEnterFocusMode: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -18,4 +20,6 @@ export const DEFAULT_SETTINGS: Settings = {
   soundEnabled: false,
   darkMode: true,
   notificationsEnabled: true,
+  autoStartNextSession: false,
+  autoEnterFocusMode: true,
 };

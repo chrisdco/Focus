@@ -75,6 +75,10 @@ export const useTimerPersistence = (): void => {
         sessionsBeforeLongBreak: settings.sessionsBeforeLongBreak,
       });
 
+      if (settings.autoStartNextSession) {
+        dispatch({ type: "START", now: Date.now() });
+      }
+
       handlingCompletionRef.current = false;
     };
 
@@ -131,6 +135,10 @@ export const useTimerPersistence = (): void => {
         nextDurationMs,
         sessionsBeforeLongBreak: settings.sessionsBeforeLongBreak,
       });
+
+      if (settings.autoStartNextSession) {
+        dispatch({ type: "START", now: Date.now() });
+      }
 
       handlingCompletionRef.current = false;
     }

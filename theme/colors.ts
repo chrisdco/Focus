@@ -1,6 +1,20 @@
 import type { TimerMode } from "../types/timer";
 
-export const colors = {
+export interface ColorPalette {
+  background: string;
+  surface: string;
+  text: string;
+  textSecondary: string;
+  textMuted: string;
+  border: string;
+  focus: string;
+  shortBreak: string;
+  longBreak: string;
+  track: string;
+  danger: string;
+}
+
+export const darkColors: ColorPalette = {
   background: "#020617",
   surface: "#111827",
   text: "#F9FAFB",
@@ -10,13 +24,34 @@ export const colors = {
   focus: "#4F46E5",
   shortBreak: "#10B981",
   longBreak: "#3B82F6",
-} as const;
-
-export const modeColors: Record<TimerMode, string> = {
-  focus: colors.focus,
-  shortBreak: colors.shortBreak,
-  longBreak: colors.longBreak,
+  track: "#1F2937",
+  danger: "#EF4444",
 };
+
+export const lightColors: ColorPalette = {
+  background: "#F9FAFB",
+  surface: "#FFFFFF",
+  text: "#111827",
+  textSecondary: "#374151",
+  textMuted: "#6B7280",
+  border: "#E5E7EB",
+  focus: "#4F46E5",
+  shortBreak: "#059669",
+  longBreak: "#2563EB",
+  track: "#E5E7EB",
+  danger: "#DC2626",
+};
+
+/** @deprecated Use useTheme() instead */
+export const colors = darkColors;
+
+export const getModeColors = (
+  palette: ColorPalette
+): Record<TimerMode, string> => ({
+  focus: palette.focus,
+  shortBreak: palette.shortBreak,
+  longBreak: palette.longBreak,
+});
 
 export const modeLabels: Record<TimerMode, string> = {
   focus: "Focus",

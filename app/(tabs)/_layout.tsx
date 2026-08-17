@@ -1,17 +1,23 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
-import { colors } from "../../theme/colors";
+import { useFocusMode } from "../../context/FocusModeContext";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function TabLayout() {
+  const { colors } = useTheme();
+  const { isFocusMode } = useFocusMode();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.border,
-        },
+        tabBarStyle: isFocusMode
+          ? { display: "none" }
+          : {
+              backgroundColor: colors.surface,
+              borderTopColor: colors.border,
+            },
         tabBarActiveTintColor: colors.focus,
         tabBarInactiveTintColor: colors.textMuted,
       }}
