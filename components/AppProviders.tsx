@@ -5,11 +5,13 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { FocusModeProvider } from "../context/FocusModeContext";
 import { SettingsProvider, useSettings } from "../context/SettingsContext";
+import { SoundscapeProvider } from "../context/SoundscapeContext";
 import { StatsProvider } from "../context/StatsContext";
 import { TasksProvider } from "../context/TasksContext";
 import { ThemeProvider, useTheme } from "../context/ThemeContext";
 import { TimerProvider } from "../context/TimerContext";
 import { useAppStateReconciliation } from "../hooks/useAppStateReconciliation";
+import { useFocusSoundscape } from "../hooks/useFocusSoundscape";
 import { useTimerNotifications } from "../hooks/useTimerNotifications";
 import { useTimerPersistence } from "../hooks/useTimerPersistence";
 import { loadTimerSnapshot } from "../storage";
@@ -19,6 +21,11 @@ const TimerSideEffects: React.FC = () => {
   useTimerPersistence();
   useAppStateReconciliation();
   useTimerNotifications();
+  return null;
+};
+
+const SoundscapeSideEffects: React.FC = () => {
+  useFocusSoundscape();
   return null;
 };
 
@@ -53,10 +60,13 @@ const HydratedApp: React.FC = () => {
 
   return (
     <TimerProvider initialSnapshot={snapshot} settings={settings}>
-      <FocusModeProvider>
-        <TimerSideEffects />
-        <Stack screenOptions={{ headerShown: false }} />
-      </FocusModeProvider>
+      <SoundscapeProvider>
+        <FocusModeProvider>
+          <TimerSideEffects />
+          <SoundscapeSideEffects />
+          <Stack screenOptions={{ headerShown: false }} />
+        </FocusModeProvider>
+      </SoundscapeProvider>
     </TimerProvider>
   );
 };
