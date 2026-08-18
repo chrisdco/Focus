@@ -6,6 +6,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { FocusModeProvider } from "../context/FocusModeContext";
 import { SettingsProvider, useSettings } from "../context/SettingsContext";
 import { StatsProvider } from "../context/StatsContext";
+import { TasksProvider } from "../context/TasksContext";
 import { ThemeProvider, useTheme } from "../context/ThemeContext";
 import { TimerProvider } from "../context/TimerContext";
 import { useAppStateReconciliation } from "../hooks/useAppStateReconciliation";
@@ -66,7 +67,9 @@ export const AppProviders: React.FC = () => {
       <SettingsProvider>
         <ThemeProvider>
           <StatsProvider>
-            <HydratedApp />
+            <TasksProvider>
+              <HydratedApp />
+            </TasksProvider>
           </StatsProvider>
         </ThemeProvider>
       </SettingsProvider>

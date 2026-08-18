@@ -5,6 +5,7 @@ export interface SessionLog {
   mode: TimerMode;
   durationMs: number;
   completedAt: number;
+  taskId?: string;
 }
 
 export interface Stats {
