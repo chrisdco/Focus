@@ -1,5 +1,5 @@
-import type { Stats } from "./stats";
-import type { Achievement } from "./achievements";
+import type { Achievement } from "../types/achievements";
+import type { Stats } from "../types/stats";
 
 export const ACHIEVEMENTS: Achievement[] = [
   {

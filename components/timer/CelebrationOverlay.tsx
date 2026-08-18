@@ -28,7 +28,7 @@ export const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
     () =>
       StyleSheet.create({
         overlay: {
-          ...StyleSheet.absoluteFillObject,
+          ...StyleSheet.absoluteFill,
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: colors.overlay,

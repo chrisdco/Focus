@@ -143,7 +143,7 @@ const TasksScreen: React.FC = () => {
 
   const handleStart = (task: Task) => {
     setActiveTaskId(task.id);
-    router.push("/(tabs)/");
+    router.push("/(tabs)");
   };
 
   const getProject = (projectId: string) =>
