@@ -164,6 +164,18 @@ const SettingsScreen: React.FC = () => {
         <Text style={screenStyles.title}>Settings</Text>
 
         <View style={screenStyles.section}>
+          <Text style={screenStyles.sectionTitle}>Goals</Text>
+          <DurationStepper
+            colors={colors}
+            label="Daily pomodoro goal"
+            value={settings.dailyPomodoroGoal}
+            onChange={(v) => updateSettings({ dailyPomodoroGoal: v })}
+            min={1}
+            max={20}
+          />
+        </View>
+
+        <View style={screenStyles.section}>
           <Text style={screenStyles.sectionTitle}>Durations</Text>
           <DurationStepper
             colors={colors}

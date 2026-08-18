@@ -98,6 +98,20 @@ export const saveActiveTaskId = async (taskId: string | null): Promise<void> => 
   await AsyncStorage.setItem(STORAGE_KEYS.activeTaskId, taskId);
 };
 
+export const loadAchievements = async (): Promise<Record<string, number>> => {
+  const raw = await AsyncStorage.getItem(STORAGE_KEYS.achievements);
+  return parseJson<Record<string, number>>(raw, {});
+};
+
+export const saveAchievements = async (
+  unlocked: Record<string, number>
+): Promise<void> => {
+  await AsyncStorage.setItem(
+    STORAGE_KEYS.achievements,
+    JSON.stringify(unlocked)
+  );
+};
+
 export const clearAllData = async (): Promise<void> => {
   await AsyncStorage.removeMany(Object.values(STORAGE_KEYS));
 };
