@@ -1,0 +1,261 @@
+import React, { useMemo, useState } from "react";
+import {
+  FlatList,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { router } from "expo-router";
+
+import { TaskFormModal } from "../../components/tasks/TaskFormModal";
+import { TaskRow } from "../../components/tasks/TaskRow";
+import { useTasks } from "../../context/TasksContext";
+import { useTheme } from "../../context/ThemeContext";
+import type { Task, TaskView } from "../../types/task";
+import { cardElevation } from "../../theme/shadows";
+
+const VIEWS: { key: TaskView; label: string }[] = [
+  { key: "inbox", label: "Inbox" },
+  { key: "today", label: "Today" },
+  { key: "completed", label: "Completed" },
+];
+
+const TasksScreen: React.FC = () => {
+  const { colors, isDark } = useTheme();
+  const {
+    projects,
+    selectedProjectId,
+    setSelectedProjectId,
+    getTasksForView,
+    setActiveTaskId,
+    createTask,
+    updateTask,
+    deleteTask,
+    createProject,
+  } = useTasks();
+
+  const [view, setView] = useState<TaskView>("inbox");
+  const [formVisible, setFormVisible] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+
+  const tasks = getTasksForView(view);
+
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        safeArea: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        container: {
+          flex: 1,
+          paddingHorizontal: 20,
+          paddingTop: 16,
+        },
+        title: {
+          fontSize: 28,
+          fontWeight: "700",
+          color: colors.text,
+          textAlign: "center",
+          marginBottom: 16,
+        },
+        segmentRow: {
+          flexDirection: "row",
+          backgroundColor: colors.surface,
+          borderRadius: 12,
+          padding: 4,
+          marginBottom: 12,
+          borderWidth: 1,
+          borderColor: colors.border,
+          ...cardElevation(isDark),
+        },
+        segment: {
+          flex: 1,
+          paddingVertical: 10,
+          borderRadius: 8,
+          alignItems: "center",
+        },
+        segmentActive: {
+          backgroundColor: colors.focus,
+        },
+        segmentText: {
+          fontSize: 14,
+          fontWeight: "600",
+          color: colors.textMuted,
+        },
+        segmentTextActive: {
+          color: colors.onPrimary,
+        },
+        projectRow: {
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: 8,
+          marginBottom: 16,
+        },
+        projectChip: {
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          borderRadius: 999,
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        empty: {
+          textAlign: "center",
+          color: colors.textMuted,
+          marginTop: 48,
+          fontSize: 15,
+          lineHeight: 22,
+          paddingHorizontal: 24,
+        },
+        addButton: {
+          position: "absolute",
+          right: 24,
+          bottom: 24,
+          width: 56,
+          height: 56,
+          borderRadius: 28,
+          backgroundColor: colors.focus,
+          alignItems: "center",
+          justifyContent: "center",
+          ...cardElevation(isDark),
+        },
+        addLabel: {
+          color: colors.onPrimary,
+          fontSize: 28,
+          fontWeight: "400",
+          marginTop: -2,
+        },
+      }),
+    [colors, isDark]
+  );
+
+  const openCreate = () => {
+    setEditingTask(null);
+    setFormVisible(true);
+  };
+
+  const openEdit = (task: Task) => {
+    setEditingTask(task);
+    setFormVisible(true);
+  };
+
+  const handleStart = (task: Task) => {
+    setActiveTaskId(task.id);
+    router.push("/(tabs)/");
+  };
+
+  const getProject = (projectId: string) =>
+    projects.find((project) => project.id === projectId);
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Tasks</Text>
+
+        <View style={styles.segmentRow}>
+          {VIEWS.map((item) => (
+            <Pressable
+              key={item.key}
+              style={[
+                styles.segment,
+                view === item.key && styles.segmentActive,
+              ]}
+              onPress={() => setView(item.key)}
+            >
+              <Text
+                style={[
+                  styles.segmentText,
+                  view === item.key && styles.segmentTextActive,
+                ]}
+              >
+                {item.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <View style={styles.projectRow}>
+          <Pressable
+            style={[
+              styles.projectChip,
+              selectedProjectId === null && {
+                borderColor: colors.focus,
+                backgroundColor: `${colors.focus}18`,
+              },
+            ]}
+            onPress={() => setSelectedProjectId(null)}
+          >
+            <Text style={{ color: colors.textSecondary, fontSize: 13 }}>
+              All
+            </Text>
+          </Pressable>
+          {projects.map((project) => (
+            <Pressable
+              key={project.id}
+              style={[
+                styles.projectChip,
+                selectedProjectId === project.id && {
+                  borderColor: project.color,
+                  backgroundColor: `${project.color}18`,
+                },
+              ]}
+              onPress={() => setSelectedProjectId(project.id)}
+            >
+              <Text style={{ color: project.color, fontSize: 13 }}>
+                {project.name}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <FlatList
+          data={tasks}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TaskRow
+              task={item}
+              project={getProject(item.projectId)}
+              onPress={() => openEdit(item)}
+              onStart={() => handleStart(item)}
+            />
+          )}
+          ListEmptyComponent={
+            <Text style={styles.empty}>
+              {view === "completed"
+                ? "Completed tasks will appear here."
+                : "Add a task to start tracking your focus work."}
+            </Text>
+          }
+          contentContainerStyle={{ paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
+
+      <Pressable style={styles.addButton} onPress={openCreate}>
+        <Text style={styles.addLabel}>+</Text>
+      </Pressable>
+
+      <TaskFormModal
+        visible={formVisible}
+        projects={projects}
+        initialTask={editingTask}
+        onClose={() => setFormVisible(false)}
+        onCreateProject={createProject}
+        onSave={(draft) => {
+          if (editingTask) {
+            updateTask(editingTask.id, draft);
+          } else {
+            createTask(draft);
+          }
+        }}
+        onDelete={
+          editingTask ? () => deleteTask(editingTask.id) : undefined
+        }
+      />
+    </SafeAreaView>
+  );
+};
+
+export default TasksScreen;

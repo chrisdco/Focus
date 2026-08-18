@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,7 +9,9 @@ import Animated, {
 import { CelebrationOverlay } from "../../components/timer/CelebrationOverlay";
 import { CircularTimer } from "../../components/timer/CircularTimer";
 import { TimerButton } from "../../components/timer/TimerButton";
+import { ActiveTaskPicker } from "../../components/tasks/ActiveTaskPicker";
 import { useFocusMode } from "../../context/FocusModeContext";
+import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import { usePomodoroTimer } from "../../hooks/usePomodoroTimer";
 import { usePersonalityMessage } from "../../hooks/usePersonalityMessage";
@@ -20,6 +22,8 @@ import { formatDurationLabel } from "../../utils/timer";
 const TimerScreen: React.FC = () => {
   const { colors, modeColors } = useTheme();
   const { isFocusMode } = useFocusMode();
+  const { activeTask } = useTasks();
+  const [taskPickerVisible, setTaskPickerVisible] = useState(false);
   const {
     isRunning,
     remainingMs,
@@ -152,6 +156,28 @@ const TimerScreen: React.FC = () => {
           fontStyle: "italic",
           paddingHorizontal: 16,
         },
+        activeTaskButton: {
+          alignSelf: "center",
+          marginBottom: 12,
+          paddingHorizontal: 16,
+          paddingVertical: 8,
+          borderRadius: 999,
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.surface,
+        },
+        activeTaskLabel: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          textAlign: "center",
+        },
+        activeTaskTitle: {
+          fontSize: 15,
+          fontWeight: "600",
+          color: colors.text,
+          textAlign: "center",
+          marginTop: 2,
+        },
         buttonsRow: {
           flexDirection: "row",
           justifyContent: "center",
@@ -175,6 +201,29 @@ const TimerScreen: React.FC = () => {
         {mode === "focus" && !isFocusMode && (
           <Text style={styles.sessionCounter}>
             Session {sessionNumber} of {sessionsBeforeLongBreak}
+          </Text>
+        )}
+
+        {!isFocusMode && (
+          <Pressable
+            style={styles.activeTaskButton}
+            onPress={() => setTaskPickerVisible(true)}
+          >
+            <Text style={styles.activeTaskLabel}>
+              {activeTask ? "Working on" : "Choose a task"}
+            </Text>
+            {activeTask && (
+              <Text style={styles.activeTaskTitle} numberOfLines={1}>
+                {activeTask.title} · {activeTask.completedPomodoros}/
+                {activeTask.estimatedPomodoros}
+              </Text>
+            )}
+          </Pressable>
+        )}
+
+        {isFocusMode && activeTask && (
+          <Text style={styles.activeTaskTitle} numberOfLines={1}>
+            {activeTask.title}
           </Text>
         )}
 
@@ -227,6 +276,11 @@ const TimerScreen: React.FC = () => {
       <CelebrationOverlay
         visible={showCelebration}
         message="Session complete!"
+      />
+
+      <ActiveTaskPicker
+        visible={taskPickerVisible}
+        onClose={() => setTaskPickerVisible(false)}
       />
     </SafeAreaView>
   );

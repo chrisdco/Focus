@@ -3,6 +3,7 @@ import * as Haptics from "expo-haptics";
 
 import { useSettings } from "../context/SettingsContext";
 import { useStats } from "../context/StatsContext";
+import { useTasks } from "../context/TasksContext";
 import {
   toTimerSnapshot,
   useTimerContext,
@@ -18,9 +19,27 @@ export const useTimerPersistence = (): void => {
   const { state, dispatch } = useTimerContext();
   const { settings } = useSettings();
   const { logSession } = useStats();
+  const { activeTaskId, incrementTaskPomodoros } = useTasks();
   const prevStateRef = useRef(state);
   const handlingCompletionRef = useRef(false);
   const expiredHandledRef = useRef(false);
+
+  const recordFocusCompletion = useCallback(
+    (durationMs: number) => {
+      logSession("focus", durationMs, activeTaskId ?? undefined);
+
+      if (activeTaskId) {
+        incrementTaskPomodoros(activeTaskId);
+      }
+
+      if (settings.hapticsEnabled) {
+        void Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Success
+        );
+      }
+    },
+    [activeTaskId, incrementTaskPomodoros, logSession, settings.hapticsEnabled]
+  );
 
   const persistSnapshot = useCallback(async () => {
     await saveTimerSnapshot(toTimerSnapshot(state));
@@ -47,13 +66,7 @@ export const useTimerPersistence = (): void => {
       handlingCompletionRef.current = true;
 
       if (snapshot.mode === "focus") {
-        logSession("focus", snapshot.durationMs);
-
-        if (settings.hapticsEnabled) {
-          void Haptics.notificationAsync(
-            Haptics.NotificationFeedbackType.Success
-          );
-        }
+        recordFocusCompletion(snapshot.durationMs);
       }
 
       const completedAfter =
@@ -83,7 +96,7 @@ export const useTimerPersistence = (): void => {
     };
 
     void handleExpiredSnapshot();
-  }, [dispatch, logSession, settings]);
+  }, [dispatch, recordFocusCompletion, settings]);
 
   useEffect(() => {
     const prev = prevStateRef.current;
@@ -108,13 +121,7 @@ export const useTimerPersistence = (): void => {
       handlingCompletionRef.current = true;
 
       if (prev.mode === "focus") {
-        logSession("focus", prev.durationMs);
-
-        if (settings.hapticsEnabled) {
-          void Haptics.notificationAsync(
-            Haptics.NotificationFeedbackType.Success
-          );
-        }
+        recordFocusCompletion(prev.durationMs);
       }
 
       const completedAfter =
@@ -144,7 +151,7 @@ export const useTimerPersistence = (): void => {
     }
 
     prevStateRef.current = state;
-  }, [state, persistSnapshot, logSession, settings, dispatch]);
+  }, [state, persistSnapshot, recordFocusCompletion, settings, dispatch]);
 
   useEffect(() => {
     if (!state.isRunning && state.remainingMs === state.durationMs) {

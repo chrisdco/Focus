@@ -22,7 +22,7 @@ import { getDaysBetween, toDateKey } from "../utils/timer";
 interface StatsContextValue {
   logs: SessionLog[];
   stats: Stats;
-  logSession: (mode: TimerMode, durationMs: number) => void;
+  logSession: (mode: TimerMode, durationMs: number, taskId?: string) => void;
   getWeeklyFocusCounts: () => number[];
   resetStats: () => void;
   isHydrated: boolean;
@@ -118,13 +118,14 @@ export const StatsProvider: React.FC<StatsProviderProps> = ({ children }) => {
   }, []);
 
   const logSession = useCallback(
-    (mode: TimerMode, durationMs: number) => {
+    (mode: TimerMode, durationMs: number, taskId?: string) => {
       setLogs((prevLogs) => {
         const entry: SessionLog = {
           id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
           mode,
           durationMs,
           completedAt: Date.now(),
+          ...(taskId ? { taskId } : {}),
         };
         const nextLogs = [...prevLogs, entry];
         const nextStats = deriveStats(nextLogs);

@@ -11,6 +11,7 @@ import {
 
 import { useSettings } from "../../context/SettingsContext";
 import { useStats } from "../../context/StatsContext";
+import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import { clearAllData } from "../../storage";
 import { cardElevation } from "../../theme/shadows";
@@ -74,6 +75,7 @@ const SettingsScreen: React.FC = () => {
   const { colors, isDark } = useTheme();
   const { settings, updateSettings, resetSettings } = useSettings();
   const { resetStats } = useStats();
+  const { resetTasks } = useTasks();
 
   const screenStyles = useMemo(
     () =>
@@ -148,6 +150,7 @@ const SettingsScreen: React.FC = () => {
           onPress: () => {
             void clearAllData();
             resetStats();
+            resetTasks();
             resetSettings();
           },
         },
