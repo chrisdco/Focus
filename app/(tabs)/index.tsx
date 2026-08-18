@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Alert, AppState, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -11,7 +11,10 @@ import { CircularTimer } from "../../components/timer/CircularTimer";
 import { TimerButton } from "../../components/timer/TimerButton";
 import { ActiveTaskPicker } from "../../components/tasks/ActiveTaskPicker";
 import { DailyGoalProgress } from "../../components/stats/DailyGoalProgress";
+import { FocusBackground } from "../../components/focus/FocusBackground";
+import { SoundMixer } from "../../components/focus/SoundMixer";
 import { useFocusMode } from "../../context/FocusModeContext";
+import { useSettings } from "../../context/SettingsContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import { usePomodoroTimer } from "../../hooks/usePomodoroTimer";
@@ -22,9 +25,11 @@ import { formatDurationLabel } from "../../utils/timer";
 
 const TimerScreen: React.FC = () => {
   const { colors, modeColors } = useTheme();
+  const { settings } = useSettings();
   const { isFocusMode } = useFocusMode();
   const { activeTask } = useTasks();
   const [taskPickerVisible, setTaskPickerVisible] = useState(false);
+  const [appIsActive, setAppIsActive] = useState(AppState.currentState === "active");
   const {
     isRunning,
     remainingMs,
@@ -43,6 +48,14 @@ const TimerScreen: React.FC = () => {
   const [showCelebration, setShowCelebration] = useState(false);
 
   useSessionSound(justCompleted);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextState) => {
+      setAppIsActive(nextState === "active");
+    });
+
+    return () => subscription.remove();
+  }, []);
 
   const personalityMessage = usePersonalityMessage({
     mode,
@@ -196,10 +209,17 @@ const TimerScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <FocusBackground
+        active={isFocusMode && settings.focusAnimationsEnabled}
+        paused={!appIsActive}
+      />
+
       <View style={styles.container}>
         {!isFocusMode && <Text style={styles.title}>Foco</Text>}
 
         {!isFocusMode && <DailyGoalProgress />}
+
+        {!isFocusMode && settings.ambientSoundEnabled && <SoundMixer />}
 
         {isFocusMode && (
           <Text style={styles.focusBadge}>Focus mode</Text>

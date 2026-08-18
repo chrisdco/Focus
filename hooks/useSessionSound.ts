@@ -1,15 +1,22 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { AppState } from "react-native";
-import { Audio } from "expo-av";
+import { setAudioModeAsync, useAudioPlayer } from "expo-audio";
 
 import { useSettings } from "../context/SettingsContext";
 
 export const useSessionSound = (justCompleted: boolean): void => {
   const { settings } = useSettings();
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const player = useAudioPlayer(require("../assets/sounds/complete.mp3"));
 
-  const playCompletionSound = useCallback(async () => {
-    if (!settings.soundEnabled) {
+  useEffect(() => {
+    void setAudioModeAsync({
+      playsInSilentMode: true,
+      interruptionMode: "mixWithOthers",
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!justCompleted || !settings.soundEnabled) {
       return;
     }
 
@@ -18,45 +25,11 @@ export const useSessionSound = (justCompleted: boolean): void => {
     }
 
     try {
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
-      }
-
-      await Audio.setAudioModeAsync({
-        playsInSilentModeIOS: true,
-        shouldDuckAndroid: true,
-      });
-
-      const { sound } = await Audio.Sound.createAsync(
-        require("../assets/sounds/complete.mp3"),
-        { shouldPlay: true, volume: 0.8 }
-      );
-
-      soundRef.current = sound;
-
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          void sound.unloadAsync();
-          soundRef.current = null;
-        }
-      });
+      player.seekTo(0);
+      player.volume = 0.8;
+      player.play();
     } catch {
       // Audio playback is best-effort; never block the timer flow.
     }
-  }, [settings.soundEnabled]);
-
-  useEffect(() => {
-    if (justCompleted) {
-      void playCompletionSound();
-    }
-  }, [justCompleted, playCompletionSound]);
-
-  useEffect(() => {
-    return () => {
-      if (soundRef.current) {
-        void soundRef.current.unloadAsync();
-      }
-    };
-  }, []);
+  }, [justCompleted, player, settings.soundEnabled]);
 };

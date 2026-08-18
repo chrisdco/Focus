@@ -224,6 +224,34 @@ const SettingsScreen: React.FC = () => {
         </View>
 
         <View style={screenStyles.section}>
+          <Text style={screenStyles.sectionTitle}>Focus environment</Text>
+          <ToggleRow
+            colors={colors}
+            label="Ambient sounds"
+            value={settings.ambientSoundEnabled}
+            onValueChange={(v) => updateSettings({ ambientSoundEnabled: v })}
+          />
+          <ToggleRow
+            colors={colors}
+            label="Auto-play on focus start"
+            value={settings.autoPlaySoundscape}
+            onValueChange={(v) => updateSettings({ autoPlaySoundscape: v })}
+          />
+          <ToggleRow
+            colors={colors}
+            label="Continue during breaks"
+            value={settings.continueSoundscapeOnBreak}
+            onValueChange={(v) => updateSettings({ continueSoundscapeOnBreak: v })}
+          />
+          <ToggleRow
+            colors={colors}
+            label="Focus background animation"
+            value={settings.focusAnimationsEnabled}
+            onValueChange={(v) => updateSettings({ focusAnimationsEnabled: v })}
+          />
+        </View>
+
+        <View style={screenStyles.section}>
           <Text style={screenStyles.sectionTitle}>Preferences</Text>
           <ToggleRow
             colors={colors}

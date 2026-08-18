@@ -13,7 +13,7 @@ import {
   saveSettings,
 } from "../storage";
 import type { Settings } from "../types/settings";
-import { DEFAULT_SETTINGS } from "../types/settings";
+import { DEFAULT_SETTINGS, normalizeSoundMix } from "../types/settings";
 
 interface SettingsContextValue {
   settings: Settings;
@@ -48,7 +48,13 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
 
   const updateSettings = useCallback((patch: Partial<Settings>) => {
     setSettings((prev) => {
-      const next = { ...prev, ...patch };
+      const next = {
+        ...prev,
+        ...patch,
+        ...(patch.soundMix
+          ? { soundMix: normalizeSoundMix(patch.soundMix) }
+          : {}),
+      };
       void saveSettings(next);
       return next;
     });
