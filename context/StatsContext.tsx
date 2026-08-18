@@ -8,29 +8,63 @@ import React, {
   useState,
 } from "react";
 
+import { ACHIEVEMENTS, evaluateAchievements } from "../data/achievements";
 import {
+  formatPeriodDelta,
+  getFocusActivityByDay,
+  getFocusByTaskProject,
+  getPeriodStats,
+  getPersonalRecords,
+  getProductivityByHour,
+  getProductivityByWeekday,
+  getRecentSessions,
+  getTodayPomodoroCount,
+  type PeriodStats,
+  type PersonalRecords,
+  type ProjectFocusStat,
+  type StatsPeriod,
+} from "../domain/statsCalculator";
+import {
+  loadAchievements,
   loadSessionLogs,
   loadStats,
+  saveAchievements,
   saveSessionLogs,
   saveStats,
 } from "../storage";
+import type { AchievementProgress } from "../types/achievements";
 import type { SessionLog, Stats } from "../types/stats";
 import { createInitialStats } from "../types/stats";
 import type { TimerMode } from "../types/timer";
 import { getDaysBetween, toDateKey } from "../utils/timer";
+import { useSettings } from "./SettingsContext";
 
 interface StatsContextValue {
   logs: SessionLog[];
   stats: Stats;
   logSession: (mode: TimerMode, durationMs: number, taskId?: string) => void;
   getWeeklyFocusCounts: () => number[];
+  getTodayPomodoroCount: () => number;
+  getPeriodStats: (period: StatsPeriod) => PeriodStats;
+  formatPeriodDelta: (current: number, previous: number) => string;
+  getHeatmapActivity: (weeks: number) => ReturnType<typeof getFocusActivityByDay>;
+  getPersonalRecords: () => PersonalRecords;
+  getProductivityByHour: () => number[];
+  getProductivityByWeekday: () => number[];
+  getFocusByProject: (
+    resolveProject: (taskId: string) => { id: string; name: string } | null
+  ) => ProjectFocusStat[];
+  getRecentSessions: (limit?: number) => SessionLog[];
+  achievements: AchievementProgress[];
   resetStats: () => void;
   isHydrated: boolean;
 }
 
 const StatsContext = createContext<StatsContextValue | undefined>(undefined);
 
-const computeStreak = (logs: SessionLog[]): Pick<Stats, "currentStreak" | "longestStreak" | "lastCompletedDate"> => {
+const computeStreak = (
+  logs: SessionLog[]
+): Pick<Stats, "currentStreak" | "longestStreak" | "lastCompletedDate"> => {
   const focusDates = [
     ...new Set(
       logs
@@ -95,27 +129,72 @@ interface StatsProviderProps {
 }
 
 export const StatsProvider: React.FC<StatsProviderProps> = ({ children }) => {
+  const { settings } = useSettings();
   const [logs, setLogs] = useState<SessionLog[]>([]);
   const [stats, setStats] = useState<Stats>(createInitialStats());
+  const [unlockedMap, setUnlockedMap] = useState<Record<string, number>>({});
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     const hydrate = async () => {
-      const [storedLogs, storedStats] = await Promise.all([
+      const [storedLogs, storedStats, storedAchievements] = await Promise.all([
         loadSessionLogs(),
         loadStats(),
+        loadAchievements(),
       ]);
       setLogs(storedLogs);
-      setStats(storedStats.totalFocusSessions > 0 ? storedStats : deriveStats(storedLogs));
+      setStats(
+        storedStats.totalFocusSessions > 0
+          ? storedStats
+          : deriveStats(storedLogs)
+      );
+      setUnlockedMap(storedAchievements);
       setIsHydrated(true);
     };
 
     void hydrate();
   }, []);
 
-  const persist = useCallback(async (nextLogs: SessionLog[], nextStats: Stats) => {
-    await Promise.all([saveSessionLogs(nextLogs), saveStats(nextStats)]);
-  }, []);
+  const persist = useCallback(
+    async (
+      nextLogs: SessionLog[],
+      nextStats: Stats,
+      nextAchievements?: Record<string, number>
+    ) => {
+      await Promise.all([
+        saveSessionLogs(nextLogs),
+        saveStats(nextStats),
+        nextAchievements
+          ? saveAchievements(nextAchievements)
+          : Promise.resolve(),
+      ]);
+    },
+    []
+  );
+
+  const unlockAchievements = useCallback(
+    (nextStats: Stats, nextLogs: SessionLog[], currentUnlocked: Record<string, number>) => {
+      const todayCount = getTodayPomodoroCount(nextLogs);
+      const newly = evaluateAchievements(
+        nextStats,
+        todayCount,
+        settings.dailyPomodoroGoal,
+        new Set(Object.keys(currentUnlocked))
+      );
+
+      if (newly.length === 0) {
+        return currentUnlocked;
+      }
+
+      const updated = { ...currentUnlocked };
+      const now = Date.now();
+      for (const id of newly) {
+        updated[id] = now;
+      }
+      return updated;
+    },
+    [settings.dailyPomodoroGoal]
+  );
 
   const logSession = useCallback(
     (mode: TimerMode, durationMs: number, taskId?: string) => {
@@ -129,40 +208,42 @@ export const StatsProvider: React.FC<StatsProviderProps> = ({ children }) => {
         };
         const nextLogs = [...prevLogs, entry];
         const nextStats = deriveStats(nextLogs);
+
         setStats(nextStats);
-        void persist(nextLogs, nextStats);
+        setUnlockedMap((prevUnlocked) => {
+          const nextAchievements = unlockAchievements(
+            nextStats,
+            nextLogs,
+            prevUnlocked
+          );
+          void persist(nextLogs, nextStats, nextAchievements);
+          return nextAchievements;
+        });
+
         return nextLogs;
       });
     },
-    [persist]
+    [persist, unlockAchievements]
   );
 
   const getWeeklyFocusCounts = useCallback((): number[] => {
-    const counts = Array.from({ length: 7 }, () => 0);
-    const now = new Date();
-
-    for (const log of logs) {
-      if (log.mode !== "focus") {
-        continue;
-      }
-
-      const logDate = new Date(log.completedAt);
-      const diffDays = Math.floor(
-        (now.getTime() - logDate.getTime()) / (24 * 60 * 60 * 1000)
-      );
-
-      if (diffDays >= 0 && diffDays < 7) {
-        counts[6 - diffDays] += 1;
-      }
-    }
-
-    return counts;
+    const activity = getFocusActivityByDay(logs, 7);
+    return activity.map((day) => day.pomodoros);
   }, [logs]);
+
+  const achievements = useMemo((): AchievementProgress[] => {
+    return ACHIEVEMENTS.map((achievement) => ({
+      achievement,
+      unlocked: achievement.id in unlockedMap,
+      unlockedAt: unlockedMap[achievement.id] ?? null,
+    }));
+  }, [unlockedMap]);
 
   const resetStats = useCallback(() => {
     setLogs([]);
     setStats(createInitialStats());
-    void persist([], createInitialStats());
+    setUnlockedMap({});
+    void persist([], createInitialStats(), {});
   }, [persist]);
 
   const value = useMemo(
@@ -171,10 +252,31 @@ export const StatsProvider: React.FC<StatsProviderProps> = ({ children }) => {
       stats,
       logSession,
       getWeeklyFocusCounts,
+      getTodayPomodoroCount: () => getTodayPomodoroCount(logs),
+      getPeriodStats: (period: StatsPeriod) => getPeriodStats(logs, period),
+      formatPeriodDelta,
+      getHeatmapActivity: (weeks: number) =>
+        getFocusActivityByDay(logs, weeks * 7),
+      getPersonalRecords: () => getPersonalRecords(logs),
+      getProductivityByHour: () => getProductivityByHour(logs),
+      getProductivityByWeekday: () => getProductivityByWeekday(logs),
+      getFocusByProject: (
+        resolveProject: (taskId: string) => { id: string; name: string } | null
+      ) => getFocusByTaskProject(logs, resolveProject),
+      getRecentSessions: (limit?: number) => getRecentSessions(logs, limit),
+      achievements,
       resetStats,
       isHydrated,
     }),
-    [logs, stats, logSession, getWeeklyFocusCounts, resetStats, isHydrated]
+    [
+      logs,
+      stats,
+      logSession,
+      getWeeklyFocusCounts,
+      achievements,
+      resetStats,
+      isHydrated,
+    ]
   );
 
   return (

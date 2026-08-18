@@ -6,4 +6,5 @@ export const STORAGE_KEYS = {
   tasks: "@foco/tasks",
   projects: "@foco/projects",
   activeTaskId: "@foco/activeTaskId",
+  achievements: "@foco/achievements",
 } as const;

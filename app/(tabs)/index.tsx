@@ -10,6 +10,7 @@ import { CelebrationOverlay } from "../../components/timer/CelebrationOverlay";
 import { CircularTimer } from "../../components/timer/CircularTimer";
 import { TimerButton } from "../../components/timer/TimerButton";
 import { ActiveTaskPicker } from "../../components/tasks/ActiveTaskPicker";
+import { DailyGoalProgress } from "../../components/stats/DailyGoalProgress";
 import { useFocusMode } from "../../context/FocusModeContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -193,6 +194,8 @@ const TimerScreen: React.FC = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         {!isFocusMode && <Text style={styles.title}>Foco</Text>}
+
+        {!isFocusMode && <DailyGoalProgress />}
 
         {isFocusMode && (
           <Text style={styles.focusBadge}>Focus mode</Text>

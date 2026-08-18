@@ -9,6 +9,7 @@ export interface Settings {
   notificationsEnabled: boolean;
   autoStartNextSession: boolean;
   autoEnterFocusMode: boolean;
+  dailyPomodoroGoal: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -22,4 +23,5 @@ export const DEFAULT_SETTINGS: Settings = {
   notificationsEnabled: true,
   autoStartNextSession: false,
   autoEnterFocusMode: true,
+  dailyPomodoroGoal: 8,
 };
