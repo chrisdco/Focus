@@ -25,7 +25,6 @@ export const FocusBackground: React.FC<FocusBackgroundProps> = ({
 
   React.useEffect(() => {
     if (active && !paused) {
-      // eslint-disable-next-line react-hooks/immutability -- Reanimated shared value
       drift.value = withRepeat(
         withSequence(
           withTiming(1, { duration: 8000, easing: Easing.inOut(Easing.sin) }),
