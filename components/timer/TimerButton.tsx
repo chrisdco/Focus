@@ -59,10 +59,13 @@ export const TimerButton: React.FC<TimerButtonProps> = ({
         style,
       ]}
       onPressIn={(event) => {
+        // Reanimated shared values are intentionally mutable outside React state.
+        // eslint-disable-next-line react-hooks/immutability -- Reanimated shared value
         scale.value = withSpring(0.95, { damping: 15, stiffness: 300 });
         onPressIn?.(event);
       }}
       onPressOut={(event) => {
+        // eslint-disable-next-line react-hooks/immutability -- Reanimated shared value
         scale.value = withSpring(1, { damping: 15, stiffness: 300 });
         onPressOut?.(event);
       }}

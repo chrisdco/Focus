@@ -54,21 +54,25 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
       return;
     }
 
-    if (initialTask) {
-      setDraft({
-        title: initialTask.title,
-        notes: initialTask.notes,
-        projectId: initialTask.projectId,
-        estimatedPomodoros: initialTask.estimatedPomodoros,
-        priority: initialTask.priority,
-        dueDate: initialTask.dueDate,
-        tags: initialTask.tags,
-      });
-      setTagsInput(initialTask.tags.join(", "));
-    } else {
-      setDraft(createEmptyTaskDraft());
-      setTagsInput("");
-    }
+    const resetTimer = setTimeout(() => {
+      if (initialTask) {
+        setDraft({
+          title: initialTask.title,
+          notes: initialTask.notes,
+          projectId: initialTask.projectId,
+          estimatedPomodoros: initialTask.estimatedPomodoros,
+          priority: initialTask.priority,
+          dueDate: initialTask.dueDate,
+          tags: initialTask.tags,
+        });
+        setTagsInput(initialTask.tags.join(", "));
+      } else {
+        setDraft(createEmptyTaskDraft());
+        setTagsInput("");
+      }
+    }, 0);
+
+    return () => clearTimeout(resetTimer);
   }, [visible, initialTask]);
 
   const styles = useMemo(
@@ -202,10 +206,19 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
     onClose();
   };
 
-  const todayKey = toDateKey(Date.now());
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowKey = toDateKey(tomorrow.getTime());
+  const { todayKey, tomorrowKey } = useMemo(() => {
+    if (!visible) {
+      return { todayKey: "", tomorrowKey: "" };
+    }
+
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return {
+      todayKey: toDateKey(today.getTime()),
+      tomorrowKey: toDateKey(tomorrow.getTime()),
+    };
+  }, [visible]);
 
   const isDueActive = (option: "none" | "today" | "tomorrow"): boolean => {
     if (option === "none") {

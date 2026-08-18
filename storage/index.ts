@@ -113,5 +113,5 @@ export const saveAchievements = async (
 };
 
 export const clearAllData = async (): Promise<void> => {
-  await AsyncStorage.removeMany(Object.values(STORAGE_KEYS));
+  await AsyncStorage.multiRemove(Object.values(STORAGE_KEYS));
 };

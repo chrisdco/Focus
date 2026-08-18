@@ -63,13 +63,17 @@ const TimerScreen: React.FC = () => {
   }));
 
   useEffect(() => {
-    if (justCompleted) {
-      setShowCelebration(true);
-      const timeout = setTimeout(() => setShowCelebration(false), 2500);
-      return () => clearTimeout(timeout);
+    if (!justCompleted) {
+      return undefined;
     }
 
-    return undefined;
+    const showTimer = setTimeout(() => setShowCelebration(true), 0);
+    const hideTimer = setTimeout(() => setShowCelebration(false), 2500);
+
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(hideTimer);
+    };
   }, [justCompleted]);
 
   const handlePrimaryPress = () => {
