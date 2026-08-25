@@ -20,5 +20,3 @@ export const SOUNDSCAPE_PRESETS: SoundscapePreset[] = [
     ],
   },
 ];
-
-export const DEFAULT_SOUND_MIX = SOUNDSCAPE_PRESETS[0].layers;

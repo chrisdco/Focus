@@ -50,9 +50,6 @@ export const lightColors: ColorPalette = {
   overlay: "rgba(17, 24, 39, 0.42)",
 };
 
-/** @deprecated Use useTheme() instead */
-export const colors = darkColors;
-
 export const getModeColors = (
   palette: ColorPalette
 ): Record<TimerMode, string> => ({

@@ -20,14 +20,12 @@ export type TimerAction =
       nextDurationMs: number;
       sessionsBeforeLongBreak: number;
     }
-  | { type: "SWITCH_MODE"; mode: TimerMode; durationMs: number }
   | {
       type: "SKIP";
       nextMode: TimerMode;
       nextDurationMs: number;
       completedFocusSessions: number;
-    }
-  | { type: "HYDRATE"; snapshot: TimerSnapshot };
+    };
 
 export interface TimerSnapshot {
   isRunning: boolean;
