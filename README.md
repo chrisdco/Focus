@@ -42,4 +42,5 @@ Then open Expo Go, an emulator, or a development build. Duration and mix changes
 |---------|---------|
 | `npm start` | Expo dev server |
 | `npm run lint` | ESLint via `expo lint` |
+| `npm test` | Vitest unit tests (domain logic, reducer, helpers) |
 | `npx expo-doctor` | SDK / dependency checks |
