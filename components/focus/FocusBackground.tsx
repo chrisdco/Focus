@@ -36,7 +36,6 @@ export const FocusBackground: React.FC<FocusBackgroundProps> = ({
       return;
     }
 
-    // eslint-disable-next-line react-hooks/immutability -- Reanimated shared value
     drift.value = withTiming(0, { duration: 400 });
   }, [active, paused, drift]);
 

@@ -1,50 +1,45 @@
-# Welcome to your Expo app 👋
+# Foco
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A Pomodoro focus app built with Expo Router and TypeScript. Timer, tasks, stats, and focus-environment audio share one session log and one settings store — later milestones extend the same loop rather than adding disconnected screens.
 
-## Get started
+## How it fits together
 
-1. Install dependencies
+Starting a focus session is the hub. Everything else hangs off that:
 
-   ```bash
-   npm install
-   ```
+1. Choose an **active task** on the timer (M2).
+2. Run the session. On complete, Foco logs the session (with `taskId` when set), increments the task’s pomodoro count, updates streaks/goals/achievements (M3), and can play a completion chime.
+3. Stats charts (period totals, heatmap, project breakdown, timeline) read those same logs.
+4. If ambient audio is on, the last mix fades in when focus starts and fades out when it ends (M4).
 
-2. Start the app
+Settings (durations, daily goal, theme, soundscape mix, animation toggle) persist locally and apply across screens.
 
-   ```bash
-   npx expo start
-   ```
+| Milestone | What shipped | Wired into |
+|-----------|--------------|------------|
+| **M1** Core timer | Modes, skip, auto-start, immersive focus, theme, completion sound | Timer tab, settings, notifications |
+| **M2** Tasks & projects | Inbox / Today / Completed, projects, task form, active task | Timer → logs `taskId`; completing focus increments the task |
+| **M3** Analytics & goals | Daily goal widget, period stats, heatmap, records, project breakdown, achievements | Stats from session logs; goal from settings |
+| **M4** Focus environment | Ambient mixer, auto-play on focus, background animation | Timer + settings; pauses when the app backgrounds |
 
-In the output, you'll find options to open the app in a
+Still open on the roadmap: personalization (M5), calendar (M6), sync/export (M7), blocking (M8), social (M9), AI (M10).
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Stack
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Expo SDK 57, React Native 0.86, React 19.2
+- Expo Router, Reanimated, `expo-audio`, `expo-notifications`, AsyncStorage
 
-## Get a fresh project
-
-When you're ready, run:
+## Run
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Then open Expo Go, an emulator, or a development build. Duration and mix changes apply to future / next playback, not the in-progress session.
 
-## Learn more
+## Scripts
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+| Command | Purpose |
+|---------|---------|
+| `npm start` | Expo dev server |
+| `npm run lint` | ESLint via `expo lint` |
+| `npx expo-doctor` | SDK / dependency checks |
