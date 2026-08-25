@@ -12,7 +12,10 @@ import { getNextMode } from "../domain/timerMachine";
 import type { Settings } from "../types/settings";
 import { DEFAULT_SETTINGS } from "../types/settings";
 import type { TimerAction, TimerSnapshot, TimerState } from "../types/timer";
-import { createInitialTimerState } from "../utils/timer";
+import {
+  createInitialTimerState,
+  hydrateFromSnapshot,
+} from "../utils/timer";
 
 interface TimerContextValue {
   state: TimerState;
@@ -23,7 +26,10 @@ interface TimerContextValue {
 
 const TimerContext = createContext<TimerContextValue | undefined>(undefined);
 
-const timerReducer = (state: TimerState, action: TimerAction): TimerState => {
+export const timerReducer = (
+  state: TimerState,
+  action: TimerAction
+): TimerState => {
   switch (action.type) {
     case "START": {
       if (state.isRunning) {
@@ -116,16 +122,6 @@ const timerReducer = (state: TimerState, action: TimerAction): TimerState => {
         expectedEndTime: null,
       };
     }
-    case "SWITCH_MODE": {
-      return {
-        ...state,
-        isRunning: false,
-        mode: action.mode,
-        durationMs: action.durationMs,
-        remainingMs: action.durationMs,
-        expectedEndTime: null,
-      };
-    }
     case "SKIP": {
       return {
         ...state,
@@ -135,38 +131,6 @@ const timerReducer = (state: TimerState, action: TimerAction): TimerState => {
         durationMs: action.nextDurationMs,
         remainingMs: action.nextDurationMs,
         expectedEndTime: null,
-      };
-    }
-    case "HYDRATE": {
-      const snapshot = action.snapshot;
-      const now = Date.now();
-
-      if (
-        snapshot.isRunning &&
-        snapshot.expectedEndTime !== null &&
-        snapshot.expectedEndTime <= now
-      ) {
-        return {
-          ...state,
-          ...snapshot,
-          isRunning: false,
-          remainingMs: 0,
-          expectedEndTime: null,
-        };
-      }
-
-      if (snapshot.isRunning && snapshot.expectedEndTime !== null) {
-        const remainingMs = Math.max(0, snapshot.expectedEndTime - now);
-        return {
-          ...state,
-          ...snapshot,
-          remainingMs,
-        };
-      }
-
-      return {
-        ...state,
-        ...snapshot,
       };
     }
     default: {
@@ -192,38 +156,7 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({
     const initial = createInitialTimerState(settings);
 
     if (initialSnapshot) {
-      const now = Date.now();
-
-      if (
-        initialSnapshot.isRunning &&
-        initialSnapshot.expectedEndTime !== null &&
-        initialSnapshot.expectedEndTime > now
-      ) {
-        return {
-          ...initial,
-          ...initialSnapshot,
-          remainingMs: Math.max(
-            0,
-            initialSnapshot.expectedEndTime - now
-          ),
-        };
-      }
-
-      if (
-        initialSnapshot.isRunning &&
-        initialSnapshot.expectedEndTime !== null &&
-        initialSnapshot.expectedEndTime <= now
-      ) {
-        return {
-          ...initial,
-          ...initialSnapshot,
-          isRunning: false,
-          remainingMs: 0,
-          expectedEndTime: null,
-        };
-      }
-
-      return { ...initial, ...initialSnapshot };
+      return hydrateFromSnapshot(initial, initialSnapshot, Date.now());
     }
 
     return initial;

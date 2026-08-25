@@ -1,6 +1,6 @@
 import type { Settings } from "../types/settings";
 import { DEFAULT_SETTINGS } from "../types/settings";
-import type { TimerState } from "../types/timer";
+import type { TimerSnapshot, TimerState } from "../types/timer";
 
 import { getDurationForMode } from "../domain/timerMachine";
 
@@ -51,4 +51,34 @@ export const getDaysBetween = (from: string, to: string): number => {
   const toDate = new Date(`${to}T00:00:00`);
   const diffMs = toDate.getTime() - fromDate.getTime();
   return Math.round(diffMs / (24 * 60 * 60 * 1000));
+};
+
+export const hydrateFromSnapshot = (
+  state: TimerState,
+  snapshot: TimerSnapshot,
+  now: number
+): TimerState => {
+  if (
+    snapshot.isRunning &&
+    snapshot.expectedEndTime !== null &&
+    snapshot.expectedEndTime <= now
+  ) {
+    return {
+      ...state,
+      ...snapshot,
+      isRunning: false,
+      remainingMs: 0,
+      expectedEndTime: null,
+    };
+  }
+
+  if (snapshot.isRunning && snapshot.expectedEndTime !== null) {
+    return {
+      ...state,
+      ...snapshot,
+      remainingMs: Math.max(0, snapshot.expectedEndTime - now),
+    };
+  }
+
+  return { ...state, ...snapshot };
 };

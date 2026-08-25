@@ -9,6 +9,7 @@ import {
   useTimerContext,
 } from "../context/TimerContext";
 import { getDurationForMode, getNextMode } from "../domain/timerMachine";
+import type { TimerMode } from "../types/timer";
 import {
   clearTimerSnapshot,
   loadTimerSnapshot,
@@ -41,41 +42,19 @@ export const useTimerPersistence = (): void => {
     [activeTaskId, incrementTaskPomodoros, logSession, settings.hapticsEnabled]
   );
 
-  const persistSnapshot = useCallback(async () => {
-    await saveTimerSnapshot(toTimerSnapshot(state));
-  }, [state]);
-
-  useEffect(() => {
-    if (expiredHandledRef.current) {
-      return;
-    }
-
-    const handleExpiredSnapshot = async () => {
-      const snapshot = await loadTimerSnapshot();
-
-      if (
-        !snapshot?.isRunning ||
-        snapshot.expectedEndTime === null ||
-        snapshot.expectedEndTime > Date.now()
-      ) {
-        expiredHandledRef.current = true;
-        return;
-      }
-
-      expiredHandledRef.current = true;
-      handlingCompletionRef.current = true;
-
-      if (snapshot.mode === "focus") {
-        recordFocusCompletion(snapshot.durationMs);
+  const completeAndAdvance = useCallback(
+    (mode: TimerMode, completedFocusSessions: number, durationMs: number) => {
+      if (mode === "focus") {
+        recordFocusCompletion(durationMs);
       }
 
       const completedAfter =
-        snapshot.mode === "focus"
-          ? snapshot.completedFocusSessions + 1
-          : snapshot.completedFocusSessions;
+        mode === "focus"
+          ? completedFocusSessions + 1
+          : completedFocusSessions;
 
       const nextMode = getNextMode(
-        snapshot.mode,
+        mode,
         completedAfter,
         settings.sessionsBeforeLongBreak
       );
@@ -91,12 +70,43 @@ export const useTimerPersistence = (): void => {
       if (settings.autoStartNextSession) {
         dispatch({ type: "START", now: Date.now() });
       }
+    },
+    [dispatch, recordFocusCompletion, settings]
+  );
 
+  const persistSnapshot = useCallback(async () => {
+    await saveTimerSnapshot(toTimerSnapshot(state));
+  }, [state]);
+
+  useEffect(() => {
+    if (expiredHandledRef.current) {
+      return;
+    }
+
+    const handleExpiredSnapshot = async () => {
+      const snapshot = await loadTimerSnapshot();
+
+      expiredHandledRef.current = true;
+
+      if (
+        !snapshot?.isRunning ||
+        snapshot.expectedEndTime === null ||
+        snapshot.expectedEndTime > Date.now()
+      ) {
+        return;
+      }
+
+      handlingCompletionRef.current = true;
+      completeAndAdvance(
+        snapshot.mode,
+        snapshot.completedFocusSessions,
+        snapshot.durationMs
+      );
       handlingCompletionRef.current = false;
     };
 
     void handleExpiredSnapshot();
-  }, [dispatch, recordFocusCompletion, settings]);
+  }, [completeAndAdvance]);
 
   useEffect(() => {
     const prev = prevStateRef.current;
@@ -119,39 +129,12 @@ export const useTimerPersistence = (): void => {
       !handlingCompletionRef.current
     ) {
       handlingCompletionRef.current = true;
-
-      if (prev.mode === "focus") {
-        recordFocusCompletion(prev.durationMs);
-      }
-
-      const completedAfter =
-        prev.mode === "focus"
-          ? prev.completedFocusSessions + 1
-          : prev.completedFocusSessions;
-
-      const nextMode = getNextMode(
-        prev.mode,
-        completedAfter,
-        settings.sessionsBeforeLongBreak
-      );
-      const nextDurationMs = getDurationForMode(nextMode, settings);
-
-      dispatch({
-        type: "COMPLETE_SESSION",
-        now: Date.now(),
-        nextDurationMs,
-        sessionsBeforeLongBreak: settings.sessionsBeforeLongBreak,
-      });
-
-      if (settings.autoStartNextSession) {
-        dispatch({ type: "START", now: Date.now() });
-      }
-
+      completeAndAdvance(prev.mode, prev.completedFocusSessions, prev.durationMs);
       handlingCompletionRef.current = false;
     }
 
     prevStateRef.current = state;
-  }, [state, persistSnapshot, recordFocusCompletion, settings, dispatch]);
+  }, [state, persistSnapshot, completeAndAdvance]);
 
   useEffect(() => {
     if (!state.isRunning && state.remainingMs === state.durationMs) {
