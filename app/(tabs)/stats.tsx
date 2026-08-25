@@ -9,6 +9,7 @@ import {
 } from "react-native";
 
 import { AchievementBadges } from "../../components/stats/AchievementBadges";
+import { BarChart } from "../../components/stats/BarChart";
 import { FocusHeatmap } from "../../components/stats/FocusHeatmap";
 import { ProjectBreakdown } from "../../components/stats/ProjectBreakdown";
 import { SessionTimeline } from "../../components/stats/SessionTimeline";
@@ -26,12 +27,17 @@ const PERIODS: { key: StatsPeriod; label: string }[] = [
 
 const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+const WEEKDAY_LABELS_BY_DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+const weekdayLabelForDateKey = (dateKey: string): string =>
+  WEEKDAY_LABELS_BY_DAY[new Date(`${dateKey}T00:00:00`).getDay()];
+
 const StatsScreen: React.FC = () => {
   const { colors, isDark } = useTheme();
   const { tasks, projects } = useTasks();
   const {
     stats,
-    getWeeklyFocusCounts,
+    getWeeklyActivity,
     getPeriodStats,
     formatPeriodDelta,
     getHeatmapActivity,
@@ -45,13 +51,11 @@ const StatsScreen: React.FC = () => {
 
   const [period, setPeriod] = useState<StatsPeriod>("week");
   const periodStats = getPeriodStats(period);
-  const weeklyCounts = getWeeklyFocusCounts();
-  const maxWeekCount = Math.max(...weeklyCounts, 1);
+  const weeklyActivity = getWeeklyActivity();
   const records = getPersonalRecords();
   const hourCounts = getProductivityByHour();
   const maxHour = Math.max(...hourCounts, 1);
   const weekdayCounts = getProductivityByWeekday();
-  const maxWeekday = Math.max(...weekdayCounts, 1);
 
   const projectStats = getFocusByProject((taskId) => {
     const task = tasks.find((item) => item.id === taskId);
@@ -159,37 +163,17 @@ const StatsScreen: React.FC = () => {
         },
         periodDelta: {
           fontSize: 13,
-          color: colors.shortBreak,
-          marginTop: 4,
-        },
-        chart: {
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "flex-end",
-          height: 120,
-        },
-        barColumn: {
-          flex: 1,
-          alignItems: "center",
-        },
-        barTrack: {
-          width: 20,
-          height: 80,
-          backgroundColor: colors.track,
-          borderRadius: 6,
-          justifyContent: "flex-end",
-          overflow: "hidden",
-        },
-        barFill: {
-          width: "100%",
-          backgroundColor: colors.focus,
-          borderRadius: 6,
-          minHeight: 4,
-        },
-        barLabel: {
-          fontSize: 10,
           color: colors.textMuted,
           marginTop: 4,
+        },
+        deltaUp: {
+          color: colors.shortBreak,
+        },
+        deltaDown: {
+          color: colors.danger,
+        },
+        deltaFlat: {
+          color: colors.textMuted,
         },
         miniChart: {
           flexDirection: "row",
@@ -234,6 +218,16 @@ const StatsScreen: React.FC = () => {
       return null;
     }
     return tasks.find((task) => task.id === taskId)?.title ?? null;
+  };
+
+  const deltaTone = (current: number, previous: number) => {
+    if (current > previous) {
+      return styles.deltaUp;
+    }
+    if (current < previous) {
+      return styles.deltaDown;
+    }
+    return styles.deltaFlat;
   };
 
   return (
@@ -285,15 +279,29 @@ const StatsScreen: React.FC = () => {
           </View>
           <Text style={styles.periodDelta}>
             vs previous {period}:{" "}
-            {formatPeriodDelta(
-              periodStats.pomodoros,
-              periodStats.previousPomodoros
-            )}{" "}
+            <Text
+              style={deltaTone(
+                periodStats.pomodoros,
+                periodStats.previousPomodoros
+              )}
+            >
+              {formatPeriodDelta(
+                periodStats.pomodoros,
+                periodStats.previousPomodoros
+              )}
+            </Text>{" "}
             sessions ·{" "}
-            {formatPeriodDelta(
-              periodStats.focusMinutes,
-              periodStats.previousFocusMinutes
-            )}{" "}
+            <Text
+              style={deltaTone(
+                periodStats.focusMinutes,
+                periodStats.previousFocusMinutes
+              )}
+            >
+              {formatPeriodDelta(
+                periodStats.focusMinutes,
+                periodStats.previousFocusMinutes
+              )}
+            </Text>{" "}
             focus time
           </Text>
         </View>
@@ -305,21 +313,12 @@ const StatsScreen: React.FC = () => {
               Complete a focus session to see your activity here.
             </Text>
           ) : (
-            <View style={styles.chart}>
-              {weeklyCounts.map((count, index) => (
-                <View key={WEEKDAY_LABELS[index]} style={styles.barColumn}>
-                  <View style={styles.barTrack}>
-                    <View
-                      style={[
-                        styles.barFill,
-                        { height: `${(count / maxWeekCount) * 100}%` },
-                      ]}
-                    />
-                  </View>
-                  <Text style={styles.barLabel}>{WEEKDAY_LABELS[index]}</Text>
-                </View>
-              ))}
-            </View>
+            <BarChart
+              values={weeklyActivity.map((day) => day.pomodoros)}
+              labels={weeklyActivity.map((day) =>
+                weekdayLabelForDateKey(day.dateKey)
+              )}
+            />
           )}
         </View>
 
@@ -373,21 +372,7 @@ const StatsScreen: React.FC = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Focus by weekday</Text>
-          <View style={styles.chart}>
-            {weekdayCounts.map((count, index) => (
-              <View key={WEEKDAY_LABELS[index]} style={styles.barColumn}>
-                <View style={styles.barTrack}>
-                  <View
-                    style={[
-                      styles.barFill,
-                      { height: `${(count / maxWeekday) * 100}%` },
-                    ]}
-                  />
-                </View>
-                <Text style={styles.barLabel}>{WEEKDAY_LABELS[index]}</Text>
-              </View>
-            ))}
-          </View>
+          <BarChart values={weekdayCounts} labels={WEEKDAY_LABELS} />
         </View>
 
         <View style={styles.section}>

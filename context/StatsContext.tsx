@@ -19,6 +19,7 @@ import {
   getProductivityByWeekday,
   getRecentSessions,
   getTodayPomodoroCount,
+  type DayActivity,
   type PeriodStats,
   type PersonalRecords,
   type ProjectFocusStat,
@@ -43,7 +44,7 @@ interface StatsContextValue {
   logs: SessionLog[];
   stats: Stats;
   logSession: (mode: TimerMode, durationMs: number, taskId?: string) => void;
-  getWeeklyFocusCounts: () => number[];
+  getWeeklyActivity: () => DayActivity[];
   getTodayPomodoroCount: () => number;
   getPeriodStats: (period: StatsPeriod) => PeriodStats;
   formatPeriodDelta: (current: number, previous: number) => string;
@@ -226,10 +227,10 @@ export const StatsProvider: React.FC<StatsProviderProps> = ({ children }) => {
     [persist, unlockAchievements]
   );
 
-  const getWeeklyFocusCounts = useCallback((): number[] => {
-    const activity = getFocusActivityByDay(logs, 7);
-    return activity.map((day) => day.pomodoros);
-  }, [logs]);
+  const getWeeklyActivity = useCallback(
+    (): DayActivity[] => getFocusActivityByDay(logs, 7),
+    [logs]
+  );
 
   const achievements = useMemo((): AchievementProgress[] => {
     return ACHIEVEMENTS.map((achievement) => ({
@@ -251,7 +252,7 @@ export const StatsProvider: React.FC<StatsProviderProps> = ({ children }) => {
       logs,
       stats,
       logSession,
-      getWeeklyFocusCounts,
+      getWeeklyActivity,
       getTodayPomodoroCount: () => getTodayPomodoroCount(logs),
       getPeriodStats: (period: StatsPeriod) => getPeriodStats(logs, period),
       formatPeriodDelta,
@@ -272,7 +273,7 @@ export const StatsProvider: React.FC<StatsProviderProps> = ({ children }) => {
       logs,
       stats,
       logSession,
-      getWeeklyFocusCounts,
+      getWeeklyActivity,
       achievements,
       resetStats,
       isHydrated,
