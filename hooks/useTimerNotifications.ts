@@ -32,13 +32,13 @@ export const useTimerNotifications = (): void => {
   useEffect(() => {
     const setup = async () => {
       const permissions = await Notifications.getPermissionsAsync();
-      const isGranted =
-        permissions.ios?.status ===
-          Notifications.IosAuthorizationStatus.AUTHORIZED ||
+
+      const granted =
+        permissions.granted ||
         permissions.ios?.status ===
           Notifications.IosAuthorizationStatus.PROVISIONAL;
 
-      if (!isGranted) {
+      if (!granted) {
         await Notifications.requestPermissionsAsync();
       }
     };
