@@ -61,5 +61,3 @@ export const SOUNDSCAPE_TRACKS: Record<SoundscapeId, SoundscapeTrack> = {
 export const SOUNDSCAPE_IDS = Object.keys(
   SOUNDSCAPE_TRACKS
 ) as SoundscapeId[];
-
-export const EMPTY_MIX: SoundMixLayer[] = [];
