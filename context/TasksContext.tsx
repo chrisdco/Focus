@@ -43,6 +43,7 @@ interface TasksContextValue {
   deleteTask: (taskId: string) => void;
   completeTask: (taskId: string) => void;
   incrementTaskPomodoros: (taskId: string) => void;
+  planTasksForDate: (taskIds: string[], dateKey: string) => void;
   createProject: (name: string, color: string) => Project;
   deleteProject: (projectId: string) => void;
   resetTasks: () => void;
@@ -212,6 +213,22 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
     [persistTasks]
   );
 
+  const planTasksForDate = useCallback(
+    (taskIds: string[], dateKey: string) => {
+      const selected = new Set(taskIds);
+      setTasks((prev) => {
+        const next = prev.map((task) =>
+          selected.has(task.id) && task.status === "active"
+            ? { ...task, dueDate: dateKey }
+            : task
+        );
+        void persistTasks(next);
+        return next;
+      });
+    },
+    [persistTasks]
+  );
+
   const createProject = useCallback(
     (name: string, color: string): Project => {
       const project: Project = {
@@ -293,6 +310,7 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
       deleteTask,
       completeTask,
       incrementTaskPomodoros,
+      planTasksForDate,
       createProject,
       deleteProject,
       resetTasks,
@@ -310,6 +328,7 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
       deleteTask,
       completeTask,
       incrementTaskPomodoros,
+      planTasksForDate,
       createProject,
       deleteProject,
       resetTasks,
