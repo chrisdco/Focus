@@ -43,11 +43,12 @@ const TimerScreen: React.FC = () => {
     skipBreak,
     skipFocus,
     justCompleted,
+    completedMode,
   } = usePomodoroTimer();
 
   const [showCelebration, setShowCelebration] = useState(false);
 
-  useSessionSound(justCompleted);
+  useSessionSound(justCompleted, completedMode);
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextState) => {
@@ -118,6 +119,8 @@ const TimerScreen: React.FC = () => {
   const canReset = remainingMs !== durationMs || isRunning;
   const showSkip = isRunning || remainingMs !== durationMs;
   const skipLabel = mode === "focus" ? "Skip" : "Skip break";
+  const isMinimalLayout = settings.timerLayout === "minimal";
+  const showChrome = !isFocusMode && !isMinimalLayout;
 
   const styles = useMemo(
     () =>
@@ -215,26 +218,32 @@ const TimerScreen: React.FC = () => {
       />
 
       <View style={styles.container}>
-        {!isFocusMode && <Text style={styles.title}>Foco</Text>}
+        {showChrome && <Text style={styles.title}>Foco</Text>}
 
-        {!isFocusMode && <DailyGoalProgress />}
+        {showChrome && <DailyGoalProgress />}
 
-        {!isFocusMode && settings.ambientSoundEnabled && <SoundMixer />}
+        {showChrome && settings.ambientSoundEnabled && <SoundMixer />}
 
         {isFocusMode && (
           <Text style={styles.focusBadge}>Focus mode</Text>
         )}
 
-        {mode === "focus" && !isFocusMode && (
+        {mode === "focus" && showChrome && (
           <Text style={styles.sessionCounter}>
             Session {sessionNumber} of {sessionsBeforeLongBreak}
           </Text>
         )}
 
-        {!isFocusMode && (
+        {showChrome && (
           <Pressable
             style={styles.activeTaskButton}
             onPress={() => setTaskPickerVisible(true)}
+            accessibilityRole="button"
+            accessibilityLabel={
+              activeTask
+                ? `Working on ${activeTask.title}`
+                : "Choose a task"
+            }
           >
             <Text style={styles.activeTaskLabel}>
               {activeTask ? "Working on" : "Choose a task"}
@@ -264,13 +273,13 @@ const TimerScreen: React.FC = () => {
         </Animated.View>
 
         <View style={styles.controls}>
-          {!isFocusMode && (
+          {showChrome && (
             <Text style={[styles.modeLabel, { color: accentColor }]}>
               {modeLabels[mode]} • {formatDurationLabel(durationMs)}
             </Text>
           )}
 
-          {!isFocusMode && personalityMessage.length > 0 && (
+          {showChrome && personalityMessage.length > 0 && (
             <Text style={styles.personalityMessage}>{personalityMessage}</Text>
           )}
 
@@ -280,15 +289,16 @@ const TimerScreen: React.FC = () => {
               variant="primary"
               style={{ backgroundColor: accentColor }}
               onPress={handlePrimaryPress}
+              accessibilityLabel={`${primaryLabel} ${modeLabels[mode]} timer`}
             />
-            {showSkip && (
+            {showSkip && (isFocusMode || !isMinimalLayout) && (
               <TimerButton
                 label={skipLabel}
                 variant="secondary"
                 onPress={handleSkipPress}
               />
             )}
-            {!isFocusMode && (
+            {showChrome && (
               <TimerButton
                 label="Reset"
                 variant="secondary"

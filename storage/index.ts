@@ -3,7 +3,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { SessionLog, Stats } from "../types/stats";
 import { createInitialStats } from "../types/stats";
 import type { Settings } from "../types/settings";
-import { DEFAULT_SETTINGS, normalizeSoundMix } from "../types/settings";
+import {
+  DEFAULT_SETTINGS,
+  normalizeAccentId,
+  normalizeBreakSoundId,
+  normalizeCompletionSoundId,
+  normalizeSoundMix,
+  normalizeTimerLayout,
+} from "../types/settings";
 import type { Project, Task } from "../types/task";
 import { createDefaultProject } from "../types/task";
 import type { TimerSnapshot } from "../types/timer";
@@ -95,6 +102,10 @@ export const loadSettings = async (): Promise<Settings> => {
     ...DEFAULT_SETTINGS,
     ...stored,
     soundMix: normalizeSoundMix(stored.soundMix ?? DEFAULT_SETTINGS.soundMix),
+    accentId: normalizeAccentId(stored.accentId),
+    timerLayout: normalizeTimerLayout(stored.timerLayout),
+    completionSoundId: normalizeCompletionSoundId(stored.completionSoundId),
+    breakSoundId: normalizeBreakSoundId(stored.breakSoundId),
   };
 };
 

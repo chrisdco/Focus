@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
+import { EmptyState } from "../ui/EmptyState";
 import { useTheme } from "../../context/ThemeContext";
 import type { SessionLog } from "../../types/stats";
 import { formatTime } from "../../utils/timer";
@@ -42,19 +43,16 @@ export const SessionTimeline: React.FC<SessionTimelineProps> = ({
           fontWeight: "600",
           color: colors.focus,
         },
-        empty: {
-          fontSize: 14,
-          color: colors.textMuted,
-          textAlign: "center",
-          paddingVertical: 16,
-        },
       }),
     [colors]
   );
 
   if (sessions.length === 0) {
     return (
-      <Text style={styles.empty}>No sessions logged yet.</Text>
+      <EmptyState
+        title="No recent sessions"
+        message="Finished pomodoros will list here."
+      />
     );
   }
 
@@ -67,9 +65,7 @@ export const SessionTimeline: React.FC<SessionTimelineProps> = ({
         return (
           <View key={session.id} style={styles.row}>
             <View style={{ flex: 1, paddingRight: 12 }}>
-              <Text style={styles.title}>
-                {taskTitle ?? "Focus session"}
-              </Text>
+              <Text style={styles.title}>{taskTitle ?? "Focus session"}</Text>
               <Text style={styles.meta}>
                 {date.toLocaleDateString()} ·{" "}
                 {date.toLocaleTimeString([], {
@@ -78,9 +74,7 @@ export const SessionTimeline: React.FC<SessionTimelineProps> = ({
                 })}
               </Text>
             </View>
-            <Text style={styles.duration}>
-              {formatTime(session.durationMs)}
-            </Text>
+            <Text style={styles.duration}>{formatTime(session.durationMs)}</Text>
           </View>
         );
       })}

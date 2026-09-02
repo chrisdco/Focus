@@ -10,6 +10,7 @@ import Animated, {
 import Svg, { Circle } from "react-native-svg";
 
 import { useTheme } from "../../context/ThemeContext";
+import { modeLabels } from "../../theme/colors";
 import type { TimerMode } from "../../types/timer";
 import { formatTime } from "../../utils/timer";
 
@@ -120,7 +121,13 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({
             />
           </Svg>
         </Animated.View>
-        <View style={styles.timeOverlay}>
+        <View
+          style={styles.timeOverlay}
+          accessible
+          accessibilityRole="timer"
+          accessibilityLabel={`${modeLabels[mode]}, ${formatted} remaining`}
+          accessibilityLiveRegion="polite"
+        >
           <Text style={[styles.timeText, { color: colors.text, fontSize: enlarged ? 56 : 48 }]}>
             {formatted}
           </Text>
