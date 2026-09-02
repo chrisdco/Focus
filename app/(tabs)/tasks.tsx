@@ -11,6 +11,7 @@ import { router } from "expo-router";
 
 import { TaskFormModal } from "../../components/tasks/TaskFormModal";
 import { TaskRow } from "../../components/tasks/TaskRow";
+import { EmptyState } from "../../components/ui/EmptyState";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import type { Task, TaskView } from "../../types/task";
@@ -222,18 +223,26 @@ const TasksScreen: React.FC = () => {
             />
           )}
           ListEmptyComponent={
-            <Text style={styles.empty}>
-              {view === "completed"
-                ? "Completed tasks will appear here."
-                : "Add a task to start tracking your focus work."}
-            </Text>
+            <EmptyState
+              title={view === "completed" ? "No completed tasks" : "No tasks yet"}
+              message={
+                view === "completed"
+                  ? "Finished tasks will show up here."
+                  : "Add a task, then start it from here or from the timer."
+              }
+            />
           }
           contentContainerStyle={{ paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
         />
       </View>
 
-      <Pressable style={styles.addButton} onPress={openCreate}>
+      <Pressable
+        style={styles.addButton}
+        onPress={openCreate}
+        accessibilityRole="button"
+        accessibilityLabel="Add task"
+      >
         <Text style={styles.addLabel}>+</Text>
       </Pressable>
 

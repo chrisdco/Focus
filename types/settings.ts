@@ -1,4 +1,19 @@
+import {
+  DEFAULT_ACCENT_ID,
+  isAccentId,
+  type AccentId,
+} from "../theme/accents";
+import {
+  DEFAULT_BREAK_SOUND,
+  DEFAULT_COMPLETION_SOUND,
+  isBreakSoundId,
+  isCompletionSoundId,
+  type BreakSoundId,
+  type CompletionSoundId,
+} from "./cues";
 import type { SoundMixLayer, SoundscapeId } from "./soundscape";
+
+export type TimerLayout = "standard" | "minimal";
 
 export interface Settings {
   focusDurationMinutes: number;
@@ -18,6 +33,10 @@ export interface Settings {
   focusAnimationsEnabled: boolean;
   soundMix: SoundMixLayer[];
   activePresetId: string | null;
+  accentId: AccentId;
+  timerLayout: TimerLayout;
+  completionSoundId: CompletionSoundId;
+  breakSoundId: BreakSoundId;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -38,6 +57,10 @@ export const DEFAULT_SETTINGS: Settings = {
   focusAnimationsEnabled: true,
   soundMix: [{ id: "whiteNoise", volume: 0.35 }],
   activePresetId: "deep_focus",
+  accentId: DEFAULT_ACCENT_ID,
+  timerLayout: "standard",
+  completionSoundId: DEFAULT_COMPLETION_SOUND,
+  breakSoundId: DEFAULT_BREAK_SOUND,
 };
 
 export const normalizeSoundMix = (mix: SoundMixLayer[]): SoundMixLayer[] => {
@@ -58,3 +81,21 @@ export const normalizeSoundMix = (mix: SoundMixLayer[]): SoundMixLayer[] => {
 
   return normalized;
 };
+
+export const normalizeTimerLayout = (value: unknown): TimerLayout =>
+  value === "minimal" ? "minimal" : "standard";
+
+export const normalizeAccentId = (value: unknown): AccentId =>
+  typeof value === "string" && isAccentId(value) ? value : DEFAULT_ACCENT_ID;
+
+export const normalizeCompletionSoundId = (
+  value: unknown
+): CompletionSoundId =>
+  typeof value === "string" && isCompletionSoundId(value)
+    ? value
+    : DEFAULT_COMPLETION_SOUND;
+
+export const normalizeBreakSoundId = (value: unknown): BreakSoundId =>
+  typeof value === "string" && isBreakSoundId(value)
+    ? value
+    : DEFAULT_BREAK_SOUND;

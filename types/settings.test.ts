@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import type { SoundMixLayer } from "./soundscape";
-import { normalizeSoundMix } from "./settings";
+import {
+  normalizeAccentId,
+  normalizeBreakSoundId,
+  normalizeCompletionSoundId,
+  normalizeSoundMix,
+  normalizeTimerLayout,
+} from "./settings";
 
 const layer = (id: SoundMixLayer["id"], volume: number): SoundMixLayer => ({
   id,
@@ -53,5 +59,24 @@ describe("normalizeSoundMix", () => {
     const mix = [layer("fireplace", 0.6), layer("whiteNoise", 0.35)];
 
     expect(normalizeSoundMix(mix)).toEqual(mix);
+  });
+});
+
+describe("personalization setting normalizers", () => {
+  it("falls back to indigo for unknown accents", () => {
+    expect(normalizeAccentId("not-a-color")).toBe("indigo");
+    expect(normalizeAccentId("rose")).toBe("rose");
+  });
+
+  it("only allows standard or minimal layouts", () => {
+    expect(normalizeTimerLayout("minimal")).toBe("minimal");
+    expect(normalizeTimerLayout("wide")).toBe("standard");
+  });
+
+  it("falls back to default cue ids", () => {
+    expect(normalizeCompletionSoundId("wood")).toBe("wood");
+    expect(normalizeCompletionSoundId("laser")).toBe("classic");
+    expect(normalizeBreakSoundId("air")).toBe("air");
+    expect(normalizeBreakSoundId("honk")).toBe("soft");
   });
 });

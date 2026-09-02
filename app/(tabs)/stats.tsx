@@ -13,6 +13,7 @@ import { BarChart } from "../../components/stats/BarChart";
 import { FocusHeatmap } from "../../components/stats/FocusHeatmap";
 import { ProjectBreakdown } from "../../components/stats/ProjectBreakdown";
 import { SessionTimeline } from "../../components/stats/SessionTimeline";
+import { EmptyState } from "../../components/ui/EmptyState";
 import { useStats } from "../../context/StatsContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -309,9 +310,10 @@ const StatsScreen: React.FC = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Last 7 days</Text>
           {stats.totalFocusSessions === 0 ? (
-            <Text style={styles.emptyHint}>
-              Complete a focus session to see your activity here.
-            </Text>
+            <EmptyState
+              title="No sessions yet"
+              message="Complete a focus session to see your activity here."
+            />
           ) : (
             <BarChart
               values={weeklyActivity.map((day) => day.pomodoros)}

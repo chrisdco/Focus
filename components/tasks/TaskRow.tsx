@@ -31,6 +31,8 @@ export const TaskRow: React.FC<TaskRowProps> = ({
         },
       ]}
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${task.title}, ${progress} pomodoros`}
     >
       <View
         style={[
@@ -68,6 +70,8 @@ export const TaskRow: React.FC<TaskRowProps> = ({
             onStart();
           }}
           hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={`Start timer for ${task.title}`}
         >
           <Text style={[styles.startLabel, { color: colors.onPrimary }]}>
             Start

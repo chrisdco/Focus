@@ -19,8 +19,9 @@ Settings (durations, daily goal, theme, soundscape mix, animation toggle) persis
 | **M2** Tasks & projects | Inbox / Today / Completed, projects, task form, active task | Timer → logs `taskId`; completing focus increments the task |
 | **M3** Analytics & goals | Daily goal widget, period stats, heatmap, records, project breakdown, achievements | Stats from session logs; goal from settings |
 | **M4** Focus environment | Ambient mixer, auto-play on focus, background animation | Timer + settings; pauses when the app backgrounds |
+| **M5** Personalization | Accent colors, cue sounds, standard/minimal timer, empty states | Settings + timer + VoiceOver labels |
 
-Still open on the roadmap: personalization (M5), calendar (M6), sync/export (M7), blocking (M8), social (M9), AI (M10).
+Still open on the roadmap: calendar (M6), sync/export (M7), blocking (M8), social (M9), AI (M10).
 
 ## Stack
 

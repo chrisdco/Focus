@@ -8,6 +8,7 @@ import {
   lightColors,
   type ColorPalette,
 } from "../theme/colors";
+import { getAccentColor } from "../theme/accents";
 import type { TimerMode } from "../types/timer";
 import { useSettings } from "./SettingsContext";
 
@@ -27,13 +28,17 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const { settings } = useSettings();
 
   const value = useMemo<ThemeContextValue>(() => {
-    const palette = settings.darkMode ? darkColors : lightColors;
+    const base = settings.darkMode ? darkColors : lightColors;
+    const palette: ColorPalette = {
+      ...base,
+      focus: getAccentColor(settings.accentId),
+    };
     return {
       colors: palette,
       modeColors: getModeColors(palette),
       isDark: settings.darkMode,
     };
-  }, [settings.darkMode]);
+  }, [settings.accentId, settings.darkMode]);
 
   return (
     <ThemeContext.Provider value={value}>

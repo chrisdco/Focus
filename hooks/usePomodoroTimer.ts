@@ -31,6 +31,7 @@ export const usePomodoroTimer = () => {
   const intervalRef = useRef<IntervalId>(null);
   const wasRunningRef = useRef(false);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [completedMode, setCompletedMode] = useState<TimerMode>("focus");
 
   const clearIntervalIfNeeded = useCallback(() => {
     if (intervalRef.current !== null) {
@@ -130,6 +131,7 @@ export const usePomodoroTimer = () => {
 
   useEffect(() => {
     if (wasRunningRef.current && !isRunning && remainingMs === 0) {
+      setCompletedMode(mode);
       setJustCompleted(true);
       const timeout = setTimeout(() => setJustCompleted(false), 3000);
       wasRunningRef.current = isRunning;
@@ -154,5 +156,6 @@ export const usePomodoroTimer = () => {
     skipBreak,
     skipFocus,
     justCompleted,
+    completedMode,
   };
 };

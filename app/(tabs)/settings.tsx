@@ -3,18 +3,24 @@ import {
   Alert,
   Pressable,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Switch,
   Text,
   View,
 } from "react-native";
 
+import { BREAK_SOUNDS, COMPLETION_SOUNDS } from "../../data/cueSounds";
 import { useSettings } from "../../context/SettingsContext";
 import { useStats } from "../../context/StatsContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import { clearAllData } from "../../storage";
+import { ACCENT_PRESETS } from "../../theme/accents";
 import { cardElevation } from "../../theme/shadows";
+import { space, type as typeScale } from "../../theme/typography";
+import type { TimerLayout } from "../../types/settings";
+import { playCue } from "../../utils/playCue";
 
 interface DurationStepperProps {
   label: string;
@@ -66,7 +72,7 @@ const ToggleRow: React.FC<
       value={value}
       onValueChange={onValueChange}
       trackColor={{ false: colors.border, true: colors.focus }}
-      thumbColor="#FFFFFF"
+      thumbColor={colors.onPrimary}
     />
   </View>
 );
@@ -91,11 +97,10 @@ const SettingsScreen: React.FC = () => {
           paddingBottom: 32,
         },
         title: {
-          fontSize: 28,
-          fontWeight: "700",
+          ...typeScale.title,
           color: colors.text,
           textAlign: "center",
-          marginBottom: 24,
+          marginBottom: space.lg,
         },
         section: {
           backgroundColor: colors.surface,
@@ -107,12 +112,47 @@ const SettingsScreen: React.FC = () => {
           ...cardElevation(isDark),
         },
         sectionTitle: {
-          fontSize: 16,
-          fontWeight: "600",
+          ...typeScale.section,
           color: colors.textMuted,
           marginBottom: 12,
-          textTransform: "uppercase",
-          letterSpacing: 0.5,
+        },
+        chipRow: {
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: 10,
+        },
+        accentSwatch: {
+          width: 36,
+          height: 36,
+          borderRadius: 18,
+          borderWidth: 2,
+          borderColor: colors.border,
+        },
+        accentSwatchSelected: {
+          borderColor: colors.text,
+        },
+        optionChip: {
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderRadius: 999,
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        optionChipActive: {
+          backgroundColor: colors.focus,
+          borderColor: colors.focus,
+        },
+        optionText: {
+          fontSize: 13,
+          fontWeight: "600",
+          color: colors.textSecondary,
+        },
+        optionTextActive: {
+          color: colors.onPrimary,
+        },
+        layoutRow: {
+          flexDirection: "row",
+          gap: 8,
         },
         dangerButton: {
           marginTop: 8,
@@ -160,8 +200,147 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={screenStyles.safeArea}>
-      <View style={screenStyles.container}>
+      <ScrollView
+        style={screenStyles.container}
+        contentContainerStyle={{ paddingBottom: 40 }}
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={screenStyles.title}>Settings</Text>
+
+        <View style={screenStyles.section}>
+          <Text style={screenStyles.sectionTitle}>Appearance</Text>
+          <ToggleRow
+            colors={colors}
+            label="Dark mode"
+            value={settings.darkMode}
+            onValueChange={(v) => updateSettings({ darkMode: v })}
+          />
+          <Text style={[styles.stepperLabel, { color: colors.text, marginTop: 8 }]}>
+            Accent
+          </Text>
+          <View style={screenStyles.chipRow}>
+            {ACCENT_PRESETS.map((preset) => {
+              const selected = settings.accentId === preset.id;
+              return (
+                <Pressable
+                  key={preset.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${preset.label} accent`}
+                  accessibilityState={{ selected }}
+                  onPress={() => updateSettings({ accentId: preset.id })}
+                  style={[
+                    screenStyles.accentSwatch,
+                    { backgroundColor: preset.color },
+                    selected && screenStyles.accentSwatchSelected,
+                  ]}
+                />
+              );
+            })}
+          </View>
+          <Text style={[styles.stepperLabel, { color: colors.text, marginTop: 16 }]}>
+            Timer layout
+          </Text>
+          <View style={screenStyles.layoutRow}>
+            {(["standard", "minimal"] as TimerLayout[]).map((layout) => {
+              const active = settings.timerLayout === layout;
+              return (
+                <Pressable
+                  key={layout}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  onPress={() => updateSettings({ timerLayout: layout })}
+                  style={[
+                    screenStyles.optionChip,
+                    active && screenStyles.optionChipActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      screenStyles.optionText,
+                      active && screenStyles.optionTextActive,
+                    ]}
+                  >
+                    {layout === "standard" ? "Standard" : "Minimal"}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+
+        <View style={screenStyles.section}>
+          <Text style={screenStyles.sectionTitle}>Sounds</Text>
+          <ToggleRow
+            colors={colors}
+            label="Sound"
+            value={settings.soundEnabled}
+            onValueChange={(v) => updateSettings({ soundEnabled: v })}
+          />
+          <Text style={[styles.stepperLabel, { color: colors.text, marginTop: 8 }]}>
+            Completion
+          </Text>
+          <View style={screenStyles.chipRow}>
+            {COMPLETION_SOUNDS.map((option) => {
+              const active = settings.completionSoundId === option.id;
+              return (
+                <Pressable
+                  key={option.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Completion sound ${option.label}`}
+                  onPress={() => {
+                    updateSettings({ completionSoundId: option.id });
+                    void playCue(option.source);
+                  }}
+                  style={[
+                    screenStyles.optionChip,
+                    active && screenStyles.optionChipActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      screenStyles.optionText,
+                      active && screenStyles.optionTextActive,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <Text style={[styles.stepperLabel, { color: colors.text, marginTop: 12 }]}>
+            Break
+          </Text>
+          <View style={screenStyles.chipRow}>
+            {BREAK_SOUNDS.map((option) => {
+              const active = settings.breakSoundId === option.id;
+              return (
+                <Pressable
+                  key={option.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Break sound ${option.label}`}
+                  onPress={() => {
+                    updateSettings({ breakSoundId: option.id });
+                    void playCue(option.source);
+                  }}
+                  style={[
+                    screenStyles.optionChip,
+                    active && screenStyles.optionChipActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      screenStyles.optionText,
+                      active && screenStyles.optionTextActive,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
 
         <View style={screenStyles.section}>
           <Text style={screenStyles.sectionTitle}>Goals</Text>
@@ -261,21 +440,9 @@ const SettingsScreen: React.FC = () => {
           />
           <ToggleRow
             colors={colors}
-            label="Sound"
-            value={settings.soundEnabled}
-            onValueChange={(v) => updateSettings({ soundEnabled: v })}
-          />
-          <ToggleRow
-            colors={colors}
             label="Notifications"
             value={settings.notificationsEnabled}
             onValueChange={(v) => updateSettings({ notificationsEnabled: v })}
-          />
-          <ToggleRow
-            colors={colors}
-            label="Dark mode"
-            value={settings.darkMode}
-            onValueChange={(v) => updateSettings({ darkMode: v })}
           />
         </View>
 
@@ -286,7 +453,7 @@ const SettingsScreen: React.FC = () => {
         <Text style={screenStyles.hint}>
           Duration changes apply to future sessions only.
         </Text>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

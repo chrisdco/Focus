@@ -44,6 +44,7 @@ export const TimerButton: React.FC<TimerButtonProps> = ({
   return (
     <AnimatedPressable
       {...rest}
+      accessibilityRole="button"
       disabled={disabled}
       style={[
         styles.base,

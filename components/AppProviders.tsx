@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -33,8 +38,14 @@ const LoadingScreen: React.FC = () => {
   const { colors } = useTheme();
 
   return (
-    <View style={[styles.loading, { backgroundColor: colors.background }]}>
+    <View
+      style={[styles.loading, { backgroundColor: colors.background }]}
+      accessibilityLabel="Loading Foco"
+    >
       <ActivityIndicator size="large" color={colors.focus} />
+      <Text style={[styles.loadingLabel, { color: colors.textMuted }]}>
+        Loading Foco
+      </Text>
     </View>
   );
 };
@@ -92,5 +103,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+  },
+  loadingLabel: {
+    marginTop: 12,
+    fontSize: 15,
   },
 });

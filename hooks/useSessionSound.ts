@@ -1,19 +1,16 @@
 import { useEffect } from "react";
 import { AppState } from "react-native";
-import { setAudioModeAsync, useAudioPlayer } from "expo-audio";
 
+import { getBreakSource, getCompletionSource } from "../data/cueSounds";
 import { useSettings } from "../context/SettingsContext";
+import type { TimerMode } from "../types/timer";
+import { playCue } from "../utils/playCue";
 
-export const useSessionSound = (justCompleted: boolean): void => {
+export const useSessionSound = (
+  justCompleted: boolean,
+  completedMode: TimerMode
+): void => {
   const { settings } = useSettings();
-  const player = useAudioPlayer(require("../assets/sounds/complete.mp3"));
-
-  useEffect(() => {
-    void setAudioModeAsync({
-      playsInSilentMode: true,
-      interruptionMode: "mixWithOthers",
-    });
-  }, []);
 
   useEffect(() => {
     if (!justCompleted || !settings.soundEnabled) {
@@ -24,12 +21,17 @@ export const useSessionSound = (justCompleted: boolean): void => {
       return;
     }
 
-    try {
-      player.seekTo(0);
-      player.volume = 0.8;
-      player.play();
-    } catch {
-      // Audio playback is best-effort; never block the timer flow.
-    }
-  }, [justCompleted, player, settings.soundEnabled]);
+    const source =
+      completedMode === "focus"
+        ? getCompletionSource(settings.completionSoundId)
+        : getBreakSource(settings.breakSoundId);
+
+    void playCue(source);
+  }, [
+    completedMode,
+    justCompleted,
+    settings.breakSoundId,
+    settings.completionSoundId,
+    settings.soundEnabled,
+  ]);
 };
