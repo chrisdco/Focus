@@ -11,6 +11,7 @@ import { CircularTimer } from "../../components/timer/CircularTimer";
 import { TimerButton } from "../../components/timer/TimerButton";
 import { ActiveTaskPicker } from "../../components/tasks/ActiveTaskPicker";
 import { DailyGoalProgress } from "../../components/stats/DailyGoalProgress";
+import { PlannedToday } from "../../components/calendar/PlannedToday";
 import { FocusBackground } from "../../components/focus/FocusBackground";
 import { SoundMixer } from "../../components/focus/SoundMixer";
 import { useFocusMode } from "../../context/FocusModeContext";
@@ -221,6 +222,8 @@ const TimerScreen: React.FC = () => {
         {showChrome && <Text style={styles.title}>Foco</Text>}
 
         {showChrome && <DailyGoalProgress />}
+
+        {showChrome && <PlannedToday />}
 
         {showChrome && settings.ambientSoundEnabled && <SoundMixer />}
 

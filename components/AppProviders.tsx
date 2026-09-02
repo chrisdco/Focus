@@ -9,6 +9,7 @@ import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { FocusModeProvider } from "../context/FocusModeContext";
+import { ScheduleProvider } from "../context/ScheduleContext";
 import { SettingsProvider, useSettings } from "../context/SettingsContext";
 import { SoundscapeProvider } from "../context/SoundscapeContext";
 import { StatsProvider } from "../context/StatsContext";
@@ -17,6 +18,7 @@ import { ThemeProvider, useTheme } from "../context/ThemeContext";
 import { TimerProvider } from "../context/TimerContext";
 import { useAppStateReconciliation } from "../hooks/useAppStateReconciliation";
 import { useFocusSoundscape } from "../hooks/useFocusSoundscape";
+import { useScheduleNotificationResponse } from "../hooks/useScheduleNotificationResponse";
 import { useTimerNotifications } from "../hooks/useTimerNotifications";
 import { useTimerPersistence } from "../hooks/useTimerPersistence";
 import { loadTimerSnapshot } from "../storage";
@@ -26,6 +28,7 @@ const TimerSideEffects: React.FC = () => {
   useTimerPersistence();
   useAppStateReconciliation();
   useTimerNotifications();
+  useScheduleNotificationResponse();
   return null;
 };
 
@@ -89,7 +92,9 @@ export const AppProviders: React.FC = () => {
         <ThemeProvider>
           <StatsProvider>
             <TasksProvider>
-              <HydratedApp />
+              <ScheduleProvider>
+                <HydratedApp />
+              </ScheduleProvider>
             </TasksProvider>
           </StatsProvider>
         </ThemeProvider>

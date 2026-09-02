@@ -11,6 +11,7 @@ import {
   normalizeSoundMix,
   normalizeTimerLayout,
 } from "../types/settings";
+import type { ScheduleBlock } from "../types/schedule";
 import type { Project, Task } from "../types/task";
 import { createDefaultProject } from "../types/task";
 import type { TimerSnapshot } from "../types/timer";
@@ -153,6 +154,17 @@ export const saveAchievements = async (
   unlocked: Record<string, number>
 ): Promise<void> => {
   await writeRaw(STORAGE_KEYS.achievements, JSON.stringify(unlocked));
+};
+
+export const loadScheduleBlocks = async (): Promise<ScheduleBlock[]> => {
+  const raw = await readRaw(STORAGE_KEYS.scheduleBlocks);
+  return parseJson<ScheduleBlock[]>(raw, []);
+};
+
+export const saveScheduleBlocks = async (
+  blocks: ScheduleBlock[]
+): Promise<void> => {
+  await writeRaw(STORAGE_KEYS.scheduleBlocks, JSON.stringify(blocks));
 };
 
 export const clearAllData = async (): Promise<void> => {

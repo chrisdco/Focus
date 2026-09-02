@@ -11,6 +11,7 @@ import {
 } from "react-native";
 
 import { BREAK_SOUNDS, COMPLETION_SOUNDS } from "../../data/cueSounds";
+import { useSchedule } from "../../context/ScheduleContext";
 import { useSettings } from "../../context/SettingsContext";
 import { useStats } from "../../context/StatsContext";
 import { useTasks } from "../../context/TasksContext";
@@ -82,6 +83,7 @@ const SettingsScreen: React.FC = () => {
   const { settings, updateSettings, resetSettings } = useSettings();
   const { resetStats } = useStats();
   const { resetTasks } = useTasks();
+  const { resetSchedule } = useSchedule();
 
   const screenStyles = useMemo(
     () =>
@@ -191,6 +193,7 @@ const SettingsScreen: React.FC = () => {
             void clearAllData();
             resetStats();
             resetTasks();
+            resetSchedule();
             resetSettings();
           },
         },
