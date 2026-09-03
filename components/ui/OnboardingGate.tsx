@@ -127,6 +127,8 @@ export const OnboardingGate: React.FC = () => {
               onValueChange={(value) =>
                 updateSettings({ notificationsEnabled: value })
               }
+              trackColor={{ true: colors.focus, false: colors.track }}
+              thumbColor={colors.onPrimary}
               accessibilityLabel="Session reminders"
             />
           </View>

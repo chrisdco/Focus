@@ -256,13 +256,13 @@ const TimerScreen: React.FC = () => {
         activeTaskLabel: {
           fontSize: 14,
           color: colors.textSecondary,
-          textAlign: "center",
+          textAlign: "left",
         },
         activeTaskTitle: {
           fontSize: 15,
           fontWeight: "600",
           color: colors.text,
-          textAlign: "center",
+          textAlign: "left",
           marginTop: 2,
         },
         buttonsRow: {
