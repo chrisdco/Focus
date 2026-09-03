@@ -17,6 +17,7 @@ import { useStats } from "../../context/StatsContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import { useTimerContext } from "../../context/TimerContext";
+import { ScreenTitle } from "../../components/ui/ScreenTitle";
 import {
   clearAllData,
   clearTimerSnapshot,
@@ -25,7 +26,7 @@ import { DEFAULT_SETTINGS } from "../../types/settings";
 import { getDurationForMode } from "../../domain/timerMachine";
 import { ACCENT_PRESETS } from "../../theme/accents";
 import { cardElevation } from "../../theme/shadows";
-import { space, type as typeScale } from "../../theme/typography";
+import { type as typeScale } from "../../theme/typography";
 import type { TimerLayout } from "../../types/settings";
 import { playCue } from "../../utils/playCue";
 
@@ -101,15 +102,9 @@ const SettingsScreen: React.FC = () => {
         },
         container: {
           flex: 1,
-          paddingHorizontal: 24,
+          paddingHorizontal: 20,
           paddingTop: 16,
           paddingBottom: 32,
-        },
-        title: {
-          ...typeScale.title,
-          color: colors.text,
-          textAlign: "center",
-          marginBottom: space.lg,
         },
         section: {
           backgroundColor: colors.surface,
@@ -229,7 +224,7 @@ const SettingsScreen: React.FC = () => {
         contentContainerStyle={{ paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={screenStyles.title}>Settings</Text>
+        <ScreenTitle title="Settings" />
 
         <View style={screenStyles.section}>
           <Text style={screenStyles.sectionTitle}>Appearance</Text>

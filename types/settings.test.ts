@@ -10,6 +10,7 @@ import {
   normalizeTimerLayout,
   DEFAULT_SETTINGS,
 } from "./settings";
+import { DEFAULT_ACCENT_ID } from "../theme/accents";
 
 const layer = (id: SoundMixLayer["id"], volume: number): SoundMixLayer => ({
   id,
@@ -65,8 +66,8 @@ describe("normalizeSoundMix", () => {
 });
 
 describe("personalization setting normalizers", () => {
-  it("falls back to indigo for unknown accents", () => {
-    expect(normalizeAccentId("not-a-color")).toBe("indigo");
+  it("falls back to the default accent for unknown accents", () => {
+    expect(normalizeAccentId("not-a-color")).toBe(DEFAULT_ACCENT_ID);
     expect(normalizeAccentId("rose")).toBe("rose");
   });
 

@@ -13,6 +13,7 @@ import { DayTimeline } from "../../components/calendar/DayTimeline";
 import { PlanTomorrowModal } from "../../components/calendar/PlanTomorrowModal";
 import { ScheduleBlockModal } from "../../components/calendar/ScheduleBlockModal";
 import { EmptyState } from "../../components/ui/EmptyState";
+import { ScreenTitle } from "../../components/ui/ScreenTitle";
 import { useSchedule } from "../../context/ScheduleContext";
 import { useSettings } from "../../context/SettingsContext";
 import { useTasks } from "../../context/TasksContext";
@@ -65,13 +66,6 @@ const CalendarScreen: React.FC = () => {
       StyleSheet.create({
         safeArea: { flex: 1, backgroundColor: colors.background },
         container: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 },
-        title: {
-          fontSize: 28,
-          fontWeight: "700",
-          color: colors.text,
-          textAlign: "center",
-          marginBottom: 16,
-        },
         nav: {
           flexDirection: "row",
           alignItems: "center",
@@ -129,7 +123,7 @@ const CalendarScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Calendar</Text>
+        <ScreenTitle title="Calendar" />
 
         <View style={styles.nav}>
           <Pressable

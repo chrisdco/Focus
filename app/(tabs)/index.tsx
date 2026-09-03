@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, AppState, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Alert, AppState, Modal, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -10,8 +10,7 @@ import { CelebrationOverlay } from "../../components/timer/CelebrationOverlay";
 import { CircularTimer } from "../../components/timer/CircularTimer";
 import { TimerButton } from "../../components/timer/TimerButton";
 import { ActiveTaskPicker } from "../../components/tasks/ActiveTaskPicker";
-import { DailyGoalProgress } from "../../components/stats/DailyGoalProgress";
-import { PlannedToday } from "../../components/calendar/PlannedToday";
+import { TodayStrip } from "../../components/calendar/TodayStrip";
 import { FocusBackground } from "../../components/focus/FocusBackground";
 import { SoundMixer } from "../../components/focus/SoundMixer";
 import { useFocusMode } from "../../context/FocusModeContext";
@@ -48,6 +47,8 @@ const TimerScreen: React.FC = () => {
   } = usePomodoroTimer();
 
   const [showCelebration, setShowCelebration] = useState(false);
+  const [ambienceVisible, setAmbienceVisible] = useState(false);
+  const hasAmbience = settings.soundMix.some((layer) => layer.volume > 0);
 
   useSessionSound(justCompleted, completedMode);
 
@@ -132,7 +133,7 @@ const TimerScreen: React.FC = () => {
         },
         container: {
           flex: 1,
-          paddingHorizontal: 24,
+          paddingHorizontal: 20,
           paddingTop: isFocusMode ? 48 : 16,
           paddingBottom: 32,
         },
@@ -140,7 +141,7 @@ const TimerScreen: React.FC = () => {
           fontSize: isFocusMode ? 22 : 28,
           fontWeight: "700",
           color: colors.text,
-          textAlign: "center",
+          textAlign: "left",
           marginBottom: 8,
         },
         focusBadge: {
@@ -179,7 +180,7 @@ const TimerScreen: React.FC = () => {
           paddingHorizontal: 16,
         },
         activeTaskButton: {
-          alignSelf: "center",
+          alignSelf: "flex-start",
           marginBottom: 12,
           paddingHorizontal: 16,
           paddingVertical: 8,
@@ -187,6 +188,55 @@ const TimerScreen: React.FC = () => {
           borderWidth: 1,
           borderColor: colors.border,
           backgroundColor: colors.surface,
+        },
+        ambienceButton: {
+          alignSelf: "flex-start",
+          marginBottom: 12,
+          paddingHorizontal: 16,
+          paddingVertical: 8,
+          borderRadius: 999,
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.surface,
+        },
+        ambienceLabel: {
+          fontSize: 14,
+          color: colors.textSecondary,
+        },
+        sheetOverlay: {
+          flex: 1,
+          justifyContent: "flex-end",
+          backgroundColor: colors.overlay,
+        },
+        sheet: {
+          backgroundColor: colors.surface,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          paddingHorizontal: 20,
+          paddingTop: 16,
+          paddingBottom: 32,
+          maxHeight: "85%",
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        sheetTitle: {
+          fontSize: 20,
+          fontWeight: "700",
+          color: colors.text,
+          marginBottom: 12,
+        },
+        sheetDone: {
+          marginTop: 12,
+          backgroundColor: colors.focus,
+          borderRadius: 12,
+          minHeight: 48,
+          alignItems: "center",
+          justifyContent: "center",
+        },
+        sheetDoneText: {
+          color: colors.onPrimary,
+          fontWeight: "600",
+          fontSize: 16,
         },
         activeTaskLabel: {
           fontSize: 14,
@@ -221,11 +271,22 @@ const TimerScreen: React.FC = () => {
       <View style={styles.container}>
         {showChrome && <Text style={styles.title}>Foco</Text>}
 
-        {showChrome && <DailyGoalProgress />}
+        {showChrome && <TodayStrip />}
 
-        {showChrome && <PlannedToday />}
-
-        {showChrome && settings.ambientSoundEnabled && <SoundMixer />}
+        {showChrome && settings.ambientSoundEnabled && (
+          <Pressable
+            style={styles.ambienceButton}
+            onPress={() => setAmbienceVisible(true)}
+            accessibilityRole="button"
+            accessibilityLabel={
+              hasAmbience ? "Tune ambience mix" : "Choose ambience"
+            }
+          >
+            <Text style={styles.ambienceLabel}>
+              {hasAmbience ? "Ambience · on" : "Ambience · off"} — tune
+            </Text>
+          </Pressable>
+        )}
 
         {isFocusMode && (
           <Text style={styles.focusBadge}>Focus mode</Text>
@@ -322,6 +383,27 @@ const TimerScreen: React.FC = () => {
         visible={taskPickerVisible}
         onClose={() => setTaskPickerVisible(false)}
       />
+
+      <Modal
+        visible={ambienceVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setAmbienceVisible(false)}
+      >
+        <View style={styles.sheetOverlay}>
+          <View style={styles.sheet}>
+            <Text style={styles.sheetTitle}>Ambience</Text>
+            <SoundMixer />
+            <Pressable
+              style={styles.sheetDone}
+              onPress={() => setAmbienceVisible(false)}
+              accessibilityRole="button"
+            >
+              <Text style={styles.sheetDoneText}>Done</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

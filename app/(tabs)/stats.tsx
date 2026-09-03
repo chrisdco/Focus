@@ -14,6 +14,7 @@ import { FocusHeatmap } from "../../components/stats/FocusHeatmap";
 import { ProjectBreakdown } from "../../components/stats/ProjectBreakdown";
 import { SessionTimeline } from "../../components/stats/SessionTimeline";
 import { EmptyState } from "../../components/ui/EmptyState";
+import { ScreenTitle } from "../../components/ui/ScreenTitle";
 import { useStats } from "../../context/StatsContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -80,13 +81,6 @@ const StatsScreen: React.FC = () => {
           paddingHorizontal: 20,
           paddingTop: 16,
           paddingBottom: 40,
-        },
-        title: {
-          fontSize: 28,
-          fontWeight: "700",
-          color: colors.text,
-          textAlign: "center",
-          marginBottom: 20,
         },
         cardsRow: {
           flexDirection: "row",
@@ -237,7 +231,7 @@ const StatsScreen: React.FC = () => {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.title}>Stats</Text>
+        <ScreenTitle title="Stats" />
 
         <View style={styles.cardsRow}>
           <View style={styles.card}>
