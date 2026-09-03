@@ -12,6 +12,7 @@ import { TimerButton } from "../../components/timer/TimerButton";
 import { ActiveTaskPicker } from "../../components/tasks/ActiveTaskPicker";
 import { TodayStrip } from "../../components/calendar/TodayStrip";
 import { FocusBackground } from "../../components/focus/FocusBackground";
+import { BreakBreather } from "../../components/focus/BreakBreather";
 import { SoundMixer } from "../../components/focus/SoundMixer";
 import { useFocusMode } from "../../context/FocusModeContext";
 import { useSettings } from "../../context/SettingsContext";
@@ -353,6 +354,11 @@ const TimerScreen: React.FC = () => {
         </Animated.View>
 
         <View style={styles.controls}>
+          {mode !== "focus" && (
+            <BreakBreather
+              animationsEnabled={settings.focusAnimationsEnabled}
+            />
+          )}
           {showChrome && (
             <Text style={[styles.modeLabel, { color: accentColor }]}>
               {modeLabels[mode]} • {formatDurationLabel(durationMs)}
