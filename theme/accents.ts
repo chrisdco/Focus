@@ -25,7 +25,7 @@ export const ACCENT_PRESETS: AccentPreset[] = [
   { id: "slate", label: "Slate", color: "#475569" },
 ];
 
-export const DEFAULT_ACCENT_ID: AccentId = "indigo";
+export const DEFAULT_ACCENT_ID: AccentId = "orange";
 
 export const isAccentId = (value: string | undefined): value is AccentId =>
   ACCENT_PRESETS.some((preset) => preset.id === value);

@@ -12,6 +12,7 @@ import { router } from "expo-router";
 import { TaskFormModal } from "../../components/tasks/TaskFormModal";
 import { TaskRow } from "../../components/tasks/TaskRow";
 import { EmptyState } from "../../components/ui/EmptyState";
+import { ScreenTitle } from "../../components/ui/ScreenTitle";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import type { Task, TaskView } from "../../types/task";
@@ -54,13 +55,6 @@ const TasksScreen: React.FC = () => {
           flex: 1,
           paddingHorizontal: 20,
           paddingTop: 16,
-        },
-        title: {
-          fontSize: 28,
-          fontWeight: "700",
-          color: colors.text,
-          textAlign: "center",
-          marginBottom: 16,
         },
         segmentRow: {
           flexDirection: "row",
@@ -153,7 +147,7 @@ const TasksScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Text style={styles.title}>Tasks</Text>
+        <ScreenTitle title="Tasks" />
 
         <View style={styles.segmentRow}>
           {VIEWS.map((item) => (
