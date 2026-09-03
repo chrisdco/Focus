@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { AppState } from "react-native";
 
 import { getBreakSource, getCompletionSource } from "../data/cueSounds";
@@ -11,13 +11,10 @@ export const useSessionSound = (
   completedMode: TimerMode
 ): void => {
   const { settings } = useSettings();
+  const pendingRef = useRef<TimerMode | null>(null);
 
   useEffect(() => {
     if (!justCompleted || !settings.soundEnabled) {
-      return;
-    }
-
-    if (AppState.currentState !== "active") {
       return;
     }
 
@@ -26,7 +23,21 @@ export const useSessionSound = (
         ? getCompletionSource(settings.completionSoundId)
         : getBreakSource(settings.breakSoundId);
 
-    void playCue(source);
+    // If backgrounded, defer until the app is active again instead of
+    // dropping the cue silently.
+    if (AppState.currentState !== "active") {
+      pendingRef.current = completedMode;
+      const sub = AppState.addEventListener("change", (next) => {
+        if (next === "active" && pendingRef.current !== null) {
+          pendingRef.current = null;
+          void playCue(source).catch(() => undefined);
+          sub.remove();
+        }
+      });
+      return () => sub.remove();
+    }
+
+    void playCue(source).catch(() => undefined);
   }, [
     completedMode,
     justCompleted,
