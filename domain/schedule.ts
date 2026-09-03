@@ -57,16 +57,25 @@ export const hasOverlap = (
       blocksOverlap(block, candidate)
   );
 
-export const pomodorosFromMinutes = (durationMinutes: number): number =>
-  Math.max(1, Math.ceil(durationMinutes / 25));
+export const pomodorosFromMinutes = (
+  durationMinutes: number,
+  focusMinutes = 25
+): number =>
+  Math.max(1, Math.ceil(durationMinutes / Math.max(1, focusMinutes)));
 
 export const getScheduledPomodoros = (
   blocks: ScheduleBlock[],
-  dateKey: string
+  dateKey: string,
+  focusMinutes = 25
 ): number =>
   getBlocksForDate(blocks, dateKey)
-    .filter((block) => block.kind === "focus")
-    .reduce((sum, block) => sum + pomodorosFromMinutes(block.durationMinutes), 0);
+    // Task-linked blocks are already counted via the task estimate below;
+    // counting both double-counts the same planned work.
+    .filter((block) => block.kind === "focus" && !block.taskId)
+    .reduce(
+      (sum, block) => sum + pomodorosFromMinutes(block.durationMinutes, focusMinutes),
+      0
+    );
 
 export const getPlannedTaskPomodoros = (
   tasks: Task[],
@@ -85,10 +94,11 @@ export const getPlannedTaskPomodoros = (
 export const getPlannedPomodoroCount = (
   tasks: Task[],
   blocks: ScheduleBlock[],
-  dateKey: string
+  dateKey: string,
+  focusMinutes = 25
 ): number =>
   getPlannedTaskPomodoros(tasks, dateKey) +
-  getScheduledPomodoros(blocks, dateKey);
+  getScheduledPomodoros(blocks, dateKey, focusMinutes);
 
 export const blockStartDate = (block: ScheduleBlock): Date => {
   const start = new Date(`${block.dateKey}T00:00:00`);

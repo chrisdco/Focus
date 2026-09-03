@@ -3,18 +3,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { SessionLog, Stats } from "../types/stats";
 import { createInitialStats } from "../types/stats";
 import type { Settings } from "../types/settings";
-import {
-  DEFAULT_SETTINGS,
-  normalizeAccentId,
-  normalizeBreakSoundId,
-  normalizeCompletionSoundId,
-  normalizeSoundMix,
-  normalizeTimerLayout,
-} from "../types/settings";
+import { DEFAULT_SETTINGS, normalizeSettings } from "../types/settings";
 import type { ScheduleBlock } from "../types/schedule";
 import type { Project, Task } from "../types/task";
 import { createDefaultProject } from "../types/task";
 import type { TimerSnapshot } from "../types/timer";
+import { isValidTimerSnapshot } from "../utils/timer";
 
 import { STORAGE_KEYS } from "./keys";
 
@@ -55,18 +49,107 @@ const parseJson = <T>(raw: string | null, fallback: T): T => {
   }
 };
 
+const isRecordOfNumbers = (value: unknown): value is Record<string, number> => {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return false;
+  }
+  return Object.values(value as Record<string, unknown>).every(
+    (v) => typeof v === "number" && Number.isFinite(v)
+  );
+};
+
+const isValidSessionLog = (value: unknown): value is SessionLog => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.id === "string" &&
+    (v.mode === "focus" || v.mode === "shortBreak" || v.mode === "longBreak") &&
+    typeof v.durationMs === "number" &&
+    Number.isFinite(v.durationMs) &&
+    v.durationMs >= 0 &&
+    typeof v.completedAt === "number" &&
+    Number.isFinite(v.completedAt) &&
+    (v.taskId === undefined || typeof v.taskId === "string")
+  );
+};
+
+const isValidStats = (value: unknown): value is Stats => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.totalFocusSessions === "number" &&
+    typeof v.totalFocusMinutes === "number" &&
+    typeof v.currentStreak === "number" &&
+    typeof v.longestStreak === "number" &&
+    (v.lastCompletedDate === null || typeof v.lastCompletedDate === "string")
+  );
+};
+
+const isValidTask = (value: unknown): value is Task => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.id === "string" &&
+    typeof v.title === "string" &&
+    typeof v.projectId === "string" &&
+    typeof v.estimatedPomodoros === "number" &&
+    Number.isFinite(v.estimatedPomodoros) &&
+    typeof v.completedPomodoros === "number" &&
+    Number.isFinite(v.completedPomodoros) &&
+    (v.status === "active" || v.status === "completed") &&
+    typeof v.createdAt === "number" &&
+    (v.dueDate === null || typeof v.dueDate === "string") &&
+    Array.isArray(v.tags)
+  );
+};
+
+const isValidProject = (value: unknown): value is Project => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.id === "string" &&
+    typeof v.name === "string" &&
+    typeof v.color === "string" &&
+    typeof v.sortOrder === "number" &&
+    typeof v.createdAt === "number"
+  );
+};
+
+const isValidScheduleBlock = (value: unknown): value is ScheduleBlock => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.id === "string" &&
+    typeof v.dateKey === "string" &&
+    typeof v.startMinutes === "number" &&
+    Number.isFinite(v.startMinutes) &&
+    typeof v.durationMinutes === "number" &&
+    Number.isFinite(v.durationMinutes) &&
+    (v.kind === "focus" || v.kind === "shortBreak" || v.kind === "longBreak") &&
+    (v.taskId === null || typeof v.taskId === "string")
+  );
+};
+
 export const loadTimerSnapshot = async (): Promise<TimerSnapshot | null> => {
   const raw = await readRaw(STORAGE_KEYS.timerSnapshot);
-  return parseJson<TimerSnapshot | null>(raw, null);
+  const parsed = parseJson<unknown>(raw, null);
+  return isValidTimerSnapshot(parsed) ? parsed : null;
 };
 
 export const saveTimerSnapshot = async (
   snapshot: TimerSnapshot
 ): Promise<void> => {
-  await writeRaw(
-    STORAGE_KEYS.timerSnapshot,
-    JSON.stringify(snapshot)
-  );
+  await writeRaw(STORAGE_KEYS.timerSnapshot, JSON.stringify(snapshot));
 };
 
 export const clearTimerSnapshot = async (): Promise<void> => {
@@ -75,7 +158,11 @@ export const clearTimerSnapshot = async (): Promise<void> => {
 
 export const loadSessionLogs = async (): Promise<SessionLog[]> => {
   const raw = await readRaw(STORAGE_KEYS.sessionLogs);
-  return parseJson<SessionLog[]>(raw, []);
+  const parsed = parseJson<unknown>(raw, []);
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
+  return parsed.filter(isValidSessionLog);
 };
 
 export const saveSessionLogs = async (logs: SessionLog[]): Promise<void> => {
@@ -84,7 +171,8 @@ export const saveSessionLogs = async (logs: SessionLog[]): Promise<void> => {
 
 export const loadStats = async (): Promise<Stats> => {
   const raw = await readRaw(STORAGE_KEYS.stats);
-  return parseJson(raw, createInitialStats());
+  const parsed = parseJson<unknown>(raw, null);
+  return isValidStats(parsed) ? parsed : createInitialStats();
 };
 
 export const saveStats = async (stats: Stats): Promise<void> => {
@@ -95,19 +183,11 @@ export const loadSettings = async (): Promise<Settings> => {
   const raw = await readRaw(STORAGE_KEYS.settings);
   const stored = parseJson<Partial<Settings> | null>(raw, null);
 
-  if (!stored) {
+  if (!stored || typeof stored !== "object") {
     return DEFAULT_SETTINGS;
   }
 
-  return {
-    ...DEFAULT_SETTINGS,
-    ...stored,
-    soundMix: normalizeSoundMix(stored.soundMix ?? DEFAULT_SETTINGS.soundMix),
-    accentId: normalizeAccentId(stored.accentId),
-    timerLayout: normalizeTimerLayout(stored.timerLayout),
-    completionSoundId: normalizeCompletionSoundId(stored.completionSoundId),
-    breakSoundId: normalizeBreakSoundId(stored.breakSoundId),
-  };
+  return normalizeSettings(stored);
 };
 
 export const saveSettings = async (settings: Settings): Promise<void> => {
@@ -116,7 +196,11 @@ export const saveSettings = async (settings: Settings): Promise<void> => {
 
 export const loadTasks = async (): Promise<Task[]> => {
   const raw = await readRaw(STORAGE_KEYS.tasks);
-  return parseJson<Task[]>(raw, []);
+  const parsed = parseJson<unknown>(raw, []);
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
+  return parsed.filter(isValidTask);
 };
 
 export const saveTasks = async (tasks: Task[]): Promise<void> => {
@@ -125,7 +209,8 @@ export const saveTasks = async (tasks: Task[]): Promise<void> => {
 
 export const loadProjects = async (): Promise<Project[]> => {
   const raw = await readRaw(STORAGE_KEYS.projects);
-  const projects = parseJson<Project[]>(raw, []);
+  const parsed = parseJson<unknown>(raw, []);
+  const projects = Array.isArray(parsed) ? parsed.filter(isValidProject) : [];
   return projects.length > 0 ? projects : [createDefaultProject()];
 };
 
@@ -134,7 +219,8 @@ export const saveProjects = async (projects: Project[]): Promise<void> => {
 };
 
 export const loadActiveTaskId = async (): Promise<string | null> => {
-  return readRaw(STORAGE_KEYS.activeTaskId);
+  const raw = await readRaw(STORAGE_KEYS.activeTaskId);
+  return typeof raw === "string" && raw.length > 0 ? raw : null;
 };
 
 export const saveActiveTaskId = async (taskId: string | null): Promise<void> => {
@@ -147,7 +233,8 @@ export const saveActiveTaskId = async (taskId: string | null): Promise<void> => 
 
 export const loadAchievements = async (): Promise<Record<string, number>> => {
   const raw = await readRaw(STORAGE_KEYS.achievements);
-  return parseJson<Record<string, number>>(raw, {});
+  const parsed = parseJson<unknown>(raw, {});
+  return isRecordOfNumbers(parsed) ? parsed : {};
 };
 
 export const saveAchievements = async (
@@ -158,7 +245,11 @@ export const saveAchievements = async (
 
 export const loadScheduleBlocks = async (): Promise<ScheduleBlock[]> => {
   const raw = await readRaw(STORAGE_KEYS.scheduleBlocks);
-  return parseJson<ScheduleBlock[]>(raw, []);
+  const parsed = parseJson<unknown>(raw, []);
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
+  return parsed.filter(isValidScheduleBlock);
 };
 
 export const saveScheduleBlocks = async (

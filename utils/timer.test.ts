@@ -26,9 +26,9 @@ describe("formatTime", () => {
 });
 
 describe("formatDurationLabel", () => {
-  it("renders a minutes label", () => {
+  it("renders a zero-padded minutes label", () => {
     expect(formatDurationLabel(25 * 60 * 1000)).toBe("25:00");
-    expect(formatDurationLabel(0)).toBe("0:00");
+    expect(formatDurationLabel(0)).toBe("00:00");
   });
 });
 

@@ -13,7 +13,7 @@ import {
   saveSettings,
 } from "../storage";
 import type { Settings } from "../types/settings";
-import { DEFAULT_SETTINGS, normalizeSoundMix } from "../types/settings";
+import { DEFAULT_SETTINGS, normalizeSettings, normalizeSoundMix } from "../types/settings";
 
 interface SettingsContextValue {
   settings: Settings;
@@ -48,21 +48,24 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
 
   const updateSettings = useCallback((patch: Partial<Settings>) => {
     setSettings((prev) => {
-      const next = {
+      const merged: Partial<Settings> = {
         ...prev,
         ...patch,
         ...(patch.soundMix
           ? { soundMix: normalizeSoundMix(patch.soundMix) }
           : {}),
       };
-      void saveSettings(next);
+      // Clamp numeric fields so programmatic callers can't store garbage
+      // (UI already clamps, but storage must stay valid).
+      const next = normalizeSettings(merged);
+      void saveSettings(next).catch(() => undefined);
       return next;
     });
   }, []);
 
   const resetSettings = useCallback(() => {
     setSettings(DEFAULT_SETTINGS);
-    void saveSettings(DEFAULT_SETTINGS);
+    void saveSettings(DEFAULT_SETTINGS).catch(() => undefined);
   }, []);
 
   const value = useMemo(
