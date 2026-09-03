@@ -64,11 +64,11 @@ export const SoundscapeProvider: React.FC<SoundscapeProviderProps> = ({
   const [isPreviewing, setIsPreviewing] = React.useState(false);
 
   useEffect(() => {
-    void setAudioModeAsync({
+    setAudioModeAsync({
       playsInSilentMode: true,
       shouldPlayInBackground: false,
       interruptionMode: "mixWithOthers",
-    });
+    }).catch(() => undefined);
 
     const players = new Map<SoundscapeId, AudioPlayer>();
     for (const id of SOUNDSCAPE_IDS) {
@@ -105,12 +105,16 @@ export const SoundscapeProvider: React.FC<SoundscapeProviderProps> = ({
       const clamped = Math.max(0, Math.min(1, volume));
       player.volume = clamped;
 
-      if (clamped > 0 && !player.playing) {
-        player.play();
-      }
+      try {
+        if (clamped > 0 && !player.playing) {
+          player.play();
+        }
 
-      if (clamped === 0 && player.playing) {
-        player.pause();
+        if (clamped === 0 && player.playing) {
+          player.pause();
+        }
+      } catch {
+        // Audio device busy — volumes still apply on next fade.
       }
     },
     []

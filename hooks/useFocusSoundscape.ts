@@ -27,6 +27,8 @@ export const useFocusSoundscape = (): void => {
   const { state } = useTimerContext();
   const { fadeInMix, fadeOutMix } = useSoundscape();
   const wasPlayingRef = useRef(false);
+  const lastMixKeyRef = useRef<string | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [appIsActive, setAppIsActive] = useState(
     AppState.currentState === "active"
   );
@@ -39,7 +41,12 @@ export const useFocusSoundscape = (): void => {
       }
     );
 
-    return () => subscription.remove();
+    return () => {
+      subscription.remove();
+      if (debounceRef.current !== null) {
+        clearTimeout(debounceRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -60,15 +67,42 @@ export const useFocusSoundscape = (): void => {
         continueSoundscapeOnBreak
       );
 
+    // Stabilize on serialized mix so slider identity churn doesn't restart
+    // fades on every render; only react to real content changes.
+    const mixKey = JSON.stringify(soundMix);
+
     if (shouldPlay && !wasPlayingRef.current) {
+      if (debounceRef.current !== null) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
       fadeInMix(soundMix);
       wasPlayingRef.current = true;
+      lastMixKeyRef.current = mixKey;
+      return;
+    }
+
+    if (shouldPlay && wasPlayingRef.current && mixKey !== lastMixKeyRef.current) {
+      // Mix changed mid-session (e.g. slider drag): debounce the re-fade so
+      // rapid ticks don't thrash fade timers.
+      if (debounceRef.current !== null) {
+        clearTimeout(debounceRef.current);
+      }
+      debounceRef.current = setTimeout(() => {
+        fadeInMix(soundMix);
+        lastMixKeyRef.current = mixKey;
+      }, 250);
       return;
     }
 
     if (!shouldPlay && wasPlayingRef.current) {
+      if (debounceRef.current !== null) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
       fadeOutMix();
       wasPlayingRef.current = false;
+      lastMixKeyRef.current = null;
     }
   }, [
     appIsActive,

@@ -292,7 +292,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                 onPress={() =>
                   setDraft((prev) => ({
                     ...prev,
-                    estimatedPomodoros: prev.estimatedPomodoros + 1,
+                    estimatedPomodoros: Math.min(20, prev.estimatedPomodoros + 1),
                   }))
                 }
               >

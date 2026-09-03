@@ -16,7 +16,13 @@ import { useSettings } from "../../context/SettingsContext";
 import { useStats } from "../../context/StatsContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
-import { clearAllData } from "../../storage";
+import { useTimerContext } from "../../context/TimerContext";
+import {
+  clearAllData,
+  clearTimerSnapshot,
+} from "../../storage";
+import { DEFAULT_SETTINGS } from "../../types/settings";
+import { getDurationForMode } from "../../domain/timerMachine";
 import { ACCENT_PRESETS } from "../../theme/accents";
 import { cardElevation } from "../../theme/shadows";
 import { space, type as typeScale } from "../../theme/typography";
@@ -84,6 +90,7 @@ const SettingsScreen: React.FC = () => {
   const { resetStats } = useStats();
   const { resetTasks } = useTasks();
   const { resetSchedule } = useSchedule();
+  const { dispatch: timerDispatch } = useTimerContext();
 
   const screenStyles = useMemo(
     () =>
@@ -190,11 +197,25 @@ const SettingsScreen: React.FC = () => {
           text: "Reset",
           style: "destructive",
           onPress: () => {
-            void clearAllData();
-            resetStats();
-            resetTasks();
-            resetSchedule();
-            resetSettings();
+            // Stop the timer first so the persistence effect can't re-save a
+            // mid-session snapshot after the wipe, then clear storage before
+            // resetting in-memory state to defaults.
+            timerDispatch({
+              type: "RESET",
+              durationMs: getDurationForMode("focus", DEFAULT_SETTINGS),
+            });
+            void (async () => {
+              try {
+                await clearTimerSnapshot();
+                await clearAllData();
+              } catch {
+                // Best-effort; in-memory resets below still apply.
+              }
+              resetStats();
+              resetTasks();
+              resetSchedule();
+              resetSettings();
+            })();
           },
         },
       ]

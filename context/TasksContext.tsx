@@ -79,16 +79,24 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
   }, []);
 
   const persistTasks = useCallback(async (nextTasks: Task[]) => {
-    await saveTasks(nextTasks);
+    try {
+      await saveTasks(nextTasks);
+    } catch {
+      // Logged in storage layer; UI stays responsive.
+    }
   }, []);
 
   const persistProjects = useCallback(async (nextProjects: Project[]) => {
-    await saveProjects(nextProjects);
+    try {
+      await saveProjects(nextProjects);
+    } catch {
+      // Logged in storage layer; UI stays responsive.
+    }
   }, []);
 
   const setActiveTaskId = useCallback((taskId: string | null) => {
     setActiveTaskIdState(taskId);
-    void saveActiveTaskId(taskId);
+    void saveActiveTaskId(taskId).catch(() => undefined);
   }, []);
 
   const getTasksForView = useCallback(
@@ -106,7 +114,7 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
         title: draft.title.trim(),
         notes: draft.notes.trim(),
         projectId: draft.projectId,
-        estimatedPomodoros: Math.max(1, draft.estimatedPomodoros),
+        estimatedPomodoros: Math.max(1, Math.min(20, draft.estimatedPomodoros)),
         completedPomodoros: 0,
         priority: draft.priority,
         dueDate: draft.dueDate,
@@ -145,7 +153,7 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
             notes: patch.notes !== undefined ? patch.notes.trim() : task.notes,
             estimatedPomodoros:
               patch.estimatedPomodoros !== undefined
-                ? Math.max(1, patch.estimatedPomodoros)
+                ? Math.max(1, Math.min(20, patch.estimatedPomodoros))
                 : task.estimatedPomodoros,
             completedAt:
               patch.status === "completed"
@@ -189,24 +197,23 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
 
   const incrementTaskPomodoros = useCallback(
     (taskId: string) => {
+      // Increment only — never auto-complete. Auto-completing hides the task
+      // from Today/Inbox mid-flow and surprises users; completion stays manual.
       setTasks((prev) => {
         const next = prev.map((task) => {
           if (task.id !== taskId) {
             return task;
           }
 
-          const completedPomodoros = task.completedPomodoros + 1;
-          const reachedEstimate =
-            completedPomodoros >= task.estimatedPomodoros;
-
           return {
             ...task,
-            completedPomodoros,
-            status: reachedEstimate ? ("completed" as const) : task.status,
-            completedAt: reachedEstimate ? Date.now() : task.completedAt,
+            completedPomodoros: Math.min(
+              task.estimatedPomodoros,
+              task.completedPomodoros + 1
+            ),
           };
         });
-        void persistTasks(next);
+        void persistTasks(next).catch(() => undefined);
         return next;
       });
     },
@@ -231,9 +238,18 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
 
   const createProject = useCallback(
     (name: string, color: string): Project => {
+      const trimmed = name.trim();
+      // Avoid duplicate "New project" piles: reuse an existing same-name
+      // project instead of creating another.
+      const existing = projects.find(
+        (p) => p.name.toLowerCase() === trimmed.toLowerCase()
+      );
+      if (existing) {
+        return existing;
+      }
       const project: Project = {
         id: createId(),
-        name: name.trim(),
+        name: trimmed,
         color,
         sortOrder: projects.length,
         createdAt: Date.now(),
@@ -241,13 +257,13 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
 
       setProjects((prev) => {
         const next = [...prev, project];
-        void persistProjects(next);
+        void persistProjects(next).catch(() => undefined);
         return next;
       });
 
       return project;
     },
-    [persistProjects, projects.length]
+    [persistProjects, projects]
   );
 
   const deleteProject = useCallback(
@@ -256,27 +272,28 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
         return;
       }
 
-      setProjects((prev) => {
-        const next = prev.filter((project) => project.id !== projectId);
-        void persistProjects(next);
-        return next;
-      });
+      // Compute both next arrays from the same snapshot, persist together,
+      // then update state — no orphaned projectId on crash in between.
+      const nextProjects = projects.filter(
+        (project) => project.id !== projectId
+      );
+      const nextTasks = tasks.map((task) =>
+        task.projectId === projectId
+          ? { ...task, projectId: INBOX_PROJECT_ID }
+          : task
+      );
 
-      setTasks((prev) => {
-        const next = prev.map((task) =>
-          task.projectId === projectId
-            ? { ...task, projectId: INBOX_PROJECT_ID }
-            : task
-        );
-        void persistTasks(next);
-        return next;
-      });
-
+      setProjects(nextProjects);
+      setTasks(nextTasks);
       if (selectedProjectId === projectId) {
         setSelectedProjectId(null);
       }
+      void Promise.all([
+        persistProjects(nextProjects),
+        persistTasks(nextTasks),
+      ]).catch(() => undefined);
     },
-    [persistTasks, persistProjects, selectedProjectId]
+    [persistTasks, persistProjects, projects, tasks, selectedProjectId]
   );
 
   const resetTasks = useCallback(() => {
@@ -285,8 +302,8 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
     setProjects(defaults);
     setActiveTaskId(null);
     setSelectedProjectId(null);
-    void persistTasks([]);
-    void persistProjects(defaults);
+    void persistTasks([]).catch(() => undefined);
+    void persistProjects(defaults).catch(() => undefined);
   }, [persistTasks, persistProjects, setActiveTaskId]);
 
   const activeTask = useMemo(
