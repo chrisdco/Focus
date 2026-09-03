@@ -5,6 +5,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -44,6 +45,10 @@ export const ScheduleProvider: React.FC<ScheduleProviderProps> = ({
   const { tasks } = useTasks();
   const [blocks, setBlocks] = useState<ScheduleBlock[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
+  // Synchronous source of truth so rapid upserts can't both pass the
+  // overlap check on a stale closure before re-render.
+  const blocksRef = useRef<ScheduleBlock[]>([]);
+  blocksRef.current = blocks;
 
   useEffect(() => {
     const hydrate = async () => {
@@ -56,7 +61,7 @@ export const ScheduleProvider: React.FC<ScheduleProviderProps> = ({
   }, []);
 
   const persist = useCallback((next: ScheduleBlock[]) => {
-    void saveScheduleBlocks(next);
+    void saveScheduleBlocks(next).catch(() => undefined);
   }, []);
 
   const resolveTitle = useCallback(
@@ -102,41 +107,42 @@ export const ScheduleProvider: React.FC<ScheduleProviderProps> = ({
         taskId: draft.taskId,
       };
 
-      if (hasOverlap(blocks, nextBlock)) {
+      // Check against the ref (synchronously updated) so two rapid calls
+      // can't both sneak past on stale state.
+      const current = blocksRef.current.filter((block) => block.id !== id);
+      if (hasOverlap(current, nextBlock)) {
         return null;
       }
 
-      setBlocks((prev) => {
-        const without = prev.filter((block) => block.id !== id);
-        const next = [...without, nextBlock];
-        persist(next);
-        return next;
-      });
+      const next = [...current, nextBlock];
+      blocksRef.current = next;
+      setBlocks(next);
+      persist(next);
 
       return id;
     },
-    [blocks, persist]
+    [persist]
   );
 
   const deleteBlock = useCallback(
     (blockId: string) => {
-      void cancelBlockReminder(blockId);
-      setBlocks((prev) => {
-        const next = prev.filter((block) => block.id !== blockId);
-        persist(next);
-        return next;
-      });
+      void cancelBlockReminder(blockId).catch(() => undefined);
+      const next = blocksRef.current.filter((block) => block.id !== blockId);
+      blocksRef.current = next;
+      setBlocks(next);
+      persist(next);
     },
     [persist]
   );
 
   const resetSchedule = useCallback(() => {
-    for (const block of blocks) {
-      void cancelBlockReminder(block.id);
+    for (const block of blocksRef.current) {
+      void cancelBlockReminder(block.id).catch(() => undefined);
     }
+    blocksRef.current = [];
     setBlocks([]);
     persist([]);
-  }, [blocks, persist]);
+  }, [persist]);
 
   const value = useMemo(
     () => ({

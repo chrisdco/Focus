@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Modal,
   Pressable,
@@ -30,15 +30,33 @@ export const PlanTomorrowModal: React.FC<PlanTomorrowModalProps> = ({
   const { colors, isDark } = useTheme();
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
+  // Include inbox + overdue + already-due-tomorrow tasks so tomorrow-due
+  // items aren't hidden; pre-check the already-planned ones.
   const inbox = useMemo(
     () =>
       tasks.filter(
         (task) =>
           task.status === "active" &&
-          (task.dueDate === null || task.dueDate > tomorrowKey)
+          (task.dueDate === null || task.dueDate <= tomorrowKey)
       ),
     [tasks, tomorrowKey]
   );
+
+  useEffect(() => {
+    if (!visible) {
+      return;
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset + pre-check on open
+    setSelected(
+      new Set(
+        tasks
+          .filter(
+            (task) => task.status === "active" && task.dueDate === tomorrowKey
+          )
+          .map((task) => task.id)
+      )
+    );
+  }, [visible, tasks, tomorrowKey]);
 
   const styles = useMemo(
     () =>
