@@ -11,6 +11,7 @@ import { CircularTimer } from "../../components/timer/CircularTimer";
 import { TimerButton } from "../../components/timer/TimerButton";
 import { ActiveTaskPicker } from "../../components/tasks/ActiveTaskPicker";
 import { TodayStrip } from "../../components/calendar/TodayStrip";
+import { OnboardingGate } from "../../components/ui/OnboardingGate";
 import { FocusBackground } from "../../components/focus/FocusBackground";
 import { BreakBreather } from "../../components/focus/BreakBreather";
 import { SoundMixer } from "../../components/focus/SoundMixer";
@@ -405,6 +406,8 @@ const TimerScreen: React.FC = () => {
         visible={taskPickerVisible}
         onClose={() => setTaskPickerVisible(false)}
       />
+
+      <OnboardingGate />
 
       <Modal
         visible={ambienceVisible}

@@ -258,6 +258,15 @@ export const saveScheduleBlocks = async (
   await writeRaw(STORAGE_KEYS.scheduleBlocks, JSON.stringify(blocks));
 };
 
+export const loadHasSeenOnboarding = async (): Promise<boolean> => {
+  const raw = await readRaw(STORAGE_KEYS.onboardingSeen);
+  return raw === "1";
+};
+
+export const saveHasSeenOnboarding = async (): Promise<void> => {
+  await writeRaw(STORAGE_KEYS.onboardingSeen, "1");
+};
+
 export const clearAllData = async (): Promise<void> => {
   try {
     await AsyncStorage.multiRemove(Object.values(STORAGE_KEYS));
