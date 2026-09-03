@@ -15,6 +15,7 @@ import { FocusBackground } from "../../components/focus/FocusBackground";
 import { SoundMixer } from "../../components/focus/SoundMixer";
 import { useFocusMode } from "../../context/FocusModeContext";
 import { useSettings } from "../../context/SettingsContext";
+import { useStats } from "../../context/StatsContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import { usePomodoroTimer } from "../../hooks/usePomodoroTimer";
@@ -28,6 +29,7 @@ const TimerScreen: React.FC = () => {
   const { settings } = useSettings();
   const { isFocusMode } = useFocusMode();
   const { activeTask } = useTasks();
+  const { stats, getTodayPomodoroCount } = useStats();
   const [taskPickerVisible, setTaskPickerVisible] = useState(false);
   const [appIsActive, setAppIsActive] = useState(AppState.currentState === "active");
   const {
@@ -49,6 +51,17 @@ const TimerScreen: React.FC = () => {
   const [showCelebration, setShowCelebration] = useState(false);
   const [ambienceVisible, setAmbienceVisible] = useState(false);
   const hasAmbience = settings.soundMix.some((layer) => layer.volume > 0);
+
+  // Earned completion copy: reflect the actual day + streak instead of a
+  // generic cheer. Counts include the just-logged session.
+  const todayCount = getTodayPomodoroCount();
+  const streak = stats.currentStreak;
+  const celebrationMessage =
+    completedMode === "focus"
+      ? todayCount <= 1
+        ? "First light today — well begun."
+        : `${todayCount} gathered today · ${streak}-day streak`
+      : "Break well earned — breathe easy.";
 
   useSessionSound(justCompleted, completedMode);
 
@@ -266,6 +279,7 @@ const TimerScreen: React.FC = () => {
       <FocusBackground
         active={isFocusMode && settings.focusAnimationsEnabled}
         paused={!appIsActive}
+        intensity={Math.min(1, streak / 7)}
       />
 
       <View style={styles.container}>
@@ -333,6 +347,8 @@ const TimerScreen: React.FC = () => {
             durationMs={durationMs}
             mode={mode}
             enlarged={isFocusMode}
+            active={isRunning}
+            animationsEnabled={settings.focusAnimationsEnabled}
           />
         </Animated.View>
 
@@ -376,7 +392,7 @@ const TimerScreen: React.FC = () => {
 
       <CelebrationOverlay
         visible={showCelebration}
-        message="Session complete!"
+        message={celebrationMessage}
       />
 
       <ActiveTaskPicker
