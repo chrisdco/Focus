@@ -158,7 +158,7 @@ describe("SKIP", () => {
 });
 
 describe("RESET", () => {
-  it("restores a fresh state at the given duration", () => {
+  it("resets timing but preserves mode and session counter", () => {
     const dirty: TimerState = {
       ...base,
       isRunning: true,
@@ -174,8 +174,8 @@ describe("RESET", () => {
       durationMs: 600_000,
       remainingMs: 600_000,
       expectedEndTime: null,
-      mode: "focus",
-      completedFocusSessions: 0,
+      mode: "shortBreak",
+      completedFocusSessions: 3,
     });
   });
 });

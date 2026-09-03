@@ -30,6 +30,7 @@ export const usePomodoroTimer = () => {
 
   const intervalRef = useRef<IntervalId>(null);
   const wasRunningRef = useRef(false);
+  const runningModeRef = useRef<TimerMode>(mode);
   const [justCompleted, setJustCompleted] = useState(false);
   const [completedMode, setCompletedMode] = useState<TimerMode>("focus");
 
@@ -65,10 +66,12 @@ export const usePomodoroTimer = () => {
   }, [dispatch, isRunning, settings.hapticsEnabled]);
 
   const reset = useCallback(() => {
-    const focusDuration = getDurationForMode("focus", settings);
+    // Reset timing for the current mode (not always focus) so a break
+    // reset doesn't jump modes or wipe the long-break counter.
+    const currentDuration = getDurationForMode(mode, settings);
 
-    dispatch({ type: "RESET", durationMs: focusDuration });
-  }, [dispatch, settings]);
+    dispatch({ type: "RESET", durationMs: currentDuration });
+  }, [dispatch, mode, settings]);
 
   const skipToMode = useCallback(
     (nextMode: TimerMode, nextCompletedSessions: number) => {
@@ -130,8 +133,13 @@ export const usePomodoroTimer = () => {
   );
 
   useEffect(() => {
+    if (isRunning) {
+      runningModeRef.current = mode;
+    }
+
     if (wasRunningRef.current && !isRunning && remainingMs === 0) {
-      setCompletedMode(mode);
+      // mode has already advanced; report the mode that just ran.
+      setCompletedMode(runningModeRef.current);
       setJustCompleted(true);
       const timeout = setTimeout(() => setJustCompleted(false), 3000);
       wasRunningRef.current = isRunning;
@@ -140,7 +148,7 @@ export const usePomodoroTimer = () => {
 
     wasRunningRef.current = isRunning;
     return undefined;
-  }, [isRunning, remainingMs]);
+  }, [isRunning, remainingMs, mode]);
 
   return {
     isRunning,

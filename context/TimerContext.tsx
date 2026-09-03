@@ -3,7 +3,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useEffect,
+  useMemo,
   useReducer,
   useRef,
 } from "react";
@@ -63,10 +63,14 @@ export const timerReducer = (
       };
     }
     case "RESET": {
+      // Reset timing for the *current* mode; preserve mode + long-break counter
+      // so resetting during a break doesn't lose progress.
       return {
-        ...createInitialTimerState(),
+        ...state,
+        isRunning: false,
         durationMs: action.durationMs,
         remainingMs: action.durationMs,
+        expectedEndTime: null,
       };
     }
     case "TICK": {
@@ -151,6 +155,7 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({
   settings = DEFAULT_SETTINGS,
 }) => {
   const settingsRef = useRef(settings);
+  settingsRef.current = settings;
 
   const [state, dispatch] = useReducer(timerReducer, undefined, () => {
     const initial = createInitialTimerState(settings);
@@ -166,14 +171,13 @@ export const TimerProvider: React.FC<TimerProviderProps> = ({
     settingsRef.current = nextSettings;
   }, []);
 
-  useEffect(() => {
-    settingsRef.current = settings;
-  }, [settings]);
+  const value = useMemo(
+    () => ({ state, dispatch, settings, setSettingsRef }),
+    [state, settings, setSettingsRef]
+  );
 
   return (
-    <TimerContext.Provider
-      value={{ state, dispatch, settings: settingsRef.current, setSettingsRef }}
-    >
+    <TimerContext.Provider value={value}>
       {children}
     </TimerContext.Provider>
   );
