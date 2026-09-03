@@ -11,8 +11,11 @@ import { router } from "expo-router";
 
 import { TaskFormModal } from "../../components/tasks/TaskFormModal";
 import { TaskRow } from "../../components/tasks/TaskRow";
+import { QuickAdd } from "../../components/tasks/QuickAdd";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ScreenTitle } from "../../components/ui/ScreenTitle";
+import { createEmptyTaskDraft } from "../../types/task";
+import { toDateKey } from "../../utils/timer";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import type { Task, TaskView } from "../../types/task";
@@ -148,6 +151,18 @@ const TasksScreen: React.FC = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <ScreenTitle title="Tasks" />
+
+        <QuickAdd
+          onAdd={(title, estimatedPomodoros) =>
+            createTask({
+              ...createEmptyTaskDraft(selectedProjectId ?? undefined),
+              title,
+              estimatedPomodoros,
+              // Stamp current day for today-view captures.
+              ...(view === "today" ? { dueDate: toDateKey(Date.now()) } : {}),
+            })
+          }
+        />
 
         <View style={styles.segmentRow}>
           {VIEWS.map((item) => (
