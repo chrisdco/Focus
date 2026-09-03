@@ -13,6 +13,7 @@ import { BarChart } from "../../components/stats/BarChart";
 import { FocusHeatmap } from "../../components/stats/FocusHeatmap";
 import { ProjectBreakdown } from "../../components/stats/ProjectBreakdown";
 import { SessionTimeline } from "../../components/stats/SessionTimeline";
+import { CollapsibleSection } from "../../components/ui/CollapsibleSection";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ScreenTitle } from "../../components/ui/ScreenTitle";
 import { useStats } from "../../context/StatsContext";
@@ -38,6 +39,7 @@ const StatsScreen: React.FC = () => {
   const { colors, isDark } = useTheme();
   const { tasks, projects } = useTasks();
   const {
+    logs,
     stats,
     getWeeklyActivity,
     getPeriodStats,
@@ -48,27 +50,70 @@ const StatsScreen: React.FC = () => {
     getProductivityByWeekday,
     getFocusByProject,
     getRecentSessions,
+    getTodayPomodoroCount,
     achievements,
   } = useStats();
 
   const [period, setPeriod] = useState<StatsPeriod>("week");
-  const periodStats = getPeriodStats(period);
-  const weeklyActivity = getWeeklyActivity();
-  const records = getPersonalRecords();
-  const hourCounts = getProductivityByHour();
+  // Memoize every aggregation on the log identity so a re-render (e.g. theme
+  // toggle) doesn't recompute the 84-cell heatmap and period stats.
+  const periodStats = useMemo(
+    () => getPeriodStats(period),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [logs, period]
+  );
+  const weeklyActivity = useMemo(
+    () => getWeeklyActivity(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [logs]
+  );
+  const records = useMemo(
+    () => getPersonalRecords(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [logs]
+  );
+  const hourCounts = useMemo(
+    () => getProductivityByHour(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [logs]
+  );
   const maxHour = Math.max(...hourCounts, 1);
-  const weekdayCounts = getProductivityByWeekday();
+  const weekdayCounts = useMemo(
+    () => getProductivityByWeekday(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [logs]
+  );
+  const heatmapActivity = useMemo(
+    () => getHeatmapActivity(12),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [logs]
+  );
+  const recentSessions = useMemo(
+    () => getRecentSessions(15),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [logs]
+  );
+  const todayCount = useMemo(
+    () => getTodayPomodoroCount(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [logs]
+  );
 
-  const projectStats = getFocusByProject((taskId) => {
-    const task = tasks.find((item) => item.id === taskId);
-    if (!task) {
-      return null;
-    }
-    const project = projects.find((item) => item.id === task.projectId);
-    return project
-      ? { id: project.id, name: project.name }
-      : { id: task.projectId, name: "Inbox" };
-  });
+  const projectStats = useMemo(
+    () =>
+      getFocusByProject((taskId) => {
+        const task = tasks.find((item) => item.id === taskId);
+        if (!task) {
+          return null;
+        }
+        const project = projects.find((item) => item.id === task.projectId);
+        return project
+          ? { id: project.id, name: project.name }
+          : { id: task.projectId, name: "Inbox" };
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [logs, tasks, projects]
+  );
 
   const styles = useMemo(
     () =>
@@ -82,31 +127,26 @@ const StatsScreen: React.FC = () => {
           paddingTop: 16,
           paddingBottom: 40,
         },
-        cardsRow: {
-          flexDirection: "row",
-          gap: 12,
-          marginBottom: 12,
-        },
-        card: {
-          flex: 1,
+        hero: {
           backgroundColor: colors.surface,
           borderRadius: 16,
-          padding: 18,
-          alignItems: "center",
+          padding: 20,
+          alignItems: "flex-start",
           borderWidth: 1,
           borderColor: colors.border,
+          marginBottom: 16,
           ...cardElevation(isDark),
         },
-        cardValue: {
-          fontSize: 28,
+        heroValue: {
+          fontSize: 44,
           fontWeight: "700",
           color: colors.text,
-          marginBottom: 4,
+          letterSpacing: 0.5,
         },
-        cardLabel: {
-          fontSize: 13,
+        heroLabel: {
+          fontSize: 14,
           color: colors.textMuted,
-          textAlign: "center",
+          marginTop: 4,
         },
         section: {
           backgroundColor: colors.surface,
@@ -233,15 +273,16 @@ const StatsScreen: React.FC = () => {
       >
         <ScreenTitle title="Stats" />
 
-        <View style={styles.cardsRow}>
-          <View style={styles.card}>
-            <Text style={styles.cardValue}>{stats.currentStreak}</Text>
-            <Text style={styles.cardLabel}>Day streak</Text>
-          </View>
-          <View style={styles.card}>
-            <Text style={styles.cardValue}>{stats.longestStreak}</Text>
-            <Text style={styles.cardLabel}>Best streak</Text>
-          </View>
+        <View
+          style={styles.hero}
+          accessibilityRole="text"
+          accessibilityLabel={`${todayCount} pomodoros today, ${stats.currentStreak} day streak`}
+        >
+          <Text style={styles.heroValue}>{todayCount}</Text>
+          <Text style={styles.heroLabel}>
+            today · {stats.currentStreak}-day streak · best{" "}
+            {stats.longestStreak}
+          </Text>
         </View>
 
         <View style={styles.section}>
@@ -320,11 +361,10 @@ const StatsScreen: React.FC = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Activity heatmap</Text>
-          <FocusHeatmap activity={getHeatmapActivity(12)} weeks={12} />
+          <FocusHeatmap activity={heatmapActivity} weeks={12} />
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Personal records</Text>
+        <CollapsibleSection title="Personal records">
           <View style={styles.recordRow}>
             <Text style={styles.recordLabel}>Longest session</Text>
             <Text style={styles.recordValue}>
@@ -344,15 +384,13 @@ const StatsScreen: React.FC = () => {
               {records.averageSessionMinutes}m
             </Text>
           </View>
-        </View>
+        </CollapsibleSection>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Focus by project</Text>
+        <CollapsibleSection title="Focus by project">
           <ProjectBreakdown data={projectStats} />
-        </View>
+        </CollapsibleSection>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Peak focus hours</Text>
+        <CollapsibleSection title="Peak focus hours">
           <View style={styles.miniChart}>
             {hourCounts.map((count, hour) => (
               <View
@@ -364,25 +402,22 @@ const StatsScreen: React.FC = () => {
               />
             ))}
           </View>
-        </View>
+        </CollapsibleSection>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Focus by weekday</Text>
+        <CollapsibleSection title="Focus by weekday">
           <BarChart values={weekdayCounts} labels={WEEKDAY_LABELS} />
-        </View>
+        </CollapsibleSection>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent sessions</Text>
+        <CollapsibleSection title="Recent sessions">
           <SessionTimeline
-            sessions={getRecentSessions(15)}
+            sessions={recentSessions}
             resolveTaskTitle={resolveTaskTitle}
           />
-        </View>
+        </CollapsibleSection>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Achievements</Text>
+        <CollapsibleSection title="Achievements">
           <AchievementBadges achievements={achievements} />
-        </View>
+        </CollapsibleSection>
       </ScrollView>
     </SafeAreaView>
   );
