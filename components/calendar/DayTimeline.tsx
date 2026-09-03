@@ -82,11 +82,15 @@ export const DayTimeline: React.FC<DayTimelineProps> = ({
       })}
 
       {blocks.map((block) => {
-        const top =
+        const rawTop =
           ((block.startMinutes - DAY_START_HOUR * 60) / 60) * HOUR_HEIGHT;
-        const blockHeight = Math.max(
-          28,
-          (block.durationMinutes / 60) * HOUR_HEIGHT
+        // Clamp into the visible 06:00–22:00 window so pre-dawn blocks
+        // don't render at negative offsets and late blocks don't overflow.
+        const top = Math.max(0, Math.min(height - 8, rawTop));
+        const maxHeight = Math.max(8, height - top);
+        const blockHeight = Math.min(
+          Math.max(28, (block.durationMinutes / 60) * HOUR_HEIGHT),
+          maxHeight
         );
         const isFocus = block.kind === "focus";
         const background = isFocus ? `${colors.focus}22` : `${colors.shortBreak}22`;

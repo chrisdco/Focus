@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
+  AppState,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -30,7 +31,21 @@ const CalendarScreen: React.FC = () => {
   const { settings } = useSettings();
   const { tasks, planTasksForDate } = useTasks();
   const { blocks, upsertBlock, deleteBlock } = useSchedule();
-  const [todayKey] = useState(() => toDateKey(Date.now()));
+  // Recompute "today" on every render + when returning to foreground so an
+  // overnight-open app doesn't show stale plan counts.
+  const [, setNowTick] = useState(0);
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (s) => {
+      if (s === "active") {
+        setNowTick((v) => v + 1);
+      }
+    });
+    return () => sub.remove();
+  }, []);
+  const todayKey = toDateKey(
+    // eslint-disable-next-line react-hooks/purity -- must refresh each render + on foreground for overnight-open apps
+    Date.now()
+  );
   const [dateKey, setDateKey] = useState(todayKey);
   const [editorVisible, setEditorVisible] = useState(false);
   const [planVisible, setPlanVisible] = useState(false);
@@ -38,7 +53,12 @@ const CalendarScreen: React.FC = () => {
 
   const dayBlocks = getBlocksForDate(blocks, dateKey);
   const tomorrowKey = shiftDateKey(todayKey, 1);
-  const planned = getPlannedPomodoroCount(tasks, blocks, dateKey);
+  const planned = getPlannedPomodoroCount(
+    tasks,
+    blocks,
+    dateKey,
+    settings.focusDurationMinutes
+  );
 
   const styles = useMemo(
     () =>
@@ -195,7 +215,6 @@ const CalendarScreen: React.FC = () => {
       />
 
       <PlanTomorrowModal
-        key={planVisible ? "plan-open" : "plan-closed"}
         visible={planVisible}
         tomorrowKey={tomorrowKey}
         tasks={tasks}

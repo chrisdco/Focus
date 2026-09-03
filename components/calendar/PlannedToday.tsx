@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { useSchedule } from "../../context/ScheduleContext";
+import { useSettings } from "../../context/SettingsContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import { getPlannedPomodoroCount } from "../../domain/schedule";
@@ -12,8 +13,17 @@ export const PlannedToday: React.FC = () => {
   const { colors, isDark } = useTheme();
   const { tasks } = useTasks();
   const { blocks } = useSchedule();
-  const [todayKey] = useState(() => toDateKey(Date.now()));
-  const planned = getPlannedPomodoroCount(tasks, blocks, todayKey);
+  const { settings } = useSettings();
+  const todayKey = toDateKey(
+    // eslint-disable-next-line react-hooks/purity -- must refresh each render for overnight-open apps
+    Date.now()
+  );
+  const planned = getPlannedPomodoroCount(
+    tasks,
+    blocks,
+    todayKey,
+    settings.focusDurationMinutes
+  );
 
   const styles = useMemo(
     () =>

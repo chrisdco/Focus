@@ -53,30 +53,38 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
   const [kind, setKind] = useState<ScheduleBlockKind>("focus");
   const [taskId, setTaskId] = useState<string | null>(null);
 
+  // Sync draft immediately on open (no setTimeout) to avoid one frame of
+  // stale values from the previous edit.
   useEffect(() => {
     if (!visible) {
       return;
     }
 
-    const timer = setTimeout(() => {
-      if (initial) {
-        setHour(Math.floor(initial.startMinutes / 60));
-        setMinute(initial.startMinutes % 60);
-        setDuration(initial.durationMinutes);
-        setKind(initial.kind);
-        setTaskId(initial.taskId);
-        return;
-      }
+    if (initial) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional draft reset on open
+      setHour(Math.floor(initial.startMinutes / 60));
+      setMinute(initial.startMinutes % 60);
+      setDuration(initial.durationMinutes);
+      setKind(initial.kind);
+      setTaskId(initial.taskId);
+      return;
+    }
 
-      setHour(9);
-      setMinute(0);
-      setDuration(defaultDurationMinutes);
-      setKind("focus");
-      setTaskId(null);
-    }, 0);
-
-    return () => clearTimeout(timer);
+    setHour(9);
+    setMinute(0);
+    setDuration(defaultDurationMinutes);
+    setKind("focus");
+    setTaskId(null);
   }, [visible, initial, defaultDurationMinutes]);
+
+  const shiftMinutes = (delta: number) => {
+    const total = Math.max(
+      0,
+      Math.min(23 * 60 + 59, hour * 60 + minute + delta)
+    );
+    setHour(Math.floor(total / 60));
+    setMinute(total % 60);
+  };
 
   const styles = useMemo(
     () =>
@@ -209,13 +217,17 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
               </Pressable>
               <Pressable
                 style={styles.stepper}
-                onPress={() => setMinute((value) => (value + 55) % 60)}
+                onPress={() => shiftMinutes(-5)}
+                accessibilityRole="button"
+                accessibilityLabel="Minus 5 minutes"
               >
                 <Text style={styles.stepperText}>−5</Text>
               </Pressable>
               <Pressable
                 style={styles.stepper}
-                onPress={() => setMinute((value) => (value + 5) % 60)}
+                onPress={() => shiftMinutes(5)}
+                accessibilityRole="button"
+                accessibilityLabel="Plus 5 minutes"
               >
                 <Text style={styles.stepperText}>+5</Text>
               </Pressable>

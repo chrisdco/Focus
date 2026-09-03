@@ -54,25 +54,22 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
       return;
     }
 
-    const resetTimer = setTimeout(() => {
-      if (initialTask) {
-        setDraft({
-          title: initialTask.title,
-          notes: initialTask.notes,
-          projectId: initialTask.projectId,
-          estimatedPomodoros: initialTask.estimatedPomodoros,
-          priority: initialTask.priority,
-          dueDate: initialTask.dueDate,
-          tags: initialTask.tags,
-        });
-        setTagsInput(initialTask.tags.join(", "));
-      } else {
-        setDraft(createEmptyTaskDraft());
-        setTagsInput("");
-      }
-    }, 0);
-
-    return () => clearTimeout(resetTimer);
+    if (initialTask) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional draft reset on open
+      setDraft({
+        title: initialTask.title,
+        notes: initialTask.notes,
+        projectId: initialTask.projectId,
+        estimatedPomodoros: initialTask.estimatedPomodoros,
+        priority: initialTask.priority,
+        dueDate: initialTask.dueDate,
+        tags: initialTask.tags,
+      });
+      setTagsInput(initialTask.tags.join(", "));
+    } else {
+      setDraft(createEmptyTaskDraft());
+      setTagsInput("");
+    }
   }, [visible, initialTask]);
 
   const styles = useMemo(
