@@ -99,3 +99,56 @@ export const normalizeBreakSoundId = (value: unknown): BreakSoundId =>
   typeof value === "string" && isBreakSoundId(value)
     ? value
     : DEFAULT_BREAK_SOUND;
+
+const clampInt = (
+  value: unknown,
+  min: number,
+  max: number,
+  fallback: number
+): number => {
+  const n = typeof value === "number" ? Math.round(value) : NaN;
+  if (!Number.isFinite(n)) {
+    return fallback;
+  }
+  return Math.max(min, Math.min(max, n));
+};
+
+export const normalizeSettings = (stored: Partial<Settings>): Settings => ({
+  ...DEFAULT_SETTINGS,
+  ...stored,
+  focusDurationMinutes: clampInt(
+    stored.focusDurationMinutes,
+    1,
+    180,
+    DEFAULT_SETTINGS.focusDurationMinutes
+  ),
+  shortBreakDurationMinutes: clampInt(
+    stored.shortBreakDurationMinutes,
+    1,
+    60,
+    DEFAULT_SETTINGS.shortBreakDurationMinutes
+  ),
+  longBreakDurationMinutes: clampInt(
+    stored.longBreakDurationMinutes,
+    1,
+    60,
+    DEFAULT_SETTINGS.longBreakDurationMinutes
+  ),
+  sessionsBeforeLongBreak: clampInt(
+    stored.sessionsBeforeLongBreak,
+    2,
+    8,
+    DEFAULT_SETTINGS.sessionsBeforeLongBreak
+  ),
+  dailyPomodoroGoal: clampInt(
+    stored.dailyPomodoroGoal,
+    1,
+    50,
+    DEFAULT_SETTINGS.dailyPomodoroGoal
+  ),
+  soundMix: normalizeSoundMix(stored.soundMix ?? DEFAULT_SETTINGS.soundMix),
+  accentId: normalizeAccentId(stored.accentId),
+  timerLayout: normalizeTimerLayout(stored.timerLayout),
+  completionSoundId: normalizeCompletionSoundId(stored.completionSoundId),
+  breakSoundId: normalizeBreakSoundId(stored.breakSoundId),
+});

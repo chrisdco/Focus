@@ -5,8 +5,10 @@ import {
   normalizeAccentId,
   normalizeBreakSoundId,
   normalizeCompletionSoundId,
+  normalizeSettings,
   normalizeSoundMix,
   normalizeTimerLayout,
+  DEFAULT_SETTINGS,
 } from "./settings";
 
 const layer = (id: SoundMixLayer["id"], volume: number): SoundMixLayer => ({
@@ -78,5 +80,31 @@ describe("personalization setting normalizers", () => {
     expect(normalizeCompletionSoundId("laser")).toBe("classic");
     expect(normalizeBreakSoundId("air")).toBe("air");
     expect(normalizeBreakSoundId("honk")).toBe("soft");
+  });
+});
+
+describe("normalizeSettings", () => {
+  it("clamps numeric fields into valid ranges", () => {
+    const result = normalizeSettings({
+      focusDurationMinutes: 999,
+      shortBreakDurationMinutes: -5,
+      sessionsBeforeLongBreak: 99,
+      dailyPomodoroGoal: 0,
+    });
+
+    expect(result.focusDurationMinutes).toBe(180);
+    expect(result.shortBreakDurationMinutes).toBe(1);
+    expect(result.sessionsBeforeLongBreak).toBe(8);
+    expect(result.dailyPomodoroGoal).toBe(1);
+  });
+
+  it("falls back for non-numeric input", () => {
+    const result = normalizeSettings({
+      focusDurationMinutes: "x" as unknown as number,
+    });
+
+    expect(result.focusDurationMinutes).toBe(
+      DEFAULT_SETTINGS.focusDurationMinutes
+    );
   });
 });

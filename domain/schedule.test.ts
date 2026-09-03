@@ -92,12 +92,15 @@ describe("schedule helpers", () => {
   it("counts scheduled focus pomodoros from block length", () => {
     expect(pomodorosFromMinutes(25)).toBe(1);
     expect(pomodorosFromMinutes(50)).toBe(2);
+    expect(pomodorosFromMinutes(50, 50)).toBe(1);
 
     const blocks = [
       block({ kind: "focus", durationMinutes: 50 }),
       block({ id: "b", kind: "shortBreak", durationMinutes: 5 }),
+      block({ id: "c", kind: "focus", durationMinutes: 25, taskId: "1" }),
     ];
 
+    // Task-linked blocks are excluded (counted via task estimates).
     expect(getScheduledPomodoros(blocks, "2026-09-03")).toBe(2);
   });
 

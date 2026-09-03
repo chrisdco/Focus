@@ -35,7 +35,7 @@ export const formatTime = (milliseconds: number): string => {
 
 export const formatDurationLabel = (durationMs: number): string => {
   const totalMinutes = Math.round(durationMs / 60000);
-  return `${totalMinutes}:00`;
+  return `${String(totalMinutes).padStart(2, "0")}:00`;
 };
 
 export const toDateKey = (timestamp: number): string => {

@@ -61,6 +61,8 @@ interface StatsContextValue {
   isHydrated: boolean;
 }
 
+const MAX_SESSION_LOGS = 2000;
+
 const StatsContext = createContext<StatsContextValue | undefined>(undefined);
 
 const computeStreak = (
@@ -199,32 +201,31 @@ export const StatsProvider: React.FC<StatsProviderProps> = ({ children }) => {
 
   const logSession = useCallback(
     (mode: TimerMode, durationMs: number, taskId?: string) => {
-      setLogs((prevLogs) => {
-        const entry: SessionLog = {
-          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          mode,
-          durationMs,
-          completedAt: Date.now(),
-          ...(taskId ? { taskId } : {}),
-        };
-        const nextLogs = [...prevLogs, entry];
-        const nextStats = deriveStats(nextLogs);
+      // Pure state update: compute next values from current render state
+      // (not inside an updater) so StrictMode double-invoke can't duplicate.
+      const entry: SessionLog = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        mode,
+        durationMs,
+        completedAt: Date.now(),
+        ...(taskId ? { taskId } : {}),
+      };
+      const nextLogs = [...logs, entry].slice(-MAX_SESSION_LOGS);
+      const nextStats = deriveStats(nextLogs);
+      const nextAchievements = unlockAchievements(
+        nextStats,
+        nextLogs,
+        unlockedMap
+      );
 
-        setStats(nextStats);
-        setUnlockedMap((prevUnlocked) => {
-          const nextAchievements = unlockAchievements(
-            nextStats,
-            nextLogs,
-            prevUnlocked
-          );
-          void persist(nextLogs, nextStats, nextAchievements);
-          return nextAchievements;
-        });
-
-        return nextLogs;
-      });
+      setLogs(nextLogs);
+      setStats(nextStats);
+      setUnlockedMap(nextAchievements);
+      void persist(nextLogs, nextStats, nextAchievements).catch(
+        () => undefined
+      );
     },
-    [persist, unlockAchievements]
+    [logs, unlockedMap, persist, unlockAchievements]
   );
 
   const getWeeklyActivity = useCallback(
@@ -244,7 +245,7 @@ export const StatsProvider: React.FC<StatsProviderProps> = ({ children }) => {
     setLogs([]);
     setStats(createInitialStats());
     setUnlockedMap({});
-    void persist([], createInitialStats(), {});
+    void persist([], createInitialStats(), {}).catch(() => undefined);
   }, [persist]);
 
   const value = useMemo(
