@@ -19,11 +19,9 @@ export const useAppStateReconciliation = (): void => {
     }
 
     const now = Date.now();
+    // Single TICK is enough: the reducer clamps to zero and stops when
+    // expectedEndTime <= now. A second dispatch was redundant.
     dispatch({ type: "TICK", now });
-
-    if (current.expectedEndTime <= now) {
-      dispatch({ type: "TICK", now });
-    }
   }, [dispatch]);
 
   useEffect(() => {

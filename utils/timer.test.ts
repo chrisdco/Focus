@@ -109,7 +109,7 @@ describe("hydrateFromSnapshot", () => {
     expect(result.expectedEndTime).toBe(60_000);
   });
 
-  it("expires a running snapshot whose end time has passed", () => {
+  it("keeps an expired snapshot running at zero so completion logs once", () => {
     const snapshot: TimerSnapshot = {
       isRunning: true,
       durationMs: 25 * 60_000,
@@ -121,8 +121,8 @@ describe("hydrateFromSnapshot", () => {
 
     const result = hydrateFromSnapshot(baseState, snapshot, 1_000);
 
-    expect(result.isRunning).toBe(false);
+    expect(result.isRunning).toBe(true);
     expect(result.remainingMs).toBe(0);
-    expect(result.expectedEndTime).toBeNull();
+    expect(result.expectedEndTime).toBe(500);
   });
 });

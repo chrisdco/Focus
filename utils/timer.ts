@@ -53,22 +53,48 @@ export const getDaysBetween = (from: string, to: string): number => {
   return Math.round(diffMs / (24 * 60 * 60 * 1000));
 };
 
+export const isValidTimerSnapshot = (value: unknown): value is TimerSnapshot => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.isRunning === "boolean" &&
+    typeof v.durationMs === "number" &&
+    Number.isFinite(v.durationMs) &&
+    v.durationMs > 0 &&
+    typeof v.remainingMs === "number" &&
+    Number.isFinite(v.remainingMs) &&
+    v.remainingMs >= 0 &&
+    (v.expectedEndTime === null || typeof v.expectedEndTime === "number") &&
+    (v.mode === "focus" || v.mode === "shortBreak" || v.mode === "longBreak") &&
+    typeof v.completedFocusSessions === "number" &&
+    Number.isInteger(v.completedFocusSessions) &&
+    v.completedFocusSessions >= 0
+  );
+};
+
 export const hydrateFromSnapshot = (
   state: TimerState,
   snapshot: TimerSnapshot,
   now: number
 ): TimerState => {
+  if (!isValidTimerSnapshot(snapshot)) {
+    return state;
+  }
+
   if (
     snapshot.isRunning &&
     snapshot.expectedEndTime !== null &&
     snapshot.expectedEndTime <= now
   ) {
+    // Expired while away: keep isRunning so the persistence layer can log
+    // the completion exactly once, then advance. Remaining is 0 so the next
+    // TICK settles it even if the completion effect races.
     return {
       ...state,
       ...snapshot,
-      isRunning: false,
       remainingMs: 0,
-      expectedEndTime: null,
     };
   }
 
