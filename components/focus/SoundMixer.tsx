@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   Pressable,
   StyleSheet,
@@ -40,6 +40,7 @@ export const SoundMixer: React.FC = () => {
   const { settings, updateSettings } = useSettings();
   const { previewMix, stopPreview, isPreviewing } = useSoundscape();
   const sliderWidths = useRef<Partial<Record<SoundscapeId, number>>>({});
+  const [tuneOpen, setTuneOpen] = useState(false);
 
   const mix = settings.soundMix;
 
@@ -82,26 +83,48 @@ export const SoundMixer: React.FC = () => {
           flexDirection: "row",
           flexWrap: "wrap",
           gap: 8,
-          marginBottom: 14,
+          marginBottom: 4,
         },
         presetChip: {
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-          borderRadius: 999,
+          flexGrow: 1,
+          minWidth: "30%",
+          paddingHorizontal: 14,
+          paddingVertical: 12,
+          borderRadius: 14,
           borderWidth: 1,
           borderColor: colors.border,
+          alignItems: "center",
         },
         presetChipActive: {
           backgroundColor: colors.focus,
           borderColor: colors.focus,
         },
         presetText: {
-          fontSize: 13,
-          fontWeight: "600",
+          fontSize: 14,
+          fontWeight: "700",
           color: colors.textSecondary,
+          textAlign: "center",
         },
         presetTextActive: {
           color: colors.onPrimary,
+        },
+        presetSub: {
+          fontSize: 11,
+          color: colors.textMuted,
+          marginTop: 2,
+          textAlign: "center",
+        },
+        presetSubActive: {
+          color: colors.onPrimary,
+        },
+        tuneToggle: {
+          paddingVertical: 12,
+          alignItems: "center",
+        },
+        tuneToggleText: {
+          fontSize: 13,
+          fontWeight: "600",
+          color: colors.textMuted,
         },
         trackRow: {
           marginBottom: 12,
@@ -228,64 +251,89 @@ export const SoundMixer: React.FC = () => {
       <View style={styles.presetRow}>
         {SOUNDSCAPE_PRESETS.map((preset) => {
           const active = settings.activePresetId === preset.id;
+          const summary = preset.layers
+            .map((layer) => SOUNDSCAPE_TRACKS[layer.id]?.label ?? layer.id)
+            .join(" · ");
           return (
             <Pressable
               key={preset.id}
               style={[styles.presetChip, active && styles.presetChipActive]}
               onPress={() => applyPreset(preset.id)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              accessibilityLabel={`${preset.name} mood`}
             >
               <Text
                 style={[styles.presetText, active && styles.presetTextActive]}
               >
                 {preset.name}
               </Text>
+              <Text style={[styles.presetSub, active && styles.presetSubActive]} numberOfLines={1}>
+                {summary}
+              </Text>
             </Pressable>
           );
         })}
       </View>
 
-      {SOUNDSCAPE_IDS.map((id) => {
-        const track = SOUNDSCAPE_TRACKS[id];
-        const volume = layerVolume(mix, id);
-        const active = volume > 0;
+      <Pressable
+        style={styles.tuneToggle}
+        onPress={() => setTuneOpen((v) => !v)}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: tuneOpen }}
+        accessibilityLabel={tuneOpen ? "Hide fine-tuning" : "Fine-tune mix"}
+      >
+        <Text style={styles.tuneToggleText}>
+          {tuneOpen ? "Fine-tune ▾" : "Fine-tune ▸"}
+        </Text>
+      </Pressable>
 
-        return (
-          <View key={id} style={styles.trackRow}>
-            <View style={styles.trackHeader}>
-              <Text style={styles.trackLabel}>
-                {track.emoji} {track.label}
-              </Text>
-              <Pressable
-                style={[styles.trackToggle, active && styles.trackToggleActive]}
-                onPress={() => toggleTrack(id)}
-              >
-                <Text style={styles.trackToggleText}>
-                  {active ? "On" : "Off"}
-                </Text>
-              </Pressable>
-            </View>
+      {tuneOpen ? (
+        <>
+          {SOUNDSCAPE_IDS.map((id) => {
+            const track = SOUNDSCAPE_TRACKS[id];
+            const volume = layerVolume(mix, id);
+            const active = volume > 0;
 
-            <Pressable
-              onLayout={(event) => {
-                sliderWidths.current[id] = event.nativeEvent.layout.width;
-              }}
-              onPress={(event) =>
-                handleSliderPress(id, event.nativeEvent.locationX)
-              }
-            >
-              <View style={styles.sliderTrack}>
-                <View
-                  style={[styles.sliderFill, { width: `${volume * 100}%` }]}
-                />
+            return (
+              <View key={id} style={styles.trackRow}>
+                <View style={styles.trackHeader}>
+                  <Text style={styles.trackLabel}>
+                    {track.emoji} {track.label}
+                  </Text>
+                  <Pressable
+                    style={[styles.trackToggle, active && styles.trackToggleActive]}
+                    onPress={() => toggleTrack(id)}
+                  >
+                    <Text style={styles.trackToggleText}>
+                      {active ? "On" : "Off"}
+                    </Text>
+                  </Pressable>
+                </View>
+
+                <Pressable
+                  onLayout={(event) => {
+                    sliderWidths.current[id] = event.nativeEvent.layout.width;
+                  }}
+                  onPress={(event) =>
+                    handleSliderPress(id, event.nativeEvent.locationX)
+                  }
+                >
+                  <View style={styles.sliderTrack}>
+                    <View
+                      style={[styles.sliderFill, { width: `${volume * 100}%` }]}
+                    />
+                  </View>
+                </Pressable>
               </View>
-            </Pressable>
-          </View>
-        );
-      })}
+            );
+          })}
 
-      <Text style={styles.hint}>
-        Mix up to {MAX_MIX_LAYERS} tracks. Your mix saves automatically.
-      </Text>
+          <Text style={styles.hint}>
+            Mix up to {MAX_MIX_LAYERS} tracks. Your mix saves automatically.
+          </Text>
+        </>
+      ) : null}
     </View>
   );
 };
