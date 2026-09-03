@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withRepeat,
   withSequence,
@@ -14,16 +15,25 @@ import { useTheme } from "../../context/ThemeContext";
 interface FocusBackgroundProps {
   active: boolean;
   paused: boolean;
+  /** 0..1 streak depth — a 7-day streak looks deeper than day 1. */
+  intensity?: number;
 }
 
 export const FocusBackground: React.FC<FocusBackgroundProps> = ({
   active,
   paused,
+  intensity = 0,
 }) => {
   const { colors, isDark } = useTheme();
+  const reduceMotion = useReducedMotion();
   const drift = useSharedValue(0);
+  const depth = Math.max(0, Math.min(1, intensity));
 
   React.useEffect(() => {
+    if (reduceMotion) {
+      drift.value = 0.5;
+      return;
+    }
     if (active && !paused) {
       drift.value = withRepeat(
         withSequence(
@@ -37,19 +47,21 @@ export const FocusBackground: React.FC<FocusBackgroundProps> = ({
     }
 
     drift.value = withTiming(0, { duration: 400 });
-  }, [active, paused, drift]);
+  }, [active, paused, reduceMotion, drift]);
+
+  const baseOpacity = 0.14 + depth * 0.16;
 
   const blobStyle = useAnimatedStyle(() => ({
-    opacity: 0.18 + drift.value * 0.12,
+    opacity: baseOpacity + drift.value * 0.12,
     transform: [
       { translateX: -40 + drift.value * 30 },
       { translateY: 20 - drift.value * 25 },
-      { scale: 1 + drift.value * 0.08 },
+      { scale: 1 + depth * 0.12 + drift.value * 0.08 },
     ],
   }));
 
   const blobStyleSecondary = useAnimatedStyle(() => ({
-    opacity: 0.12 + (1 - drift.value) * 0.1,
+    opacity: baseOpacity * 0.75 + (1 - drift.value) * 0.1,
     transform: [
       { translateX: 50 - drift.value * 35 },
       { translateY: -10 + drift.value * 20 },
