@@ -24,11 +24,17 @@ export const TodayStrip: React.FC = () => {
   const todayKey = toDateKey(Date.now());
   const today = getTodayPomodoroCount();
   const goal = settings.dailyPomodoroGoal;
-  const planned = getPlannedPomodoroCount(
-    tasks,
-    blocks,
-    todayKey,
-    settings.focusDurationMinutes
+  // Timer ticks every second: memoize the task/block scan so it only runs
+  // when the underlying data actually changes.
+  const planned = useMemo(
+    () =>
+      getPlannedPomodoroCount(
+        tasks,
+        blocks,
+        todayKey,
+        settings.focusDurationMinutes
+      ),
+    [tasks, blocks, todayKey, settings.focusDurationMinutes]
   );
   const progress = goal > 0 ? Math.min(1, today / goal) : 0;
 

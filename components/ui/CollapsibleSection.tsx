@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { cardElevation } from "../../theme/shadows";
 
 interface CollapsibleSectionProps {
   title: string;
@@ -16,18 +17,22 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   defaultOpen = false,
   children,
 }) => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const [open, setOpen] = useState(defaultOpen);
 
   return (
     <View
       style={[
         styles.section,
-        { backgroundColor: colors.surface, borderColor: colors.border },
+        {
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+          ...cardElevation(isDark),
+        },
       ]}
     >
       <Pressable
-        style={styles.header}
+        style={[styles.header, open && styles.headerOpen]}
         onPress={() => setOpen((v) => !v)}
         accessibilityRole="button"
         accessibilityState={{ expanded: open }}
@@ -56,6 +61,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  headerOpen: {
+    marginBottom: 14,
   },
   title: {
     fontSize: 17,
