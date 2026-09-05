@@ -10,6 +10,7 @@ import { Pressable, StyleSheet, Text } from "react-native";
 
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
+import { type as typeScale } from "../../theme/typography";
 import type { Task } from "../../types/task";
 
 interface ActiveTaskPickerProps {
@@ -63,8 +64,7 @@ export const ActiveTaskPicker: React.FC<ActiveTaskPickerProps> = ({
           paddingBottom: 12,
         },
         title: {
-          fontSize: 18,
-          fontWeight: "700",
+          ...typeScale.sheetTitle,
           color: colors.text,
         },
         row: {

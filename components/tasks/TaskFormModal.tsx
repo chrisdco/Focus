@@ -11,6 +11,7 @@ import {
 } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { type as typeScale } from "../../theme/typography";
 import type { Project, Task, TaskDraft, TaskPriority } from "../../types/task";
 import { createEmptyTaskDraft } from "../../types/task";
 import { toDateKey } from "../../utils/timer";
@@ -98,8 +99,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
           marginBottom: 16,
         },
         title: {
-          fontSize: 20,
-          fontWeight: "700",
+          ...typeScale.sheetTitle,
           color: colors.text,
         },
         close: {

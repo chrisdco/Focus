@@ -163,6 +163,22 @@ const StatsScreen: React.FC = () => {
           color: colors.text,
           marginBottom: 14,
         },
+        groupLabel: {
+          fontSize: 13,
+          fontWeight: "600",
+          color: colors.textMuted,
+          textTransform: "uppercase",
+          letterSpacing: 0.5,
+          marginTop: 8,
+          marginBottom: 8,
+          paddingHorizontal: 4,
+        },
+        patternLabel: {
+          fontSize: 14,
+          fontWeight: "600",
+          color: colors.textSecondary,
+          marginBottom: 8,
+        },
         periodRow: {
           flexDirection: "row",
           gap: 8,
@@ -364,6 +380,8 @@ const StatsScreen: React.FC = () => {
           <FocusHeatmap activity={heatmapActivity} weeks={12} />
         </View>
 
+        <Text style={styles.groupLabel}>Details</Text>
+
         <CollapsibleSection title="Personal records">
           <View style={styles.recordRow}>
             <Text style={styles.recordLabel}>Longest session</Text>
@@ -386,11 +404,8 @@ const StatsScreen: React.FC = () => {
           </View>
         </CollapsibleSection>
 
-        <CollapsibleSection title="Focus by project">
-          <ProjectBreakdown data={projectStats} />
-        </CollapsibleSection>
-
-        <CollapsibleSection title="Peak focus hours">
+        <CollapsibleSection title="Patterns">
+          <Text style={styles.patternLabel}>Peak focus hours</Text>
           <View style={styles.miniChart}>
             {hourCounts.map((count, hour) => (
               <View
@@ -402,10 +417,14 @@ const StatsScreen: React.FC = () => {
               />
             ))}
           </View>
+          <Text style={[styles.patternLabel, { marginTop: 16 }]}>
+            Focus by weekday
+          </Text>
+          <BarChart values={weekdayCounts} labels={WEEKDAY_LABELS} />
         </CollapsibleSection>
 
-        <CollapsibleSection title="Focus by weekday">
-          <BarChart values={weekdayCounts} labels={WEEKDAY_LABELS} />
+        <CollapsibleSection title="Focus by project">
+          <ProjectBreakdown data={projectStats} />
         </CollapsibleSection>
 
         <CollapsibleSection title="Recent sessions">
