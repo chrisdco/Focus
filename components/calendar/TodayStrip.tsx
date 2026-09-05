@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 import { useSchedule } from "../../context/ScheduleContext";
 import { useSettings } from "../../context/SettingsContext";
@@ -38,42 +38,29 @@ export const TodayStrip: React.FC = () => {
   );
   const progress = goal > 0 ? Math.min(1, today / goal) : 0;
 
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
-        container: { marginBottom: 12 },
-        line: {
-          fontSize: 14,
-          fontWeight: "600",
-          color: colors.textSecondary,
-        },
-        track: {
-          height: 3,
-          borderRadius: 2,
-          backgroundColor: colors.track,
-          overflow: "hidden",
-          marginTop: 8,
-        },
-        fill: {
-          height: "100%",
-          borderRadius: 2,
-          backgroundColor: colors.focus,
-        },
-      }),
-    [colors]
-  );
-
   return (
     <View
-      style={styles.container}
+      className="mb-3"
       accessibilityRole="text"
       accessibilityLabel={`Today ${today} of ${goal} pomodoros, ${planned} planned`}
     >
-      <Text style={styles.line}>
+      <Text
+        className="text-sm font-semibold"
+        style={{ color: colors.textSecondary }}
+      >
         Today {today}/{goal} · {planned} queued
       </Text>
-      <View style={styles.track}>
-        <View style={[styles.fill, { width: `${progress * 100}%` }]} />
+      <View
+        className="h-[3px] rounded-sm overflow-hidden mt-2"
+        style={{ backgroundColor: colors.track }}
+      >
+        <View
+          className="h-full rounded-sm"
+          style={{
+            width: `${progress * 100}%`,
+            backgroundColor: colors.focus,
+          }}
+        />
       </View>
     </View>
   );

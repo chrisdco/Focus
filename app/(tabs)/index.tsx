@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Alert, AppState, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { displayFont } from "../../theme/fonts";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -145,36 +146,11 @@ const TimerScreen: React.FC = () => {
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        safeArea: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
         container: {
           flexGrow: 1,
           paddingHorizontal: 20,
           paddingTop: isFocusMode ? 48 : 16,
           paddingBottom: 32,
-        },
-        title: {
-          fontSize: isFocusMode ? 22 : 28,
-          fontWeight: "700",
-          color: colors.text,
-          textAlign: "left",
-          marginBottom: 8,
-        },
-        focusBadge: {
-          fontSize: 14,
-          color: colors.textMuted,
-          textAlign: "center",
-          marginBottom: 8,
-          textTransform: "uppercase",
-          letterSpacing: 1,
-        },
-        sessionCounter: {
-          fontSize: 16,
-          color: colors.textMuted,
-          textAlign: "center",
-          marginBottom: 16,
         },
         timerSection: {
           flex: 1,
@@ -183,44 +159,15 @@ const TimerScreen: React.FC = () => {
           // column scrolls instead of overlapping the controls.
           minHeight: isFocusMode ? 332 : 292,
         },
-        controls: {
-          marginTop: 24,
-        },
-        modeLabel: {
-          textAlign: "center",
-          marginBottom: 12,
-          fontSize: 16,
-          fontWeight: "600",
-        },
-        personalityMessage: {
-          textAlign: "center",
-          color: colors.textMuted,
-          fontSize: 13,
-          marginTop: 12,
-          fontStyle: "italic",
-          paddingHorizontal: 16,
-        },
-        activeTaskTitle: {
-          fontSize: 15,
-          fontWeight: "600",
-          color: colors.text,
-          textAlign: "left",
-          marginTop: 2,
-        },
-        buttonsRow: {
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 12,
-          flexWrap: "wrap",
-          marginTop: 12,
-        },
       }),
-    [colors, isFocusMode]
+    [isFocusMode]
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+      className="flex-1"
+      style={{ backgroundColor: colors.background }}
+    >
       <FocusBackground
         active={isFocusMode && settings.focusAnimationsEnabled}
         paused={!appIsActive}
@@ -231,7 +178,18 @@ const TimerScreen: React.FC = () => {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        {showChrome && <Text style={styles.title}>Timer</Text>}
+        {showChrome && (
+          <Text
+            className="text-left mb-2 text-[28px] font-bold"
+            style={{
+              color: colors.text,
+              fontFamily: displayFont.bold,
+              letterSpacing: 0.2,
+            }}
+          >
+            Timer
+          </Text>
+        )}
 
         {showChrome && <TodayStrip />}
 
@@ -255,46 +213,29 @@ const TimerScreen: React.FC = () => {
         )}
 
         {isFocusMode && (
-          <Text style={styles.focusBadge}>Focus mode</Text>
-        )}
-
-        {mode === "focus" && showChrome && (
-          <Text style={styles.sessionCounter}>
-            Session {sessionNumber} of {sessionsBeforeLongBreak}
+          <Text
+            className="text-center mb-2 text-sm uppercase"
+            style={{ color: colors.textMuted, letterSpacing: 1 }}
+          >
+            Focus mode
           </Text>
         )}
 
-        {showChrome && (
-          <SessionCard
-            taskValue={
-              activeTask
-                ? `${activeTask.title} · ${activeTask.completedPomodoros}/${activeTask.estimatedPomodoros}`
-                : "Choose a task"
-            }
-            taskLabel={
-              activeTask
-                ? `Working on ${activeTask.title}`
-                : "Choose a task"
-            }
-            onTaskPress={() => setTaskPickerVisible(true)}
-            showAmbience={settings.ambientSoundEnabled}
-            ambienceValue={hasAmbience ? "Ambience · on" : "Ambience · off"}
-            onAmbiencePress={() => setAmbienceVisible(true)}
-          />
-        )}
-
-        {isFocusMode && (
-          <Text style={styles.focusBadge}>Focus mode</Text>
-        )}
-
         {mode === "focus" && showChrome && (
-          <Text style={styles.sessionCounter}>
+          <Text
+            className="text-center mb-4 text-base"
+            style={{ color: colors.textMuted }}
+          >
             Session {sessionNumber} of {sessionsBeforeLongBreak}
           </Text>
         )}
 
         {isFocusMode && activeTask && (
-          <Text style={styles.activeTaskTitle} numberOfLines={1}>
+          <Text
+            className="text-[15px] font-semibold text-left mt-0.5"
+            style={{ color: colors.text }}
+            numberOfLines={1}
+          >
             {activeTask.title}
           </Text>
         )}
@@ -310,14 +251,17 @@ const TimerScreen: React.FC = () => {
           />
         </Animated.View>
 
-        <View style={styles.controls}>
+        <View className="mt-6">
           {mode !== "focus" && (
             <BreakBreather
               animationsEnabled={settings.focusAnimationsEnabled}
             />
           )}
           {showChrome && (
-            <Text style={[styles.modeLabel, { color: accentColor }]}>
+            <Text
+              className="text-center mb-3 text-base font-semibold"
+              style={{ color: accentColor }}
+            >
               {modeLabels[mode]} • {formatDurationLabel(durationMs)}
             </Text>
           )}
@@ -327,7 +271,7 @@ const TimerScreen: React.FC = () => {
             onPress={handlePrimaryPress}
             accessibilityLabel={`${primaryLabel} ${modeLabels[mode]} timer`}
           />
-          <View style={styles.buttonsRow}>
+          <View className="flex-row justify-center items-center gap-3 flex-wrap mt-3">
             {showSkip && (isFocusMode || !isMinimalLayout) && (
               <TimerButton
                 label={skipLabel}
@@ -346,7 +290,12 @@ const TimerScreen: React.FC = () => {
           </View>
 
           {showChrome && personalityMessage.length > 0 && (
-            <Text style={styles.personalityMessage}>{personalityMessage}</Text>
+            <Text
+              className="text-center mt-3 px-4 text-[13px] italic"
+              style={{ color: colors.textMuted }}
+            >
+              {personalityMessage}
+            </Text>
           )}
         </View>
       </ScrollView>
