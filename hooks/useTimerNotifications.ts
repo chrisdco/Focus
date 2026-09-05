@@ -1,19 +1,17 @@
 import { useCallback, useEffect, useRef } from "react";
+import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 
 import { useSettings } from "../context/SettingsContext";
 import { useTimerContext } from "../context/TimerContext";
 import { modeLabels } from "../theme/colors";
+import {
+  TIMER_CHANNEL_ID,
+  ensureAndroidChannels,
+  setupForegroundPresentation,
+} from "../utils/notificationChannels";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+setupForegroundPresentation();
 
 export const useTimerNotifications = (): void => {
   const { settings } = useSettings();
@@ -37,6 +35,10 @@ export const useTimerNotifications = (): void => {
   // Only prompt when the user actually enabled notifications, and respect
   // denial (never schedule when not granted).
   useEffect(() => {
+    // Channels carry sound/importance on Android 8+ — ensure them before
+    // anything schedules, independent of the permission state.
+    void ensureAndroidChannels().catch(() => undefined);
+
     if (!settings.notificationsEnabled) {
       permissionGrantedRef.current = false;
       return;
@@ -129,6 +131,13 @@ export const useTimerNotifications = (): void => {
         Math.ceil((state.expectedEndTime - Date.now()) / 1000)
       );
 
+      // Android drops TIME_INTERVAL triggers under 60s. The in-app cue +
+      // completion pipeline already cover an imminent end, so skip instead
+      // of scheduling a notification that can never fire.
+      if (Platform.OS === "android" && secondsUntilEnd < 60) {
+        return;
+      }
+
       try {
         const id = await Notifications.scheduleNotificationAsync({
           content: {
@@ -139,6 +148,8 @@ export const useTimerNotifications = (): void => {
           trigger: {
             type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
             seconds: secondsUntilEnd,
+            repeats: false,
+            channelId: TIMER_CHANNEL_ID,
           },
         });
 

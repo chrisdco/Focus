@@ -5,6 +5,7 @@ import {
   reminderIdentifier,
 } from "../domain/schedule";
 import type { ScheduleBlock } from "../types/schedule";
+import { REMINDER_CHANNEL_ID } from "./notificationChannels";
 
 const SCHEDULE_KIND = "scheduled-block";
 
@@ -47,6 +48,7 @@ export const syncBlockReminder = async (
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DATE,
         date: when,
+        channelId: REMINDER_CHANNEL_ID,
       },
     });
   } catch {
