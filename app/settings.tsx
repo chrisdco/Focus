@@ -23,7 +23,7 @@ import {
   clearAllData,
   clearTimerSnapshot,
 } from "../storage";
-import { DEFAULT_SETTINGS } from "../types/settings";
+import { DEFAULT_SETTINGS, TIMER_PRESETS, matchesTimerPreset } from "../types/settings";
 import { getDurationForMode } from "../domain/timerMachine";
 import { ACCENT_PRESETS } from "../theme/accents";
 import { fontFamily } from "../theme/fonts";
@@ -420,6 +420,44 @@ const SettingsScreen: React.FC = () => {
 
         <View style={screenStyles.section}>
           <Text style={screenStyles.sectionTitle}>Durations</Text>
+          <View style={{ marginBottom: 12 }}>
+          <View style={screenStyles.chipRow}>
+            {TIMER_PRESETS.map((preset) => {
+              const active = matchesTimerPreset(settings, preset);
+              return (
+                <Pressable
+                  key={preset.id}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  accessibilityLabel={`${preset.label} preset, ${preset.summary} minutes`}
+                  onPress={() =>
+                    updateSettings({
+                      focusDurationMinutes: preset.focusDurationMinutes,
+                      shortBreakDurationMinutes:
+                        preset.shortBreakDurationMinutes,
+                      longBreakDurationMinutes: preset.longBreakDurationMinutes,
+                      sessionsBeforeLongBreak:
+                        preset.sessionsBeforeLongBreak,
+                    })
+                  }
+                  style={[
+                    screenStyles.optionChip,
+                    active && screenStyles.optionChipActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      screenStyles.optionText,
+                      active && screenStyles.optionTextActive,
+                    ]}
+                  >
+                    {preset.label} · {preset.summary}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          </View>
           <DurationStepper
             colors={colors}
             label="Focus"
@@ -468,6 +506,14 @@ const SettingsScreen: React.FC = () => {
             icon="expand-outline"
             value={settings.autoEnterFocusMode}
             onValueChange={(v) => updateSettings({ autoEnterFocusMode: v })}
+          />
+          <ToggleRow
+            colors={colors}
+            label="Strict mode"
+            subtitle="Hide skip and reset during focus"
+            icon="lock-closed-outline"
+            value={settings.strictMode}
+            onValueChange={(v) => updateSettings({ strictMode: v })}
             last
           />
         </View>

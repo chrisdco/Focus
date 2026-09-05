@@ -8,6 +8,8 @@ import {
   normalizeSettings,
   normalizeSoundMix,
   normalizeTimerLayout,
+  matchesTimerPreset,
+  TIMER_PRESETS,
   DEFAULT_SETTINGS,
 } from "./settings";
 import { DEFAULT_ACCENT_ID } from "../theme/accents";
@@ -107,5 +109,34 @@ describe("normalizeSettings", () => {
     expect(result.focusDurationMinutes).toBe(
       DEFAULT_SETTINGS.focusDurationMinutes
     );
+  });
+
+  it("defaults strict mode off and coerces truthy input", () => {
+    expect(normalizeSettings({}).strictMode).toBe(false);
+    expect(normalizeSettings({ strictMode: true }).strictMode).toBe(true);
+    expect(
+      normalizeSettings({ strictMode: "yes" as unknown as boolean }).strictMode
+    ).toBe(false);
+  });
+});
+
+describe("timer presets", () => {
+  it("ships valid recipes with positive durations", () => {
+    expect(TIMER_PRESETS.length).toBeGreaterThan(0);
+    for (const preset of TIMER_PRESETS) {
+      expect(preset.focusDurationMinutes).toBeGreaterThan(0);
+      expect(preset.shortBreakDurationMinutes).toBeGreaterThan(0);
+      expect(preset.longBreakDurationMinutes).toBeGreaterThan(0);
+      expect(preset.sessionsBeforeLongBreak).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it("matches the classic defaults", () => {
+    const classic = TIMER_PRESETS.find((preset) => preset.id === "classic");
+    expect(classic).toBeDefined();
+    expect(matchesTimerPreset(DEFAULT_SETTINGS, classic!)).toBe(true);
+    expect(
+      matchesTimerPreset({ ...DEFAULT_SETTINGS, focusDurationMinutes: 50 }, classic!)
+    ).toBe(false);
   });
 });
