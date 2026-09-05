@@ -1,12 +1,6 @@
-import {
-  BottomSheetBackdrop,
-  BottomSheetFlatList,
-  BottomSheetModal,
-  BottomSheetView,
-  type BottomSheetBackdropProps,
-} from "@gorhom/bottom-sheet";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { BottomSheet, RNHostView } from "@expo/ui";
+import React, { useMemo } from "react";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -24,28 +18,6 @@ export const ActiveTaskPicker: React.FC<ActiveTaskPickerProps> = ({
 }) => {
   const { colors } = useTheme();
   const { getTasksForView, setActiveTaskId, activeTaskId } = useTasks();
-  const sheetRef = useRef<BottomSheetModal>(null);
-  const snapPoints = useMemo(() => ["70%"], []);
-
-  useEffect(() => {
-    if (visible) {
-      sheetRef.current?.present();
-    } else {
-      sheetRef.current?.dismiss();
-    }
-  }, [visible]);
-
-  const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        pressBehavior="close"
-      />
-    ),
-    []
-  );
 
   const activeTasks = [
     ...getTasksForView("today"),
@@ -58,6 +30,8 @@ export const ActiveTaskPicker: React.FC<ActiveTaskPickerProps> = ({
   const styles = useMemo(
     () =>
       StyleSheet.create({
+        list: { flex: 1 },
+        listContent: { paddingBottom: 24 },
         header: {
           paddingHorizontal: 20,
           paddingTop: 8,
@@ -97,52 +71,58 @@ export const ActiveTaskPicker: React.FC<ActiveTaskPickerProps> = ({
 
   const selectTask = (task: Task) => {
     setActiveTaskId(task.id);
-    sheetRef.current?.dismiss();
+    onClose();
   };
 
   return (
-    <BottomSheetModal
-      ref={sheetRef}
-      snapPoints={snapPoints}
+    <BottomSheet
+      isPresented={visible}
       onDismiss={onClose}
-      backdropComponent={renderBackdrop}
-      backgroundStyle={{ backgroundColor: colors.surface }}
-      handleIndicatorStyle={{ backgroundColor: colors.textMuted }}
+      snapPoints={["half", "full"]}
+      containerColor={colors.surface}
+      contentPadding={0}
     >
-      <BottomSheetView style={styles.header}>
-        <Text style={styles.title}>Choose a task</Text>
-      </BottomSheetView>
-      <BottomSheetFlatList
-        data={activeTasks}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Pressable style={styles.row} onPress={() => selectTask(item)}>
-            <Text style={styles.rowTitle}>{item.title}</Text>
-            <Text style={styles.rowMeta}>
-              🍅 {item.completedPomodoros}/{item.estimatedPomodoros}
-              {activeTaskId === item.id ? " • Active" : ""}
-            </Text>
-          </Pressable>
-        )}
-        ListEmptyComponent={
-          <Text style={[styles.rowMeta, { paddingHorizontal: 20 }]}>
-            No active tasks. Add one from the Tasks tab.
-          </Text>
-        }
-        ListFooterComponent={
-          activeTaskId ? (
-            <Pressable
-              style={styles.clearButton}
-              onPress={() => {
-                setActiveTaskId(null);
-                sheetRef.current?.dismiss();
-              }}
-            >
-              <Text style={styles.clearText}>Clear active task</Text>
+      <RNHostView>
+        <FlatList
+          style={styles.list}
+          data={activeTasks}
+          keyExtractor={(item) => item.id}
+          nestedScrollEnabled
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={
+            <View style={styles.header}>
+              <Text style={styles.title}>Choose a task</Text>
+            </View>
+          }
+          renderItem={({ item }) => (
+            <Pressable style={styles.row} onPress={() => selectTask(item)}>
+              <Text style={styles.rowTitle}>{item.title}</Text>
+              <Text style={styles.rowMeta}>
+                🍅 {item.completedPomodoros}/{item.estimatedPomodoros}
+                {activeTaskId === item.id ? " • Active" : ""}
+              </Text>
             </Pressable>
-          ) : null
-        }
-      />
-    </BottomSheetModal>
+          )}
+          ListEmptyComponent={
+            <Text style={[styles.rowMeta, { paddingHorizontal: 20 }]}>
+              No active tasks. Add one from the Tasks tab.
+            </Text>
+          }
+          ListFooterComponent={
+            activeTaskId ? (
+              <Pressable
+                style={styles.clearButton}
+                onPress={() => {
+                  setActiveTaskId(null);
+                  onClose();
+                }}
+              >
+                <Text style={styles.clearText}>Clear active task</Text>
+              </Pressable>
+            ) : null
+          }
+        />
+      </RNHostView>
+    </BottomSheet>
   );
 };
