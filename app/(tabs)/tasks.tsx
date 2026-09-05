@@ -14,6 +14,7 @@ import { TaskRow } from "../../components/tasks/TaskRow";
 import { QuickAdd } from "../../components/tasks/QuickAdd";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ScreenTitle } from "../../components/ui/ScreenTitle";
+import { Segmented } from "../../components/ui/Segmented";
 import { createEmptyTaskDraft } from "../../types/task";
 import { toDateKey } from "../../utils/timer";
 import { useTasks } from "../../context/TasksContext";
@@ -58,33 +59,6 @@ const TasksScreen: React.FC = () => {
           flex: 1,
           paddingHorizontal: 20,
           paddingTop: 16,
-        },
-        segmentRow: {
-          flexDirection: "row",
-          backgroundColor: colors.surface,
-          borderRadius: 12,
-          padding: 4,
-          marginBottom: 12,
-          borderWidth: 1,
-          borderColor: colors.border,
-          ...cardElevation(isDark),
-        },
-        segment: {
-          flex: 1,
-          paddingVertical: 10,
-          borderRadius: 8,
-          alignItems: "center",
-        },
-        segmentActive: {
-          backgroundColor: colors.focus,
-        },
-        segmentText: {
-          fontSize: 14,
-          fontWeight: "600",
-          color: colors.textMuted,
-        },
-        segmentTextActive: {
-          color: colors.onPrimary,
         },
         projectRow: {
           flexDirection: "row",
@@ -164,27 +138,12 @@ const TasksScreen: React.FC = () => {
           }
         />
 
-        <View style={styles.segmentRow}>
-          {VIEWS.map((item) => (
-            <Pressable
-              key={item.key}
-              style={[
-                styles.segment,
-                view === item.key && styles.segmentActive,
-              ]}
-              onPress={() => setView(item.key)}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  view === item.key && styles.segmentTextActive,
-                ]}
-              >
-                {item.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+        <Segmented
+          options={VIEWS.map((item) => ({ value: item.key, label: item.label }))}
+          value={view}
+          onChange={setView}
+          accessibilityLabel="Task view"
+        />
 
         <View style={styles.projectRow}>
           <Pressable

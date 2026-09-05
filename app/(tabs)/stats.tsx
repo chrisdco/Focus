@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import {
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,6 +15,7 @@ import { SessionTimeline } from "../../components/stats/SessionTimeline";
 import { CollapsibleSection } from "../../components/ui/CollapsibleSection";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ScreenTitle } from "../../components/ui/ScreenTitle";
+import { Segmented } from "../../components/ui/Segmented";
 import { useStats } from "../../context/StatsContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -159,28 +159,7 @@ const StatsScreen: React.FC = () => {
           paddingHorizontal: 4,
         },
         periodRow: {
-          flexDirection: "row",
-          gap: 8,
-          marginBottom: 14,
-        },
-        periodChip: {
-          paddingHorizontal: 14,
-          paddingVertical: 8,
-          borderRadius: 999,
-          borderWidth: 1,
-          borderColor: colors.border,
-        },
-        periodChipActive: {
-          backgroundColor: colors.focus,
-          borderColor: colors.focus,
-        },
-        periodText: {
-          fontSize: 14,
-          color: colors.textSecondary,
-          fontWeight: "600",
-        },
-        periodTextActive: {
-          color: colors.onPrimary,
+          marginBottom: 2,
         },
         periodSummary: {
           flexDirection: "row",
@@ -271,25 +250,15 @@ const StatsScreen: React.FC = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Period overview</Text>
           <View style={styles.periodRow}>
-            {PERIODS.map((item) => (
-              <Pressable
-                key={item.key}
-                style={[
-                  styles.periodChip,
-                  period === item.key && styles.periodChipActive,
-                ]}
-                onPress={() => setPeriod(item.key)}
-              >
-                <Text
-                  style={[
-                    styles.periodText,
-                    period === item.key && styles.periodTextActive,
-                  ]}
-                >
-                  {item.label}
-                </Text>
-              </Pressable>
-            ))}
+            <Segmented
+              options={PERIODS.map((item) => ({
+                value: item.key,
+                label: item.label,
+              }))}
+              value={period}
+              onChange={setPeriod}
+              accessibilityLabel="Stats period"
+            />
           </View>
           <View style={styles.periodSummary}>
             <Text style={styles.periodMetric}>

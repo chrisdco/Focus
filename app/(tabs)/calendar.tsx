@@ -15,6 +15,7 @@ import { PlanTomorrowModal } from "../../components/calendar/PlanTomorrowModal";
 import { ScheduleBlockModal } from "../../components/calendar/ScheduleBlockModal";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ScreenTitle } from "../../components/ui/ScreenTitle";
+import { Segmented } from "../../components/ui/Segmented";
 import { useSchedule } from "../../context/ScheduleContext";
 import { useSettings } from "../../context/SettingsContext";
 import { useTasks } from "../../context/TasksContext";
@@ -92,28 +93,6 @@ const CalendarScreen: React.FC = () => {
           justifyContent: "space-between",
           marginBottom: 12,
         },
-        segmentRow: {
-          flexDirection: "row",
-          backgroundColor: colors.surface,
-          borderRadius: 12,
-          padding: 4,
-          marginBottom: 12,
-          borderWidth: 1,
-          borderColor: colors.border,
-        },
-        segment: {
-          flex: 1,
-          paddingVertical: 10,
-          borderRadius: 8,
-          alignItems: "center",
-        },
-        segmentActive: { backgroundColor: colors.focus },
-        segmentText: {
-          fontSize: 14,
-          fontWeight: "600",
-          color: colors.textMuted,
-        },
-        segmentTextActive: { color: colors.onPrimary },
         agendaTitle: {
           fontSize: 17,
           fontWeight: "600",
@@ -187,27 +166,15 @@ const CalendarScreen: React.FC = () => {
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <ScreenTitle title="Calendar" />
 
-        <View style={styles.segmentRow}>
-          {(["day", "month"] as const).map((item) => (
-            <Pressable
-              key={item}
-              style={[styles.segment, view === item && styles.segmentActive]}
-              onPress={() => setView(item)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: view === item }}
-              accessibilityLabel={`${item} view`}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  view === item && styles.segmentTextActive,
-                ]}
-              >
-                {item === "day" ? "Day" : "Month"}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+        <Segmented
+          options={[
+            { value: "day", label: "Day" },
+            { value: "month", label: "Month" },
+          ]}
+          value={view}
+          onChange={setView}
+          accessibilityLabel="Calendar view"
+        />
 
         {view === "day" ? (
           <View style={styles.nav}>
