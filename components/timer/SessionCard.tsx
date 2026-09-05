@@ -1,9 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useMemo } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { Pressable, Text, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
-import { cardElevation } from "../../theme/shadows";
 
 interface SessionCardProps {
   taskValue: string;
@@ -26,51 +25,36 @@ export const SessionCard: React.FC<SessionCardProps> = ({
   ambienceValue,
   onAmbiencePress,
 }) => {
-  const { colors, isDark } = useTheme();
-
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
-        card: {
-          backgroundColor: colors.surface,
-          borderRadius: 16,
-          borderWidth: 1,
-          borderColor: colors.border,
-          marginBottom: 12,
-          overflow: "hidden",
-          ...cardElevation(isDark),
-        },
-        row: {
-          flexDirection: "row",
-          alignItems: "center",
-          paddingHorizontal: 16,
-          minHeight: 52,
-          gap: 12,
-        },
-        rowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
-        label: { flex: 1, fontSize: 15, color: colors.text },
-        value: { fontSize: 14, color: colors.textMuted },
-      }),
-    [colors, isDark]
-  );
+  const { colors } = useTheme();
 
   return (
-    <View style={styles.card}>
+    <View
+      className="rounded-2xl border mb-3 overflow-hidden"
+      style={{
+        backgroundColor: colors.surface,
+        borderColor: colors.border,
+      }}
+    >
       <Pressable
-        style={[styles.row, showAmbience && styles.rowBorder]}
+        className="flex-row items-center px-4 min-h-[52px] gap-3"
+        style={showAmbience ? { borderBottomWidth: 1, borderBottomColor: colors.border } : undefined}
         onPress={onTaskPress}
         accessibilityRole="button"
         accessibilityLabel={taskLabel}
       >
         <Ionicons name="checkbox-outline" size={20} color={colors.textMuted} />
-        <Text style={styles.label} numberOfLines={1}>
+        <Text
+          className="flex-1 text-[15px]"
+          style={{ color: colors.text }}
+          numberOfLines={1}
+        >
           {taskValue}
         </Text>
         <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
       </Pressable>
       {showAmbience ? (
         <Pressable
-          style={styles.row}
+          className="flex-row items-center px-4 min-h-[52px] gap-3"
           onPress={onAmbiencePress}
           accessibilityRole="button"
           accessibilityLabel="Tune ambience mix"
@@ -80,7 +64,11 @@ export const SessionCard: React.FC<SessionCardProps> = ({
             size={20}
             color={colors.textMuted}
           />
-          <Text style={styles.label} numberOfLines={1}>
+          <Text
+            className="flex-1 text-[15px]"
+            style={{ color: colors.text }}
+            numberOfLines={1}
+          >
             {ambienceValue}
           </Text>
           <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
