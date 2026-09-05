@@ -86,10 +86,10 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 14,
-    borderRadius: 12,
+    padding: 16,
+    borderRadius: 16,
     borderWidth: 1,
-    marginBottom: 10,
+    marginBottom: 12,
     gap: 12,
   },
   priorityDot: {

@@ -125,7 +125,7 @@ const SettingsScreen: React.FC = () => {
         chipRow: {
           flexDirection: "row",
           flexWrap: "wrap",
-          gap: 10,
+          gap: 8,
         },
         accentSwatch: {
           width: 36,
