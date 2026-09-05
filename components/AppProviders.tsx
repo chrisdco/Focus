@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { FocusModeProvider } from "../context/FocusModeContext";
@@ -39,6 +40,25 @@ const SoundscapeSideEffects: React.FC = () => {
   return null;
 };
 
+const closeSettings = (): void => {
+  if (router.canGoBack()) {
+    router.back();
+  } else {
+    router.replace("/(tabs)/profile");
+  }
+};
+
+const SettingsDoneButton: React.FC<{ tint: string }> = ({ tint }) => (
+  <Pressable
+    onPress={closeSettings}
+    accessibilityRole="button"
+    accessibilityLabel="Done, back to profile"
+    hitSlop={12}
+  >
+    <Text style={{ color: tint, fontSize: 17, fontWeight: "600" }}>Done</Text>
+  </Pressable>
+);
+
 const RootStack: React.FC = () => {
   const { colors } = useTheme();
 
@@ -60,6 +80,7 @@ const RootStack: React.FC = () => {
           headerTintColor: colors.text,
           headerLargeTitleStyle: { color: colors.text },
           headerTitleStyle: { color: colors.text },
+          headerRight: () => <SettingsDoneButton tint={colors.focus} />,
         }}
       />
     </Stack>
