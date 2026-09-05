@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, AppState, Modal, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Alert, AppState, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -14,7 +14,7 @@ import { TodayStrip } from "../../components/calendar/TodayStrip";
 import { OnboardingGate } from "../../components/ui/OnboardingGate";
 import { FocusBackground } from "../../components/focus/FocusBackground";
 import { BreakBreather } from "../../components/focus/BreakBreather";
-import { SoundMixer } from "../../components/focus/SoundMixer";
+import { AmbienceSheet } from "../../components/focus/AmbienceSheet";
 import { useFocusMode } from "../../context/FocusModeContext";
 import { useSettings } from "../../context/SettingsContext";
 import { useStats } from "../../context/StatsContext";
@@ -218,41 +218,6 @@ const TimerScreen: React.FC = () => {
           fontSize: 14,
           color: colors.textSecondary,
         },
-        sheetOverlay: {
-          flex: 1,
-          justifyContent: "flex-end",
-          backgroundColor: colors.overlay,
-        },
-        sheet: {
-          backgroundColor: colors.surface,
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
-          paddingHorizontal: 20,
-          paddingTop: 16,
-          paddingBottom: 32,
-          maxHeight: "85%",
-          borderWidth: 1,
-          borderColor: colors.border,
-        },
-        sheetTitle: {
-          fontSize: 20,
-          fontWeight: "700",
-          color: colors.text,
-          marginBottom: 12,
-        },
-        sheetDone: {
-          marginTop: 12,
-          backgroundColor: colors.focus,
-          borderRadius: 12,
-          minHeight: 48,
-          alignItems: "center",
-          justifyContent: "center",
-        },
-        sheetDoneText: {
-          color: colors.onPrimary,
-          fontWeight: "600",
-          fontSize: 16,
-        },
         activeTaskLabel: {
           fontSize: 14,
           color: colors.textSecondary,
@@ -409,26 +374,10 @@ const TimerScreen: React.FC = () => {
 
       <OnboardingGate />
 
-      <Modal
+      <AmbienceSheet
         visible={ambienceVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setAmbienceVisible(false)}
-      >
-        <View style={styles.sheetOverlay}>
-          <View style={styles.sheet}>
-            <Text style={styles.sheetTitle}>Ambience</Text>
-            <SoundMixer />
-            <Pressable
-              style={styles.sheetDone}
-              onPress={() => setAmbienceVisible(false)}
-              accessibilityRole="button"
-            >
-              <Text style={styles.sheetDoneText}>Done</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setAmbienceVisible(false)}
+      />
     </SafeAreaView>
   );
 };

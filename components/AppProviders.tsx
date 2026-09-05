@@ -5,6 +5,8 @@ import {
   Text,
   View,
 } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -115,22 +117,29 @@ const HydratedApp: React.FC = () => {
 export const AppProviders: React.FC = () => {
   return (
     <SafeAreaProvider>
-      <SettingsProvider>
-        <ThemeProvider>
-          <StatsProvider>
-            <TasksProvider>
-              <ScheduleProvider>
-                <HydratedApp />
-              </ScheduleProvider>
-            </TasksProvider>
-          </StatsProvider>
-        </ThemeProvider>
-      </SettingsProvider>
+      <GestureHandlerRootView style={styles.gestureRoot}>
+        <SettingsProvider>
+          <ThemeProvider>
+            <BottomSheetModalProvider>
+              <StatsProvider>
+                <TasksProvider>
+                  <ScheduleProvider>
+                    <HydratedApp />
+                  </ScheduleProvider>
+                </TasksProvider>
+              </StatsProvider>
+            </BottomSheetModalProvider>
+          </ThemeProvider>
+        </SettingsProvider>
+      </GestureHandlerRootView>
     </SafeAreaProvider>
   );
 };
 
 const styles = StyleSheet.create({
+  gestureRoot: {
+    flex: 1,
+  },
   loading: {
     flex: 1,
     alignItems: "center",
