@@ -2,12 +2,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   AppState,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { DayTimeline } from "../../components/calendar/DayTimeline";
 import { MonthGrid } from "../../components/calendar/MonthGrid";
