@@ -10,6 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTheme } from "../../context/ThemeContext";
+import { type as typeScale } from "../../theme/typography";
 
 interface CelebrationOverlayProps {
   visible: boolean;
@@ -39,8 +40,7 @@ export const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
           marginBottom: 12,
         },
         message: {
-          fontSize: 22,
-          fontWeight: "700",
+          ...typeScale.sheetTitle,
           color: colors.onPrimary,
           textAlign: "center",
           paddingHorizontal: 24,

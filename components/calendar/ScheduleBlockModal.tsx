@@ -12,6 +12,7 @@ import {
 import { useTheme } from "../../context/ThemeContext";
 import { formatClock, parseClock } from "../../domain/schedule";
 import { cardElevation } from "../../theme/shadows";
+import { type as typeScale } from "../../theme/typography";
 import type {
   ScheduleBlock,
   ScheduleBlockDraft,
@@ -112,8 +113,7 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
           marginBottom: 12,
         },
         title: {
-          fontSize: 20,
-          fontWeight: "700",
+          ...typeScale.sheetTitle,
           color: colors.text,
         },
         close: { color: colors.textMuted, fontSize: 16 },

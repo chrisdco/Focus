@@ -1,5 +1,6 @@
 export const type = {
   title: { fontSize: 28, fontWeight: "700" as const, letterSpacing: 0.2 },
+  sheetTitle: { fontSize: 20, fontWeight: "700" as const },
   section: {
     fontSize: 16,
     fontWeight: "600" as const,

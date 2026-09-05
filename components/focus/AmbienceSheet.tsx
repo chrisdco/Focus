@@ -8,6 +8,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { type as typeScale } from "../../theme/typography";
 import { SoundMixer } from "./SoundMixer";
 
 interface AmbienceSheetProps {
@@ -48,8 +49,7 @@ export const AmbienceSheet: React.FC<AmbienceSheetProps> = ({
       StyleSheet.create({
         content: { paddingHorizontal: 20, paddingBottom: 32 },
         title: {
-          fontSize: 20,
-          fontWeight: "700",
+          ...typeScale.sheetTitle,
           color: colors.text,
           marginBottom: 12,
         },

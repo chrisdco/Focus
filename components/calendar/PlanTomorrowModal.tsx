@@ -10,6 +10,7 @@ import {
 
 import { useTheme } from "../../context/ThemeContext";
 import { cardElevation } from "../../theme/shadows";
+import { type as typeScale } from "../../theme/typography";
 import type { Task } from "../../types/task";
 
 interface PlanTomorrowModalProps {
@@ -78,8 +79,7 @@ export const PlanTomorrowModal: React.FC<PlanTomorrowModalProps> = ({
           ...cardElevation(isDark),
         },
         title: {
-          fontSize: 20,
-          fontWeight: "700",
+          ...typeScale.sheetTitle,
           color: colors.text,
           marginBottom: 8,
         },

@@ -10,6 +10,7 @@ import {
 
 import { useSettings } from "../../context/SettingsContext";
 import { useTheme } from "../../context/ThemeContext";
+import { type as typeScale } from "../../theme/typography";
 import {
   loadHasSeenOnboarding,
   saveHasSeenOnboarding,
@@ -61,8 +62,7 @@ export const OnboardingGate: React.FC = () => {
           borderColor: colors.border,
         },
         title: {
-          fontSize: 22,
-          fontWeight: "700",
+          ...typeScale.sheetTitle,
           color: colors.text,
           marginBottom: 12,
         },
