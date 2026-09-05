@@ -138,7 +138,9 @@ const TimerScreen: React.FC = () => {
   const primaryLabel = isRunning ? "Pause" : "Start";
   const accentColor = modeColors[mode];
   const canReset = remainingMs !== durationMs || isRunning;
-  const showSkip = isRunning || remainingMs !== durationMs;
+  const strictFocus = settings.strictMode && mode === "focus";
+  const showSkip =
+    !strictFocus && (isRunning || remainingMs !== durationMs);
   const skipLabel = mode === "focus" ? "Skip" : "Skip break";
   const isMinimalLayout = settings.timerLayout === "minimal";
   const showChrome = !isFocusMode && !isMinimalLayout;
@@ -333,7 +335,7 @@ const TimerScreen: React.FC = () => {
                 />
               </Pressable>
             )}
-            {showChrome && (
+            {showChrome && !strictFocus && (
               <Pressable
                 style={[styles.iconButton, !canReset && styles.iconDisabled]}
                 onPress={reset}

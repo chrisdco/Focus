@@ -26,6 +26,7 @@ export interface Settings {
   notificationsEnabled: boolean;
   autoStartNextSession: boolean;
   autoEnterFocusMode: boolean;
+  strictMode: boolean;
   dailyPomodoroGoal: number;
   ambientSoundEnabled: boolean;
   autoPlaySoundscape: boolean;
@@ -50,6 +51,7 @@ export const DEFAULT_SETTINGS: Settings = {
   notificationsEnabled: true,
   autoStartNextSession: false,
   autoEnterFocusMode: true,
+  strictMode: false,
   dailyPomodoroGoal: 8,
   ambientSoundEnabled: true,
   autoPlaySoundscape: true,
@@ -151,4 +153,60 @@ export const normalizeSettings = (stored: Partial<Settings>): Settings => ({
   timerLayout: normalizeTimerLayout(stored.timerLayout),
   completionSoundId: normalizeCompletionSoundId(stored.completionSoundId),
   breakSoundId: normalizeBreakSoundId(stored.breakSoundId),
+  strictMode: stored.strictMode === true,
 });
+
+export interface TimerPreset {
+  id: string;
+  label: string;
+  summary: string;
+  focusDurationMinutes: number;
+  shortBreakDurationMinutes: number;
+  longBreakDurationMinutes: number;
+  sessionsBeforeLongBreak: number;
+}
+
+export const TIMER_PRESETS: TimerPreset[] = [
+  {
+    id: "classic",
+    label: "Classic",
+    summary: "25 / 5",
+    focusDurationMinutes: 25,
+    shortBreakDurationMinutes: 5,
+    longBreakDurationMinutes: 15,
+    sessionsBeforeLongBreak: 4,
+  },
+  {
+    id: "deep",
+    label: "Deep work",
+    summary: "50 / 10",
+    focusDurationMinutes: 50,
+    shortBreakDurationMinutes: 10,
+    longBreakDurationMinutes: 20,
+    sessionsBeforeLongBreak: 3,
+  },
+  {
+    id: "sprint",
+    label: "Sprint",
+    summary: "15 / 3",
+    focusDurationMinutes: 15,
+    shortBreakDurationMinutes: 3,
+    longBreakDurationMinutes: 10,
+    sessionsBeforeLongBreak: 4,
+  },
+];
+
+export const matchesTimerPreset = (
+  settings: Pick<
+    Settings,
+    | "focusDurationMinutes"
+    | "shortBreakDurationMinutes"
+    | "longBreakDurationMinutes"
+    | "sessionsBeforeLongBreak"
+  >,
+  preset: TimerPreset
+): boolean =>
+  settings.focusDurationMinutes === preset.focusDurationMinutes &&
+  settings.shortBreakDurationMinutes === preset.shortBreakDurationMinutes &&
+  settings.longBreakDurationMinutes === preset.longBreakDurationMinutes &&
+  settings.sessionsBeforeLongBreak === preset.sessionsBeforeLongBreak;
