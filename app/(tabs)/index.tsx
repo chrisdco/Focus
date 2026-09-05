@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, AppState, StyleSheet, Text, View } from "react-native";
+import { Alert, AppState, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedStyle,
@@ -150,7 +150,7 @@ const TimerScreen: React.FC = () => {
           backgroundColor: colors.background,
         },
         container: {
-          flex: 1,
+          flexGrow: 1,
           paddingHorizontal: 20,
           paddingTop: isFocusMode ? 48 : 16,
           paddingBottom: 32,
@@ -179,6 +179,9 @@ const TimerScreen: React.FC = () => {
         timerSection: {
           flex: 1,
           justifyContent: "center",
+          // Never crush the ring below its size: on short screens the
+          // column scrolls instead of overlapping the controls.
+          minHeight: isFocusMode ? 332 : 292,
         },
         controls: {
           marginTop: 24,
@@ -210,6 +213,7 @@ const TimerScreen: React.FC = () => {
           alignItems: "center",
           gap: 12,
           flexWrap: "wrap",
+          marginTop: 12,
         },
       }),
     [colors, isFocusMode]
@@ -223,7 +227,10 @@ const TimerScreen: React.FC = () => {
         intensity={Math.min(1, streak / 7)}
       />
 
-      <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
         {showChrome && <Text style={styles.title}>Foco</Text>}
 
         {showChrome && <TodayStrip />}
@@ -342,7 +349,7 @@ const TimerScreen: React.FC = () => {
             )}
           </View>
         </View>
-      </View>
+      </ScrollView>
 
       <CelebrationOverlay
         visible={showCelebration}
