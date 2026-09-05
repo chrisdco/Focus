@@ -24,7 +24,7 @@ export const darkColors: ColorPalette = {
   text: "#FAFAF9",
   textSecondary: "#E7E5E4",
   textMuted: "#A8A29E",
-  border: "#44403C",
+  border: "#292524",
   focus: "#EA580C",
   shortBreak: "#10B981",
   longBreak: "#3B82F6",

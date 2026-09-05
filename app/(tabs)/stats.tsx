@@ -151,7 +151,7 @@ const StatsScreen: React.FC = () => {
         section: {
           backgroundColor: colors.surface,
           borderRadius: 16,
-          padding: 18,
+          padding: 16,
           borderWidth: 1,
           borderColor: colors.border,
           marginBottom: 16,
