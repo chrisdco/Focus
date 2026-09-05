@@ -10,6 +10,7 @@ import {
 } from "react-native";
 
 import { DayTimeline } from "../../components/calendar/DayTimeline";
+import { MonthGrid } from "../../components/calendar/MonthGrid";
 import { PlanTomorrowModal } from "../../components/calendar/PlanTomorrowModal";
 import { ScheduleBlockModal } from "../../components/calendar/ScheduleBlockModal";
 import { EmptyState } from "../../components/ui/EmptyState";
@@ -19,13 +20,21 @@ import { useSettings } from "../../context/SettingsContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import {
+  addMonths,
+  countBlocksByDate,
+  formatClock,
   getBlocksForDate,
   getPlannedPomodoroCount,
+  kindLabel,
+  monthLabel,
   shiftDateKey,
+  yearMonthOf,
 } from "../../domain/schedule";
 import { cardElevation } from "../../theme/shadows";
 import type { ScheduleBlock } from "../../types/schedule";
 import { toDateKey } from "../../utils/timer";
+
+type CalendarView = "day" | "month";
 
 const CalendarScreen: React.FC = () => {
   const { colors, isDark } = useTheme();
@@ -48,6 +57,8 @@ const CalendarScreen: React.FC = () => {
     Date.now()
   );
   const [dateKey, setDateKey] = useState(todayKey);
+  const [view, setView] = useState<CalendarView>("day");
+  const [monthNav, setMonthNav] = useState(() => yearMonthOf(todayKey));
   const [editorVisible, setEditorVisible] = useState(false);
   const [planVisible, setPlanVisible] = useState(false);
   const [editing, setEditing] = useState<ScheduleBlock | null>(null);
@@ -60,6 +71,15 @@ const CalendarScreen: React.FC = () => {
     dateKey,
     settings.focusDurationMinutes
   );
+  const monthCounts = useMemo(
+    () => countBlocksByDate(blocks, monthNav.year, monthNav.month),
+    [blocks, monthNav]
+  );
+
+  const selectMonthDay = (key: string) => {
+    setDateKey(key);
+    setMonthNav(yearMonthOf(key));
+  };
 
   const styles = useMemo(
     () =>
@@ -72,6 +92,48 @@ const CalendarScreen: React.FC = () => {
           justifyContent: "space-between",
           marginBottom: 12,
         },
+        segmentRow: {
+          flexDirection: "row",
+          backgroundColor: colors.surface,
+          borderRadius: 12,
+          padding: 4,
+          marginBottom: 12,
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        segment: {
+          flex: 1,
+          paddingVertical: 10,
+          borderRadius: 8,
+          alignItems: "center",
+        },
+        segmentActive: { backgroundColor: colors.focus },
+        segmentText: {
+          fontSize: 14,
+          fontWeight: "600",
+          color: colors.textMuted,
+        },
+        segmentTextActive: { color: colors.onPrimary },
+        agendaTitle: {
+          fontSize: 17,
+          fontWeight: "600",
+          color: colors.text,
+          marginTop: 12,
+          marginBottom: 8,
+        },
+        agendaRow: {
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          backgroundColor: colors.surface,
+          borderRadius: 12,
+          padding: 14,
+          borderWidth: 1,
+          borderColor: colors.border,
+          marginBottom: 8,
+        },
+        agendaText: { fontSize: 15, color: colors.text, fontWeight: "600" },
+        agendaMeta: { fontSize: 13, color: colors.textMuted, marginTop: 2 },
         navButton: {
           paddingHorizontal: 12,
           paddingVertical: 8,
@@ -125,29 +187,114 @@ const CalendarScreen: React.FC = () => {
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <ScreenTitle title="Calendar" />
 
-        <View style={styles.nav}>
-          <Pressable
-            style={styles.navButton}
-            onPress={() => setDateKey((value) => shiftDateKey(value, -1))}
-            accessibilityRole="button"
-            accessibilityLabel="Previous day"
-          >
-            <Text style={styles.navText}>Prev</Text>
-          </Pressable>
-          <Pressable onPress={() => setDateKey(todayKey)}>
-            <Text style={styles.dateLabel}>
-              {dateKey === todayKey ? `Today · ${dateKey}` : dateKey}
-            </Text>
-          </Pressable>
-          <Pressable
-            style={styles.navButton}
-            onPress={() => setDateKey((value) => shiftDateKey(value, 1))}
-            accessibilityRole="button"
-            accessibilityLabel="Next day"
-          >
-            <Text style={styles.navText}>Next</Text>
-          </Pressable>
+        <View style={styles.segmentRow}>
+          {(["day", "month"] as const).map((item) => (
+            <Pressable
+              key={item}
+              style={[styles.segment, view === item && styles.segmentActive]}
+              onPress={() => setView(item)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: view === item }}
+              accessibilityLabel={`${item} view`}
+            >
+              <Text
+                style={[
+                  styles.segmentText,
+                  view === item && styles.segmentTextActive,
+                ]}
+              >
+                {item === "day" ? "Day" : "Month"}
+              </Text>
+            </Pressable>
+          ))}
         </View>
+
+        {view === "day" ? (
+          <View style={styles.nav}>
+            <Pressable
+              style={styles.navButton}
+              onPress={() => setDateKey((value) => shiftDateKey(value, -1))}
+              accessibilityRole="button"
+              accessibilityLabel="Previous day"
+            >
+              <Text style={styles.navText}>Prev</Text>
+            </Pressable>
+            <Pressable onPress={() => setDateKey(todayKey)}>
+              <Text style={styles.dateLabel}>
+                {dateKey === todayKey ? `Today · ${dateKey}` : dateKey}
+              </Text>
+            </Pressable>
+            <Pressable
+              style={styles.navButton}
+              onPress={() => setDateKey((value) => shiftDateKey(value, 1))}
+              accessibilityRole="button"
+              accessibilityLabel="Next day"
+            >
+              <Text style={styles.navText}>Next</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <>
+            <View style={styles.nav}>
+              <Pressable
+                style={styles.navButton}
+                onPress={() =>
+                  setMonthNav((value) => addMonths(value.year, value.month, -1))
+                }
+                accessibilityRole="button"
+                accessibilityLabel="Previous month"
+              >
+                <Text style={styles.navText}>‹</Text>
+              </Pressable>
+              <Text style={styles.dateLabel}>
+                {monthLabel(monthNav.year, monthNav.month)}
+              </Text>
+              <Pressable
+                style={styles.navButton}
+                onPress={() =>
+                  setMonthNav((value) => addMonths(value.year, value.month, 1))
+                }
+                accessibilityRole="button"
+                accessibilityLabel="Next month"
+              >
+                <Text style={styles.navText}>›</Text>
+              </Pressable>
+            </View>
+            <View style={styles.nav}>
+              <Pressable
+                style={styles.navButton}
+                onPress={() =>
+                  setMonthNav((value) => ({ year: value.year - 1, month: value.month }))
+                }
+                accessibilityRole="button"
+                accessibilityLabel="Previous year"
+              >
+                <Text style={styles.navText}>‹ {monthNav.year - 1}</Text>
+              </Pressable>
+              <Pressable
+                style={styles.navButton}
+                onPress={() => {
+                  setMonthNav(yearMonthOf(todayKey));
+                  setDateKey(todayKey);
+                }}
+                accessibilityRole="button"
+                accessibilityLabel="Go to today"
+              >
+                <Text style={styles.navText}>Today</Text>
+              </Pressable>
+              <Pressable
+                style={styles.navButton}
+                onPress={() =>
+                  setMonthNav((value) => ({ year: value.year + 1, month: value.month }))
+                }
+                accessibilityRole="button"
+                accessibilityLabel="Next year"
+              >
+                <Text style={styles.navText}>{monthNav.year + 1} ›</Text>
+              </Pressable>
+            </View>
+          </>
+        )}
 
         <View style={styles.summary}>
           <Text style={styles.summaryText}>
@@ -174,20 +321,64 @@ const CalendarScreen: React.FC = () => {
           </Pressable>
         </View>
 
-        {dayBlocks.length === 0 ? (
+        {dayBlocks.length === 0 && view === "day" ? (
           <EmptyState
             title="No blocks this day"
             message="Add a focus block to see it on the timeline. Plan tomorrow to queue inbox tasks."
           />
         ) : null}
 
-        <DayTimeline
-          blocks={dayBlocks}
-          resolveTaskTitle={(taskId) =>
-            tasks.find((task) => task.id === taskId)?.title ?? null
-          }
-          onPressBlock={openEdit}
-        />
+        {view === "day" ? (
+          <DayTimeline
+            blocks={dayBlocks}
+            resolveTaskTitle={(taskId) =>
+              tasks.find((task) => task.id === taskId)?.title ?? null
+            }
+            onPressBlock={openEdit}
+          />
+        ) : (
+          <>
+            <MonthGrid
+              year={monthNav.year}
+              month={monthNav.month}
+              counts={monthCounts}
+              selectedKey={dateKey}
+              todayKey={todayKey}
+              onSelect={selectMonthDay}
+            />
+            <Text style={styles.agendaTitle}>
+              {dateKey === todayKey ? "Today" : dateKey} · {dayBlocks.length}{" "}
+              block{dayBlocks.length === 1 ? "" : "s"}
+            </Text>
+            {dayBlocks.length === 0 ? (
+              <EmptyState
+                title="Nothing scheduled"
+                message="Pick another day or add a focus block here."
+              />
+            ) : (
+              dayBlocks.map((block) => (
+                <Pressable
+                  key={block.id}
+                  style={styles.agendaRow}
+                  onPress={() => openEdit(block)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Edit block at ${formatClock(block.startMinutes)}`}
+                >
+                  <View>
+                    <Text style={styles.agendaText}>
+                      {tasks.find((task) => task.id === block.taskId)?.title ??
+                        kindLabel(block.kind)}
+                    </Text>
+                    <Text style={styles.agendaMeta}>
+                      {formatClock(block.startMinutes)} · {block.durationMinutes}m
+                    </Text>
+                  </View>
+                  <Text style={styles.agendaMeta}>Edit</Text>
+                </Pressable>
+              ))
+            )}
+          </>
+        )}
       </ScrollView>
 
       <ScheduleBlockModal
