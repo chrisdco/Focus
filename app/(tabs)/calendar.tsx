@@ -32,6 +32,7 @@ import {
   yearMonthOf,
 } from "../../domain/schedule";
 import { cardElevation } from "../../theme/shadows";
+import { displayFont } from "../../theme/fonts";
 import type { ScheduleBlock } from "../../types/schedule";
 import { toDateKey } from "../../utils/timer";
 
@@ -99,6 +100,7 @@ const CalendarScreen: React.FC = () => {
           color: colors.text,
           marginTop: 12,
           marginBottom: 8,
+          fontFamily: displayFont.semiBold,
         },
         agendaRow: {
           flexDirection: "row",

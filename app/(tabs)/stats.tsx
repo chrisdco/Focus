@@ -149,6 +149,7 @@ const StatsScreen: React.FC = () => {
           fontWeight: "600",
           color: colors.text,
           marginBottom: 14,
+          fontFamily: displayFont.semiBold,
         },
         groupLabel: {
           fontSize: 13,
