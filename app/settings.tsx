@@ -26,7 +26,6 @@ import {
 import { DEFAULT_SETTINGS } from "../types/settings";
 import { getDurationForMode } from "../domain/timerMachine";
 import { ACCENT_PRESETS } from "../theme/accents";
-import { cardElevation } from "../theme/shadows";
 import type { TimerLayout } from "../types/settings";
 import { playCue } from "../utils/playCue";
 
@@ -119,7 +118,7 @@ const ToggleRow: React.FC<
 );
 
 const SettingsScreen: React.FC = () => {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const { settings, updateSettings, resetSettings } = useSettings();
   const { resetStats } = useStats();
   const { resetTasks } = useTasks();
@@ -142,13 +141,7 @@ const SettingsScreen: React.FC = () => {
           paddingBottom: 32,
         },
         section: {
-          backgroundColor: colors.surface,
-          borderRadius: 16,
-          padding: 16,
-          marginBottom: 16,
-          borderWidth: 1,
-          borderColor: colors.border,
-          ...cardElevation(isDark),
+          marginBottom: 24,
         },
         sectionTitle: {
           fontSize: 12,
@@ -223,7 +216,7 @@ const SettingsScreen: React.FC = () => {
           color: colors.textMuted,
         },
       }),
-    [colors, isDark]
+    [colors]
   );
 
   const handleResetAll = () => {

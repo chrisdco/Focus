@@ -69,13 +69,7 @@ const ProfileScreen: React.FC = () => {
           marginTop: 4,
         },
         group: {
-          backgroundColor: colors.surface,
-          borderRadius: 16,
-          borderWidth: 1,
-          borderColor: colors.border,
           marginBottom: 16,
-          overflow: "hidden",
-          ...cardElevation(isDark),
         },
         row: {
           flexDirection: "row",

@@ -10,7 +10,6 @@ import { SOUNDSCAPE_PRESETS } from "../../data/soundscapePresets";
 import { useSettings } from "../../context/SettingsContext";
 import { useSoundscape } from "../../context/SoundscapeContext";
 import { useTheme } from "../../context/ThemeContext";
-import { cardElevation } from "../../theme/shadows";
 import {
   MAX_MIX_LAYERS,
   SOUNDSCAPE_IDS,
@@ -36,7 +35,7 @@ const upsertLayer = (
 };
 
 export const SoundMixer: React.FC = () => {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const { settings, updateSettings } = useSettings();
   const { previewMix, stopPreview, isPreviewing } = useSoundscape();
   const sliderWidths = useRef<Partial<Record<SoundscapeId, number>>>({});
@@ -48,13 +47,7 @@ export const SoundMixer: React.FC = () => {
     () =>
       StyleSheet.create({
         container: {
-          backgroundColor: colors.surface,
-          borderRadius: 16,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: colors.border,
           marginBottom: 16,
-          ...cardElevation(isDark),
         },
         header: {
           flexDirection: "row",
@@ -172,7 +165,7 @@ export const SoundMixer: React.FC = () => {
           marginTop: 4,
         },
       }),
-    [colors, isDark]
+    [colors]
   );
 
   const persistMix = (nextMix: SoundMixLayer[], presetId: string | null) => {
