@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { displayFont } from "../../theme/fonts";
 import { cardElevation } from "../../theme/shadows";
 
 interface CollapsibleSectionProps {
@@ -68,5 +69,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     fontWeight: "600",
+    fontFamily: displayFont.semiBold,
   },
 });
