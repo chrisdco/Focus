@@ -47,7 +47,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
         </Text>
         <View style={styles.metaRow}>
           <Text style={[styles.meta, { color: colors.textMuted }]}>
-            🍅 {progress}
+            {progress} pomodoros
           </Text>
           {project && (
             <Text style={[styles.meta, { color: project.color }]}>
