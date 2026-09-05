@@ -1,11 +1,6 @@
-import {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  BottomSheetScrollView,
-  type BottomSheetBackdropProps,
-} from "@gorhom/bottom-sheet";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { BottomSheet, RNHostView } from "@expo/ui";
+import React, { useMemo } from "react";
+import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
 import { type as typeScale } from "../../theme/typography";
@@ -21,33 +16,12 @@ export const AmbienceSheet: React.FC<AmbienceSheetProps> = ({
   onClose,
 }) => {
   const { colors } = useTheme();
-  const sheetRef = useRef<BottomSheetModal>(null);
-  const snapPoints = useMemo(() => ["75%"], []);
-
-  useEffect(() => {
-    if (visible) {
-      sheetRef.current?.present();
-    } else {
-      sheetRef.current?.dismiss();
-    }
-  }, [visible]);
-
-  const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        pressBehavior="close"
-      />
-    ),
-    []
-  );
 
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        content: { paddingHorizontal: 20, paddingBottom: 32 },
+        scroll: { flex: 1 },
+        content: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 32 },
         title: {
           ...typeScale.sheetTitle,
           color: colors.text,
@@ -71,29 +45,31 @@ export const AmbienceSheet: React.FC<AmbienceSheetProps> = ({
   );
 
   return (
-    <BottomSheetModal
-      ref={sheetRef}
-      snapPoints={snapPoints}
+    <BottomSheet
+      isPresented={visible}
       onDismiss={onClose}
-      backdropComponent={renderBackdrop}
-      backgroundStyle={{ backgroundColor: colors.surface }}
-      handleIndicatorStyle={{ backgroundColor: colors.textMuted }}
+      snapPoints={["half", "full"]}
+      containerColor={colors.surface}
+      contentPadding={0}
     >
-      <BottomSheetScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.title}>Ambience</Text>
-        <SoundMixer />
-        <Pressable
-          style={styles.done}
-          onPress={() => sheetRef.current?.dismiss()}
-          accessibilityRole="button"
-          accessibilityLabel="Done tuning ambience"
+      <RNHostView>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.doneText}>Done</Text>
-        </Pressable>
-      </BottomSheetScrollView>
-    </BottomSheetModal>
+          <Text style={styles.title}>Ambience</Text>
+          <SoundMixer />
+          <Pressable
+            style={styles.done}
+            onPress={onClose}
+            accessibilityRole="button"
+            accessibilityLabel="Done tuning ambience"
+          >
+            <Text style={styles.doneText}>Done</Text>
+          </Pressable>
+        </ScrollView>
+      </RNHostView>
+    </BottomSheet>
   );
 };

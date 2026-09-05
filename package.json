@@ -11,8 +11,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@expo/ui": "~57.0.16",
     "@expo/vector-icons": "^15.0.3",
-    "@gorhom/bottom-sheet": "^5.2.14",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",

@@ -7,7 +7,6 @@ import {
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { Stack, router } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -141,15 +140,13 @@ export const AppProviders: React.FC = () => {
       <GestureHandlerRootView style={styles.gestureRoot}>
         <SettingsProvider>
           <ThemeProvider>
-            <BottomSheetModalProvider>
-              <StatsProvider>
-                <TasksProvider>
-                  <ScheduleProvider>
-                    <HydratedApp />
-                  </ScheduleProvider>
-                </TasksProvider>
-              </StatsProvider>
-            </BottomSheetModalProvider>
+            <StatsProvider>
+              <TasksProvider>
+                <ScheduleProvider>
+                  <HydratedApp />
+                </ScheduleProvider>
+              </TasksProvider>
+            </StatsProvider>
           </ThemeProvider>
         </SettingsProvider>
       </GestureHandlerRootView>
