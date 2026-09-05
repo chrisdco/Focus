@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, AppState, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Alert, AppState, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -8,6 +8,7 @@ import Animated, {
 
 import { CelebrationOverlay } from "../../components/timer/CelebrationOverlay";
 import { CircularTimer } from "../../components/timer/CircularTimer";
+import { SessionCard } from "../../components/timer/SessionCard";
 import { TimerButton } from "../../components/timer/TimerButton";
 import { GradientButton } from "../../components/ui/GradientButton";
 import { ActiveTaskPicker } from "../../components/tasks/ActiveTaskPicker";
@@ -195,35 +196,6 @@ const TimerScreen: React.FC = () => {
           fontStyle: "italic",
           paddingHorizontal: 16,
         },
-        activeTaskButton: {
-          alignSelf: "flex-start",
-          marginBottom: 12,
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-          borderRadius: 999,
-          borderWidth: 1,
-          borderColor: colors.border,
-          backgroundColor: colors.surface,
-        },
-        ambienceButton: {
-          alignSelf: "flex-start",
-          marginBottom: 12,
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-          borderRadius: 999,
-          borderWidth: 1,
-          borderColor: colors.border,
-          backgroundColor: colors.surface,
-        },
-        ambienceLabel: {
-          fontSize: 14,
-          color: colors.textSecondary,
-        },
-        activeTaskLabel: {
-          fontSize: 14,
-          color: colors.textSecondary,
-          textAlign: "left",
-        },
         activeTaskTitle: {
           fontSize: 15,
           fontWeight: "600",
@@ -255,19 +227,23 @@ const TimerScreen: React.FC = () => {
 
         {showChrome && <TodayStrip />}
 
-        {showChrome && settings.ambientSoundEnabled && (
-          <Pressable
-            style={styles.ambienceButton}
-            onPress={() => setAmbienceVisible(true)}
-            accessibilityRole="button"
-            accessibilityLabel={
-              hasAmbience ? "Tune ambience mix" : "Choose ambience"
+        {showChrome && (
+          <SessionCard
+            taskValue={
+              activeTask
+                ? `${activeTask.title} · ${activeTask.completedPomodoros}/${activeTask.estimatedPomodoros}`
+                : "Choose a task"
             }
-          >
-            <Text style={styles.ambienceLabel}>
-              {hasAmbience ? "Ambience · on" : "Ambience · off"} — tune
-            </Text>
-          </Pressable>
+            taskLabel={
+              activeTask
+                ? `Working on ${activeTask.title}`
+                : "Choose a task"
+            }
+            onTaskPress={() => setTaskPickerVisible(true)}
+            showAmbience={settings.ambientSoundEnabled}
+            ambienceValue={hasAmbience ? "Ambience · on" : "Ambience · off"}
+            onAmbiencePress={() => setAmbienceVisible(true)}
+          />
         )}
 
         {isFocusMode && (
@@ -281,26 +257,32 @@ const TimerScreen: React.FC = () => {
         )}
 
         {showChrome && (
-          <Pressable
-            style={styles.activeTaskButton}
-            onPress={() => setTaskPickerVisible(true)}
-            accessibilityRole="button"
-            accessibilityLabel={
+          <SessionCard
+            taskValue={
+              activeTask
+                ? `${activeTask.title} · ${activeTask.completedPomodoros}/${activeTask.estimatedPomodoros}`
+                : "Choose a task"
+            }
+            taskLabel={
               activeTask
                 ? `Working on ${activeTask.title}`
                 : "Choose a task"
             }
-          >
-            <Text style={styles.activeTaskLabel}>
-              {activeTask ? "Working on" : "Choose a task"}
-            </Text>
-            {activeTask && (
-              <Text style={styles.activeTaskTitle} numberOfLines={1}>
-                {activeTask.title} · {activeTask.completedPomodoros}/
-                {activeTask.estimatedPomodoros}
-              </Text>
-            )}
-          </Pressable>
+            onTaskPress={() => setTaskPickerVisible(true)}
+            showAmbience={settings.ambientSoundEnabled}
+            ambienceValue={hasAmbience ? "Ambience · on" : "Ambience · off"}
+            onAmbiencePress={() => setAmbienceVisible(true)}
+          />
+        )}
+
+        {isFocusMode && (
+          <Text style={styles.focusBadge}>Focus mode</Text>
+        )}
+
+        {mode === "focus" && showChrome && (
+          <Text style={styles.sessionCounter}>
+            Session {sessionNumber} of {sessionsBeforeLongBreak}
+          </Text>
         )}
 
         {isFocusMode && activeTask && (
