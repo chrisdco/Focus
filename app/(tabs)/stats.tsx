@@ -21,6 +21,7 @@ import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import type { StatsPeriod } from "../../domain/statsCalculator";
 import { cardElevation } from "../../theme/shadows";
+import { displayFont } from "../../theme/fonts";
 
 const PERIODS: { key: StatsPeriod; label: string }[] = [
   { key: "day", label: "Day" },
@@ -127,6 +128,7 @@ const StatsScreen: React.FC = () => {
           fontWeight: "700",
           color: colors.text,
           letterSpacing: 0.5,
+          fontFamily: displayFont.bold,
         },
         heroLabel: {
           fontSize: 14,

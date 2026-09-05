@@ -1,6 +1,17 @@
+import { displayFont } from "./fonts";
+
 export const type = {
-  title: { fontSize: 28, fontWeight: "700" as const, letterSpacing: 0.2 },
-  sheetTitle: { fontSize: 20, fontWeight: "700" as const },
+  title: {
+    fontSize: 28,
+    fontWeight: "700" as const,
+    letterSpacing: 0.2,
+    fontFamily: displayFont.bold,
+  },
+  sheetTitle: {
+    fontSize: 20,
+    fontWeight: "700" as const,
+    fontFamily: displayFont.bold,
+  },
   section: {
     fontSize: 16,
     fontWeight: "600" as const,
@@ -16,7 +27,12 @@ export const type = {
   },
   body: { fontSize: 16, fontWeight: "400" as const },
   caption: { fontSize: 13, fontWeight: "400" as const },
-  timer: { fontSize: 48, fontWeight: "600" as const, letterSpacing: 2 },
+  timer: {
+    fontSize: 48,
+    fontWeight: "600" as const,
+    letterSpacing: 2,
+    fontFamily: displayFont.semiBold,
+  },
 };
 
 export const space = {

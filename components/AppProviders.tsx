@@ -10,6 +10,12 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Stack, router } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import {
+  Nunito_600SemiBold,
+  Nunito_700Bold,
+  useFonts,
+} from "@expo-google-fonts/nunito";
+import * as SplashScreen from "expo-splash-screen";
 import { FocusModeProvider } from "../context/FocusModeContext";
 import { ScheduleProvider } from "../context/ScheduleContext";
 import { SettingsProvider, useSettings } from "../context/SettingsContext";
@@ -103,8 +109,11 @@ const LoadingScreen: React.FC = () => {
   );
 };
 
+void SplashScreen.preventAutoHideAsync().catch(() => undefined);
+
 const HydratedApp: React.FC = () => {
   const { settings, isHydrated: settingsReady } = useSettings();
+  const [fontsLoaded] = useFonts({ Nunito_600SemiBold, Nunito_700Bold });
   const [snapshot, setSnapshot] = useState<TimerSnapshot | null | undefined>(
     undefined
   );
@@ -118,7 +127,15 @@ const HydratedApp: React.FC = () => {
     void hydrate();
   }, []);
 
-  if (!settingsReady || snapshot === undefined) {
+  const ready = settingsReady && snapshot !== undefined && fontsLoaded;
+
+  useEffect(() => {
+    if (ready) {
+      void SplashScreen.hideAsync().catch(() => undefined);
+    }
+  }, [ready]);
+
+  if (!ready) {
     return <LoadingScreen />;
   }
 

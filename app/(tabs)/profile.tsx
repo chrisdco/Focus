@@ -8,6 +8,7 @@ import { useStats } from "../../context/StatsContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import { cardElevation } from "../../theme/shadows";
+import { displayFont } from "../../theme/fonts";
 import { type as typeScale } from "../../theme/typography";
 
 const APP_VERSION = "1.0.0";
@@ -60,6 +61,7 @@ const ProfileScreen: React.FC = () => {
           fontSize: 44,
           fontWeight: "700",
           color: colors.text,
+          fontFamily: displayFont.bold,
         },
         heroLabel: {
           fontSize: 14,

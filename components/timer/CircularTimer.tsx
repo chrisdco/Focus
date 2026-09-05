@@ -14,6 +14,7 @@ import Animated, {
 import Svg, { Circle } from "react-native-svg";
 
 import { useTheme } from "../../context/ThemeContext";
+import { displayFont } from "../../theme/fonts";
 import { modeLabels } from "../../theme/colors";
 import type { TimerMode } from "../../types/timer";
 import { formatTime } from "../../utils/timer";
@@ -214,6 +215,8 @@ const styles = StyleSheet.create({
   timeText: {
     fontWeight: "600",
     letterSpacing: 2,
+    fontFamily: displayFont.semiBold,
+    fontVariant: ["tabular-nums"],
   },
 });
 
