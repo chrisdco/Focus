@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, AppState, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, AppState, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { fontFamily } from "../../theme/fonts";
 import Animated, {
   useAnimatedStyle,
@@ -11,8 +13,6 @@ import Animated, {
 import { CelebrationOverlay } from "../../components/timer/CelebrationOverlay";
 import { CircularTimer } from "../../components/timer/CircularTimer";
 import { SessionCard } from "../../components/timer/SessionCard";
-import { TimerButton } from "../../components/timer/TimerButton";
-import { GradientButton } from "../../components/ui/GradientButton";
 import { ActiveTaskPicker } from "../../components/tasks/ActiveTaskPicker";
 import { TodayStrip } from "../../components/calendar/TodayStrip";
 import { OnboardingGate } from "../../components/ui/OnboardingGate";
@@ -31,9 +31,9 @@ import { modeLabels } from "../../theme/colors";
 import { formatDurationLabel } from "../../utils/timer";
 
 const TimerScreen: React.FC = () => {
-  const { colors, modeColors } = useTheme();
+  const { colors, gradient, modeColors } = useTheme();
   const { settings } = useSettings();
-  const { isFocusMode } = useFocusMode();
+  const { isFocusMode, toggleFocusMode } = useFocusMode();
   const { activeTask } = useTasks();
   const { stats, getTodayPomodoroCount } = useStats();
   const [taskPickerVisible, setTaskPickerVisible] = useState(false);
@@ -159,6 +159,32 @@ const TimerScreen: React.FC = () => {
           // column scrolls instead of overlapping the controls.
           minHeight: isFocusMode ? 332 : 292,
         },
+        playButton: {
+          width: 88,
+          height: 88,
+          borderRadius: 44,
+          alignItems: "center",
+          justifyContent: "center",
+        },
+        iconButton: {
+          width: 48,
+          height: 48,
+          alignItems: "center",
+          justifyContent: "center",
+        },
+        iconDisabled: {
+          opacity: 0.35,
+        },
+        contractButton: {
+          position: "absolute",
+          top: 16,
+          right: 20,
+          width: 44,
+          height: 44,
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 5,
+        },
       }),
     [isFocusMode]
   );
@@ -174,24 +200,22 @@ const TimerScreen: React.FC = () => {
         paused={!appIsActive}
         intensity={Math.min(1, streak / 7)}
       />
+      {isFocusMode && (
+        <Pressable
+          style={styles.contractButton}
+          onPress={toggleFocusMode}
+          accessibilityRole="button"
+          accessibilityLabel="Exit fullscreen focus"
+          hitSlop={8}
+        >
+          <Ionicons name="contract-outline" size={24} color={colors.textMuted} />
+        </Pressable>
+      )}
 
       <ScrollView
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        {showChrome && (
-          <Text
-            className="text-left mb-2 text-[28px] font-bold"
-            style={{
-              color: colors.text,
-              fontFamily: fontFamily.bold,
-              letterSpacing: 0.2,
-            }}
-          >
-            Timer
-          </Text>
-        )}
-
         {showChrome && <TodayStrip />}
 
         {showChrome && (
@@ -271,26 +295,75 @@ const TimerScreen: React.FC = () => {
             </Text>
           )}
 
-          <GradientButton
-            label={isRunning ? "Pause" : `Start ${modeLabels[mode]}`}
-            onPress={handlePrimaryPress}
-            accessibilityLabel={`${primaryLabel} ${modeLabels[mode]} timer`}
-          />
-          <View className="flex-row justify-center items-center gap-3 flex-wrap mt-3">
+          <View className="items-center">
+            <Pressable
+              onPress={handlePrimaryPress}
+              accessibilityRole="button"
+              accessibilityLabel={`${primaryLabel} ${modeLabels[mode]} timer`}
+              hitSlop={12}
+            >
+              <LinearGradient
+                colors={gradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.playButton}
+              >
+                <Ionicons
+                  name={isRunning ? "pause" : "play"}
+                  size={38}
+                  color={colors.onPrimary}
+                  style={isRunning ? undefined : { marginLeft: 4 }}
+                />
+              </LinearGradient>
+            </Pressable>
+          </View>
+          <View className="flex-row justify-center items-center mt-4">
             {showSkip && (isFocusMode || !isMinimalLayout) && (
-              <TimerButton
-                label={skipLabel}
-                variant="secondary"
+              <Pressable
+                style={styles.iconButton}
                 onPress={handleSkipPress}
-              />
+                accessibilityRole="button"
+                accessibilityLabel={skipLabel}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name="play-skip-forward-outline"
+                  size={24}
+                  color={colors.textMuted}
+                />
+              </Pressable>
             )}
             {showChrome && (
-              <TimerButton
-                label="Reset"
-                variant="secondary"
-                disabled={!canReset}
+              <Pressable
+                style={[styles.iconButton, !canReset && styles.iconDisabled]}
                 onPress={reset}
-              />
+                disabled={!canReset}
+                accessibilityRole="button"
+                accessibilityLabel="Reset timer"
+                accessibilityState={{ disabled: !canReset }}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name="refresh-outline"
+                  size={24}
+                  color={colors.textMuted}
+                />
+              </Pressable>
+            )}
+            {showChrome && (
+              <Pressable
+                style={styles.iconButton}
+                onPress={toggleFocusMode}
+                accessibilityRole="button"
+                accessibilityLabel="Toggle fullscreen focus"
+                hitSlop={8}
+              >
+                <Ionicons
+                  name="expand-outline"
+                  size={24}
+                  color={colors.textMuted}
+                />
+              </Pressable>
             )}
           </View>
 
