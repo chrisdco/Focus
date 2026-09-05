@@ -167,6 +167,7 @@ const TimerScreen: React.FC = () => {
     <SafeAreaView
       className="flex-1"
       style={{ backgroundColor: colors.background }}
+      edges={["top"]}
     >
       <FocusBackground
         active={isFocusMode && settings.focusAnimationsEnabled}
