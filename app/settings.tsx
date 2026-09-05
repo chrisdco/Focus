@@ -2,13 +2,13 @@ import React, { useMemo } from "react";
 import {
   Alert,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { BREAK_SOUNDS, COMPLETION_SOUNDS } from "../data/cueSounds";
 import { useSchedule } from "../context/ScheduleContext";

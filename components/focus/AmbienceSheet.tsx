@@ -57,6 +57,7 @@ export const AmbienceSheet: React.FC<AmbienceSheetProps> = ({
           style={styles.scroll}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
+          nestedScrollEnabled
         >
           <Text style={styles.title}>Ambience</Text>
           <SoundMixer />
