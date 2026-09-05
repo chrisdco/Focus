@@ -1,6 +1,7 @@
+import { BottomSheet, RNHostView } from "@expo/ui";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  Modal,
+  ScrollView,
   StyleSheet,
   Switch,
   Text,
@@ -46,20 +47,13 @@ export const OnboardingGate: React.FC = () => {
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        overlay: {
+        scroll: {
           flex: 1,
-          justifyContent: "flex-end",
-          backgroundColor: colors.overlay,
         },
-        sheet: {
-          backgroundColor: colors.surface,
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
+        content: {
           paddingHorizontal: 20,
-          paddingTop: 16,
+          paddingTop: 8,
           paddingBottom: 32,
-          borderWidth: 1,
-          borderColor: colors.border,
         },
         title: {
           ...typeScale.sheetTitle,
@@ -81,14 +75,20 @@ export const OnboardingGate: React.FC = () => {
   );
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={dismiss}
+    <BottomSheet
+      isPresented={visible}
+      onDismiss={dismiss}
+      snapPoints={["half", "full"]}
+      containerColor={colors.surface}
+      contentPadding={0}
     >
-      <View style={styles.overlay}>
-        <View style={styles.sheet}>
+      <RNHostView>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.content}
+          nestedScrollEnabled
+          showsVerticalScrollIndicator={false}
+        >
           <Text style={styles.title}>Welcome to Foco</Text>
           <View style={styles.row}>
             <Text style={styles.rowTitle}>One loop</Text>
@@ -128,8 +128,8 @@ export const OnboardingGate: React.FC = () => {
             onPress={dismiss}
             accessibilityLabel="Begin focusing"
           />
-        </View>
-      </View>
-    </Modal>
+        </ScrollView>
+      </RNHostView>
+    </BottomSheet>
   );
 };

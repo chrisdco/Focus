@@ -1,7 +1,7 @@
+import { BottomSheet, RNHostView } from "@expo/ui";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,7 +11,6 @@ import {
 
 import { useTheme } from "../../context/ThemeContext";
 import { formatClock, parseClock } from "../../domain/schedule";
-import { cardElevation } from "../../theme/shadows";
 import { type as typeScale } from "../../theme/typography";
 import type {
   ScheduleBlock,
@@ -47,7 +46,7 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
   onSave,
   onDelete,
 }) => {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const [hour, setHour] = useState(9);
   const [minute, setMinute] = useState(0);
   const [duration, setDuration] = useState(defaultDurationMinutes);
@@ -90,27 +89,23 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        overlay: {
+        scroll: {
           flex: 1,
-          justifyContent: "flex-end",
-          backgroundColor: colors.overlay,
         },
-        sheet: {
-          backgroundColor: colors.surface,
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
+        content: {
           paddingHorizontal: 20,
-          paddingTop: 16,
+          paddingTop: 8,
           paddingBottom: 32,
-          maxHeight: "90%",
-          borderWidth: 1,
-          borderColor: colors.border,
-          ...cardElevation(isDark),
         },
         header: {
           flexDirection: "row",
           justifyContent: "space-between",
+          alignItems: "center",
           marginBottom: 12,
+        },
+        headerPad: {
+          paddingHorizontal: 20,
+          paddingTop: 8,
         },
         title: {
           ...typeScale.sheetTitle,
@@ -161,7 +156,7 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
         delete: { marginTop: 12, alignItems: "center", minHeight: 44, justifyContent: "center" },
         deleteText: { color: colors.danger, fontWeight: "600" },
       }),
-    [colors, isDark]
+    [colors]
   );
 
   const handleSave = () => {
@@ -187,10 +182,16 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
   const activeTasks = tasks.filter((task) => task.status === "active");
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.sheet}>
-          <View style={styles.header}>
+    <BottomSheet
+      isPresented={visible}
+      onDismiss={onClose}
+      snapPoints={["half", "full"]}
+      containerColor={colors.surface}
+      contentPadding={0}
+    >
+      <RNHostView>
+        <>
+          <View style={[styles.header, styles.headerPad]}>
             <Text style={styles.title}>
               {initial ? "Edit block" : "Schedule block"}
             </Text>
@@ -199,7 +200,12 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
             </Pressable>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.content}
+            nestedScrollEnabled
+            showsVerticalScrollIndicator={false}
+          >
             <Text style={styles.label}>Start</Text>
             <View style={styles.row}>
               <Pressable
@@ -314,8 +320,8 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
               </Pressable>
             )}
           </ScrollView>
-        </View>
-      </View>
-    </Modal>
+        </>
+      </RNHostView>
+    </BottomSheet>
   );
 };

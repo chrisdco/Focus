@@ -1,7 +1,7 @@
+import { BottomSheet, RNHostView } from "@expo/ui";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -76,21 +76,13 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        overlay: {
+        scroll: {
           flex: 1,
-          justifyContent: "flex-end",
-          backgroundColor: colors.overlay,
         },
-        sheet: {
-          backgroundColor: colors.surface,
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
+        content: {
           paddingHorizontal: 20,
-          paddingTop: 16,
+          paddingTop: 8,
           paddingBottom: 32,
-          maxHeight: "90%",
-          borderWidth: 1,
-          borderColor: colors.border,
         },
         header: {
           flexDirection: "row",
@@ -239,10 +231,21 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.sheet}>
-          <ScrollView keyboardShouldPersistTaps="handled">
+    <BottomSheet
+      isPresented={visible}
+      onDismiss={onClose}
+      snapPoints={["half", "full"]}
+      containerColor={colors.surface}
+      contentPadding={0}
+    >
+      <RNHostView>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          nestedScrollEnabled
+          showsVerticalScrollIndicator={false}
+        >
             <View style={styles.header}>
               <Text style={styles.title}>
                 {initialTask ? "Edit task" : "New task"}
@@ -406,9 +409,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                 <Text style={styles.deleteButtonText}>Delete task</Text>
               </Pressable>
             )}
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
+        </ScrollView>
+      </RNHostView>
+    </BottomSheet>
   );
 };
