@@ -7,6 +7,13 @@ export const type = {
     letterSpacing: 0.5,
     textTransform: "uppercase" as const,
   },
+  /** Small-caps eyebrow labels, Opal/Health style hero + group headers. */
+  eyebrow: {
+    fontSize: 12,
+    fontWeight: "600" as const,
+    letterSpacing: 1.5,
+    textTransform: "uppercase" as const,
+  },
   body: { fontSize: 16, fontWeight: "400" as const },
   caption: { fontSize: 13, fontWeight: "400" as const },
   timer: { fontSize: 48, fontWeight: "600" as const, letterSpacing: 2 },
