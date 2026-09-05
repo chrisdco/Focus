@@ -10,26 +10,25 @@ import {
   View,
 } from "react-native";
 
-import { BREAK_SOUNDS, COMPLETION_SOUNDS } from "../../data/cueSounds";
-import { useSchedule } from "../../context/ScheduleContext";
-import { useSettings } from "../../context/SettingsContext";
-import { useStats } from "../../context/StatsContext";
-import { useTasks } from "../../context/TasksContext";
-import { useTheme } from "../../context/ThemeContext";
-import { useTimerContext } from "../../context/TimerContext";
-import { ScreenTitle } from "../../components/ui/ScreenTitle";
-import { isNotificationsAvailable } from "../../utils/notifications";
+import { BREAK_SOUNDS, COMPLETION_SOUNDS } from "../data/cueSounds";
+import { useSchedule } from "../context/ScheduleContext";
+import { useSettings } from "../context/SettingsContext";
+import { useStats } from "../context/StatsContext";
+import { useTasks } from "../context/TasksContext";
+import { useTheme } from "../context/ThemeContext";
+import { useTimerContext } from "../context/TimerContext";
+import { isNotificationsAvailable } from "../utils/notifications";
 import {
   clearAllData,
   clearTimerSnapshot,
-} from "../../storage";
-import { DEFAULT_SETTINGS } from "../../types/settings";
-import { getDurationForMode } from "../../domain/timerMachine";
-import { ACCENT_PRESETS } from "../../theme/accents";
-import { cardElevation } from "../../theme/shadows";
-import { type as typeScale } from "../../theme/typography";
-import type { TimerLayout } from "../../types/settings";
-import { playCue } from "../../utils/playCue";
+} from "../storage";
+import { DEFAULT_SETTINGS } from "../types/settings";
+import { getDurationForMode } from "../domain/timerMachine";
+import { ACCENT_PRESETS } from "../theme/accents";
+import { cardElevation } from "../theme/shadows";
+import { type as typeScale } from "../theme/typography";
+import type { TimerLayout } from "../types/settings";
+import { playCue } from "../utils/playCue";
 
 interface DurationStepperProps {
   label: string;
@@ -232,8 +231,6 @@ const SettingsScreen: React.FC = () => {
         contentContainerStyle={{ paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
       >
-        <ScreenTitle title="Settings" />
-
         <View style={screenStyles.section}>
           <Text style={screenStyles.sectionTitle}>Appearance</Text>
           <ToggleRow
