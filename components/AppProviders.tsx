@@ -37,6 +37,33 @@ const SoundscapeSideEffects: React.FC = () => {
   return null;
 };
 
+const RootStack: React.FC = () => {
+  const { colors } = useTheme();
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: colors.background },
+      }}
+    >
+      <Stack.Screen
+        name="settings"
+        options={{
+          headerShown: true,
+          title: "Settings",
+          headerLargeTitle: true,
+          headerTransparent: false,
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.text,
+          headerLargeTitleStyle: { color: colors.text },
+          headerTitleStyle: { color: colors.text },
+        }}
+      />
+    </Stack>
+  );
+};
+
 const LoadingScreen: React.FC = () => {
   const { colors } = useTheme();
 
@@ -78,7 +105,7 @@ const HydratedApp: React.FC = () => {
         <FocusModeProvider>
           <TimerSideEffects />
           <SoundscapeSideEffects />
-          <Stack screenOptions={{ headerShown: false }} />
+          <RootStack />
         </FocusModeProvider>
       </SoundscapeProvider>
     </TimerProvider>
