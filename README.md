@@ -38,6 +38,10 @@ npx expo start
 
 Then open Expo Go, an emulator, or a development build. Duration and mix changes apply to future / next playback, not the in-progress session.
 
+> Notifications note: on Android, scheduled chimes and reminders need a
+> development build — Expo Go (SDK 53+) no longer ships notifications
+> support there. Everything else works in Expo Go; iOS reminders work.
+
 ## Scripts
 
 | Command | Purpose |

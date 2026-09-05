@@ -17,7 +17,7 @@ import type { ScheduleBlock, ScheduleBlockDraft } from "../types/schedule";
 import {
   cancelBlockReminder,
   syncBlockReminder,
-} from "../utils/scheduleReminders";
+} from "../utils/notifications";
 
 const createId = (): string =>
   `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;

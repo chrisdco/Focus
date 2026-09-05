@@ -14,6 +14,7 @@ import {
   loadHasSeenOnboarding,
   saveHasSeenOnboarding,
 } from "../../storage";
+import { isNotificationsAvailable } from "../../utils/notifications";
 
 /**
  * Value-first onboarding: explains the one loop, lets the user opt into
@@ -119,7 +120,9 @@ export const OnboardingGate: React.FC = () => {
             <View style={{ flex: 1, paddingRight: 12 }}>
               <Text style={styles.rowTitle}>Session reminders</Text>
               <Text style={styles.rowBody}>
-                A chime when a session ends, even outside the app.
+                {isNotificationsAvailable()
+                  ? "A chime when a session ends, even outside the app."
+                  : "Needs a development build on Android — Expo Go can't schedule reminders."}
               </Text>
             </View>
             <Switch
