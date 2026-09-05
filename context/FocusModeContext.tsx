@@ -1,11 +1,20 @@
 import type { ReactNode } from "react";
-import React, { createContext, useContext, useMemo } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import { useSettings } from "./SettingsContext";
 import { useTimerContext } from "./TimerContext";
 
 interface FocusModeContextValue {
   isFocusMode: boolean;
+  /** Flip the effective state; sticky until the session transitions. */
+  toggleFocusMode: () => void;
 }
 
 const FocusModeContext = createContext<FocusModeContextValue | undefined>(
@@ -21,15 +30,27 @@ export const FocusModeProvider: React.FC<FocusModeProviderProps> = ({
 }) => {
   const { settings } = useSettings();
   const { state } = useTimerContext();
+  // Manual override; cleared on every session transition so it can never
+  // strand the UI (e.g. stuck fullscreen while browsing stats).
+  const [override, setOverride] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    setOverride(null);
+  }, [state.isRunning, state.mode]);
+
+  const auto =
+    settings.autoEnterFocusMode &&
+    state.isRunning &&
+    state.mode === "focus";
+  const isFocusMode = override ?? auto;
+
+  const toggleFocusMode = useCallback(() => {
+    setOverride(!isFocusMode);
+  }, [isFocusMode]);
 
   const value = useMemo(
-    () => ({
-      isFocusMode:
-        settings.autoEnterFocusMode &&
-        state.isRunning &&
-        state.mode === "focus",
-    }),
-    [settings.autoEnterFocusMode, state.isRunning, state.mode]
+    () => ({ isFocusMode, toggleFocusMode }),
+    [isFocusMode, toggleFocusMode]
   );
 
   return (
