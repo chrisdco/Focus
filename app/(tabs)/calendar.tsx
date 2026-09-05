@@ -246,9 +246,18 @@ const CalendarScreen: React.FC = () => {
               >
                 <Text style={styles.navText}>‹</Text>
               </Pressable>
-              <Text style={styles.dateLabel}>
-                {monthLabel(monthNav.year, monthNav.month)}
-              </Text>
+              <Pressable
+                onPress={() => {
+                  setMonthNav(yearMonthOf(todayKey));
+                  setDateKey(todayKey);
+                }}
+                accessibilityRole="button"
+                accessibilityLabel="Jump to current month"
+              >
+                <Text style={styles.dateLabel}>
+                  {monthLabel(monthNav.year, monthNav.month)} ›
+                </Text>
+              </Pressable>
               <Pressable
                 style={styles.navButton}
                 onPress={() =>

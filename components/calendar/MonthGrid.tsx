@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
 import { getMonthCells } from "../../domain/schedule";
 
-const WEEKDAY_HEADER = ["S", "M", "T", "W", "T", "F", "S"];
+const WEEKDAY_HEADER = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const MAX_DOTS = 3;
 
 interface MonthGridProps {
@@ -37,8 +37,9 @@ export const MonthGrid: React.FC<MonthGridProps> = ({
           paddingVertical: 6,
         },
         headerText: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: "600",
+          letterSpacing: 0.5,
           color: colors.textMuted,
         },
         weekRow: { flexDirection: "row" },
