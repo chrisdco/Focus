@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 
 interface BarChartProps {
   values: number[];
@@ -44,6 +45,7 @@ export const BarChart: React.FC<BarChartProps> = ({ values, labels }) => {
           fontSize: 10,
           color: colors.textMuted,
           marginTop: 4,
+          fontFamily: fontFamily.regular,
         },
       }),
     [colors]

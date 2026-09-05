@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 import { cardElevation } from "../../theme/shadows";
 import type { AchievementProgress } from "../../types/achievements";
 
@@ -41,12 +42,14 @@ export const AchievementBadges: React.FC<AchievementBadgesProps> = ({
         title: {
           fontSize: 14,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           color: colors.text,
         },
         description: {
           fontSize: 12,
           color: colors.textMuted,
           marginTop: 2,
+          fontFamily: fontFamily.regular,
         },
       }),
     [colors, isDark]

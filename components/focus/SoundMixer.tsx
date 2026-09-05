@@ -10,6 +10,7 @@ import { SOUNDSCAPE_PRESETS } from "../../data/soundscapePresets";
 import { useSettings } from "../../context/SettingsContext";
 import { useSoundscape } from "../../context/SoundscapeContext";
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 import {
   MAX_MIX_LAYERS,
   SOUNDSCAPE_IDS,
@@ -58,6 +59,7 @@ export const SoundMixer: React.FC = () => {
         title: {
           fontSize: 17,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           color: colors.text,
         },
         previewButton: {
@@ -70,6 +72,7 @@ export const SoundMixer: React.FC = () => {
         previewText: {
           fontSize: 13,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           color: colors.textSecondary,
         },
         presetRow: {
@@ -95,6 +98,7 @@ export const SoundMixer: React.FC = () => {
         presetText: {
           fontSize: 14,
           fontWeight: "700",
+          fontFamily: fontFamily.bold,
           color: colors.textSecondary,
           textAlign: "center",
         },
@@ -106,6 +110,7 @@ export const SoundMixer: React.FC = () => {
           color: colors.textMuted,
           marginTop: 2,
           textAlign: "center",
+          fontFamily: fontFamily.regular,
         },
         presetSubActive: {
           color: colors.onPrimary,
@@ -117,6 +122,7 @@ export const SoundMixer: React.FC = () => {
         tuneToggleText: {
           fontSize: 13,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           color: colors.textMuted,
         },
         trackRow: {
@@ -132,6 +138,7 @@ export const SoundMixer: React.FC = () => {
           fontSize: 15,
           color: colors.text,
           fontWeight: "500",
+          fontFamily: fontFamily.medium,
         },
         trackToggle: {
           paddingHorizontal: 10,
@@ -147,6 +154,7 @@ export const SoundMixer: React.FC = () => {
         trackToggleText: {
           fontSize: 12,
           color: colors.textMuted,
+          fontFamily: fontFamily.regular,
         },
         sliderTrack: {
           height: 8,
@@ -163,6 +171,7 @@ export const SoundMixer: React.FC = () => {
           fontSize: 12,
           color: colors.textMuted,
           marginTop: 4,
+          fontFamily: fontFamily.regular,
         },
       }),
     [colors]

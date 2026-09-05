@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { EmptyState } from "../ui/EmptyState";
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 import type { SessionLog } from "../../types/stats";
 import { formatTime } from "../../utils/timer";
 
@@ -31,16 +32,19 @@ export const SessionTimeline: React.FC<SessionTimelineProps> = ({
         title: {
           fontSize: 15,
           fontWeight: "500",
+          fontFamily: fontFamily.medium,
           color: colors.text,
         },
         meta: {
           fontSize: 13,
           color: colors.textMuted,
           marginTop: 2,
+          fontFamily: fontFamily.regular,
         },
         duration: {
           fontSize: 14,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           color: colors.focus,
         },
       }),

@@ -11,6 +11,8 @@ import { Stack, router } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import {
+  Nunito_400Regular,
+  Nunito_500Medium,
   Nunito_600SemiBold,
   Nunito_700Bold,
   useFonts,
@@ -24,6 +26,7 @@ import { StatsProvider } from "../context/StatsContext";
 import { TasksProvider } from "../context/TasksContext";
 import { ThemeProvider, useTheme } from "../context/ThemeContext";
 import { TimerProvider } from "../context/TimerContext";
+import { fontFamily } from "../theme/fonts";
 import { useAppStateReconciliation } from "../hooks/useAppStateReconciliation";
 import { ErrorBoundary } from "./ui/ErrorBoundary";
 import { useFocusSoundscape } from "../hooks/useFocusSoundscape";
@@ -61,7 +64,7 @@ const SettingsDoneButton: React.FC<{ tint: string }> = ({ tint }) => (
     accessibilityLabel="Done, back to profile"
     hitSlop={12}
   >
-    <Text style={{ color: tint, fontSize: 17, fontWeight: "600" }}>Done</Text>
+    <Text style={{ color: tint, fontSize: 17, fontWeight: "600", fontFamily: fontFamily.semiBold }}>Done</Text>
   </Pressable>
 );
 
@@ -102,7 +105,12 @@ const LoadingScreen: React.FC = () => {
       accessibilityLabel="Loading Foco"
     >
       <ActivityIndicator size="large" color={colors.focus} />
-      <Text style={[styles.loadingLabel, { color: colors.textMuted }]}>
+      <Text
+        style={[
+          styles.loadingLabel,
+          { color: colors.textMuted, fontFamily: fontFamily.regular },
+        ]}
+      >
         Loading Foco
       </Text>
     </View>
@@ -113,7 +121,12 @@ void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 const HydratedApp: React.FC = () => {
   const { settings, isHydrated: settingsReady } = useSettings();
-  const [fontsLoaded] = useFonts({ Nunito_600SemiBold, Nunito_700Bold });
+  const [fontsLoaded] = useFonts({
+    Nunito_400Regular,
+    Nunito_500Medium,
+    Nunito_600SemiBold,
+    Nunito_700Bold,
+  });
   const [snapshot, setSnapshot] = useState<TimerSnapshot | null | undefined>(
     undefined
   );

@@ -3,6 +3,7 @@ import React from "react";
 import { Pressable, Text, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 
 interface SessionCardProps {
   taskValue: string;
@@ -45,7 +46,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
         <Ionicons name="checkbox-outline" size={20} color={colors.textMuted} />
         <Text
           className="flex-1 text-[15px]"
-          style={{ color: colors.text }}
+          style={{ color: colors.text, fontFamily: fontFamily.regular }}
           numberOfLines={1}
         >
           {taskValue}
@@ -66,7 +67,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
           />
           <Text
             className="flex-1 text-[15px]"
-            style={{ color: colors.text }}
+            style={{ color: colors.text, fontFamily: fontFamily.regular }}
             numberOfLines={1}
           >
             {ambienceValue}

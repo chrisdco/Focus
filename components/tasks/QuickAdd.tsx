@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 
 interface QuickAddProps {
   onAdd: (title: string, estimatedPomodoros: number) => void;
@@ -33,6 +34,7 @@ export const QuickAdd: React.FC<QuickAddProps> = ({ onAdd }) => {
           fontSize: 16,
           color: colors.text,
           minHeight: 40,
+          fontFamily: fontFamily.regular,
         },
         stepper: {
           flexDirection: "row",
@@ -47,15 +49,30 @@ export const QuickAdd: React.FC<QuickAddProps> = ({ onAdd }) => {
           alignItems: "center",
           justifyContent: "center",
         },
-        stepText: { fontSize: 16, color: colors.text },
-        estimate: { fontSize: 14, color: colors.textSecondary, minWidth: 30, textAlign: "center" },
+        stepText: {
+          fontSize: 16,
+          color: colors.text,
+          fontFamily: fontFamily.regular,
+        },
+        estimate: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          minWidth: 30,
+          textAlign: "center",
+          fontFamily: fontFamily.regular,
+        },
         add: {
           paddingHorizontal: 14,
           paddingVertical: 10,
           borderRadius: 999,
           backgroundColor: colors.focus,
         },
-        addText: { color: colors.onPrimary, fontWeight: "600", fontSize: 14 },
+        addText: {
+          color: colors.onPrimary,
+          fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
+          fontSize: 14,
+        },
         addDisabled: { opacity: 0.5 },
       }),
     [colors]

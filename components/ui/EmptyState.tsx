@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 import { type as typeScale } from "../../theme/typography";
 
 interface EmptyStateProps {
@@ -29,6 +30,7 @@ const styles = StyleSheet.create({
   title: {
     ...typeScale.body,
     fontWeight: "600",
+    fontFamily: fontFamily.semiBold,
     textAlign: "center",
     marginBottom: 8,
   },

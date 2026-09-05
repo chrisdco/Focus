@@ -9,6 +9,7 @@ import {
 } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 import { type as typeScale } from "../../theme/typography";
 import type { Task } from "../../types/task";
 
@@ -78,6 +79,7 @@ export const PlanTomorrowModal: React.FC<PlanTomorrowModalProps> = ({
           fontSize: 14,
           color: colors.textMuted,
           marginBottom: 16,
+          fontFamily: fontFamily.regular,
         },
         row: {
           flexDirection: "row",
@@ -98,8 +100,17 @@ export const PlanTomorrowModal: React.FC<PlanTomorrowModalProps> = ({
           backgroundColor: colors.focus,
           borderColor: colors.focus,
         },
-        taskTitle: { flex: 1, color: colors.text, fontSize: 16 },
-        meta: { color: colors.textMuted, fontSize: 13 },
+        taskTitle: {
+          flex: 1,
+          color: colors.text,
+          fontSize: 16,
+          fontFamily: fontFamily.regular,
+        },
+        meta: {
+          color: colors.textMuted,
+          fontSize: 13,
+          fontFamily: fontFamily.regular,
+        },
         save: {
           marginTop: 16,
           backgroundColor: colors.focus,
@@ -108,8 +119,18 @@ export const PlanTomorrowModal: React.FC<PlanTomorrowModalProps> = ({
           alignItems: "center",
           justifyContent: "center",
         },
-        saveText: { color: colors.onPrimary, fontWeight: "600", fontSize: 16 },
-        empty: { color: colors.textMuted, textAlign: "center", paddingVertical: 24 },
+        saveText: {
+          color: colors.onPrimary,
+          fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
+          fontSize: 16,
+        },
+        empty: {
+          color: colors.textMuted,
+          textAlign: "center",
+          paddingVertical: 24,
+          fontFamily: fontFamily.regular,
+        },
       }),
     [colors]
   );
@@ -182,9 +203,13 @@ export const PlanTomorrowModal: React.FC<PlanTomorrowModalProps> = ({
                 Plan {selected.size} task{selected.size === 1 ? "" : "s"}
               </Text>
             </Pressable>
-            <Pressable onPress={onClose} style={{ alignItems: "center", marginTop: 12 }}>
-              <Text style={{ color: colors.textMuted }}>Cancel</Text>
-            </Pressable>
+          <Pressable onPress={onClose} style={{ alignItems: "center", marginTop: 12 }}>
+            <Text
+              style={{ color: colors.textMuted, fontFamily: fontFamily.regular }}
+            >
+              Cancel
+            </Text>
+          </Pressable>
           </View>
         </>
       </RNHostView>

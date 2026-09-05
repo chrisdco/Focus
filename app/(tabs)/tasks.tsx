@@ -15,6 +15,7 @@ import { QuickAdd } from "../../components/tasks/QuickAdd";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ScreenTitle } from "../../components/ui/ScreenTitle";
 import { Segmented } from "../../components/ui/Segmented";
+import { fontFamily } from "../../theme/fonts";
 import { createEmptyTaskDraft } from "../../types/task";
 import { toDateKey } from "../../utils/timer";
 import { useTasks } from "../../context/TasksContext";
@@ -80,6 +81,7 @@ const TasksScreen: React.FC = () => {
           fontSize: 15,
           lineHeight: 22,
           paddingHorizontal: 24,
+          fontFamily: fontFamily.regular,
         },
         addButton: {
           position: "absolute",
@@ -97,6 +99,7 @@ const TasksScreen: React.FC = () => {
           color: colors.onPrimary,
           fontSize: 28,
           fontWeight: "400",
+          fontFamily: fontFamily.regular,
           marginTop: -2,
         },
       }),
@@ -156,7 +159,13 @@ const TasksScreen: React.FC = () => {
             ]}
             onPress={() => setSelectedProjectId(null)}
           >
-            <Text style={{ color: colors.textSecondary, fontSize: 13 }}>
+            <Text
+              style={{
+                color: colors.textSecondary,
+                fontSize: 13,
+                fontFamily: fontFamily.regular,
+              }}
+            >
               All
             </Text>
           </Pressable>
@@ -172,7 +181,13 @@ const TasksScreen: React.FC = () => {
               ]}
               onPress={() => setSelectedProjectId(project.id)}
             >
-              <Text style={{ color: project.color, fontSize: 13 }}>
+              <Text
+                style={{
+                  color: project.color,
+                  fontSize: 13,
+                  fontFamily: fontFamily.regular,
+                }}
+              >
                 {project.name}
               </Text>
             </Pressable>

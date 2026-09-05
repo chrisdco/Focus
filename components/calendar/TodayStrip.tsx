@@ -6,6 +6,7 @@ import { useSettings } from "../../context/SettingsContext";
 import { useStats } from "../../context/StatsContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 import { getPlannedPomodoroCount } from "../../domain/schedule";
 import { toDateKey } from "../../utils/timer";
 
@@ -46,7 +47,7 @@ export const TodayStrip: React.FC = () => {
     >
       <Text
         className="text-sm font-semibold"
-        style={{ color: colors.textSecondary }}
+        style={{ color: colors.textSecondary, fontFamily: fontFamily.semiBold }}
       >
         Today {today}/{goal} · {planned} queued
       </Text>

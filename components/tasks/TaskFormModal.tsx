@@ -11,6 +11,7 @@ import {
 } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 import { type as typeScale } from "../../theme/typography";
 import type { Project, Task, TaskDraft, TaskPriority } from "../../types/task";
 import { createEmptyTaskDraft } from "../../types/task";
@@ -97,10 +98,12 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
         close: {
           color: colors.textMuted,
           fontSize: 16,
+          fontFamily: fontFamily.regular,
         },
         label: {
           fontSize: 14,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           color: colors.textMuted,
           marginBottom: 8,
           marginTop: 12,
@@ -112,6 +115,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
           paddingHorizontal: 12,
           paddingVertical: 10,
           color: colors.text,
+          fontFamily: fontFamily.regular,
           backgroundColor: isDark ? colors.background : colors.surface,
         },
         notesInput: {
@@ -133,6 +137,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
         chipText: {
           fontSize: 14,
           color: colors.textSecondary,
+          fontFamily: fontFamily.regular,
         },
         stepperRow: {
           flexDirection: "row",
@@ -150,6 +155,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
         stepperButtonText: {
           fontSize: 20,
           color: colors.text,
+          fontFamily: fontFamily.regular,
         },
         saveButton: {
           marginTop: 20,
@@ -163,6 +169,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
           color: colors.onPrimary,
           fontSize: 16,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
         },
         deleteButton: {
           marginTop: 12,
@@ -174,6 +181,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
           color: colors.danger,
           fontSize: 15,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
         },
       }),
     [colors, isDark]
@@ -287,7 +295,13 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
               >
                 <Text style={styles.stepperButtonText}>−</Text>
               </Pressable>
-              <Text style={{ color: colors.text, fontSize: 18 }}>
+              <Text
+                style={{
+                  color: colors.text,
+                  fontSize: 18,
+                  fontFamily: fontFamily.regular,
+                }}
+              >
                 {draft.estimatedPomodoros}
               </Text>
               <Pressable

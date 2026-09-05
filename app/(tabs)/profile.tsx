@@ -8,7 +8,7 @@ import { useStats } from "../../context/StatsContext";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import { cardElevation } from "../../theme/shadows";
-import { displayFont } from "../../theme/fonts";
+import { fontFamily } from "../../theme/fonts";
 import { type as typeScale } from "../../theme/typography";
 
 const APP_VERSION = "1.0.0";
@@ -61,12 +61,13 @@ const ProfileScreen: React.FC = () => {
           fontSize: 44,
           fontWeight: "700",
           color: colors.text,
-          fontFamily: displayFont.bold,
+          fontFamily: fontFamily.bold,
         },
         heroLabel: {
           fontSize: 14,
           color: colors.textMuted,
           marginTop: 4,
+          fontFamily: fontFamily.regular,
         },
         group: {
           marginBottom: 16,
@@ -79,12 +80,17 @@ const ProfileScreen: React.FC = () => {
           minHeight: 48,
         },
         rowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
-        rowLabel: { fontSize: 16, color: colors.text },
-        rowValue: { fontSize: 15, color: colors.textMuted },
+        rowLabel: { fontSize: 16, color: colors.text, fontFamily: fontFamily.regular },
+        rowValue: {
+          fontSize: 15,
+          color: colors.textMuted,
+          fontFamily: fontFamily.regular,
+        },
         version: {
           textAlign: "center",
           fontSize: 13,
           color: colors.textMuted,
+          fontFamily: fontFamily.regular,
         },
       }),
     [colors, isDark]

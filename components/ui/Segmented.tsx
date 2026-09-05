@@ -3,6 +3,7 @@ import React, { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 
 interface SegmentedOption<T extends string> {
   value: T;
@@ -51,7 +52,7 @@ export const Segmented = <T extends string>({
         backgroundColor={colors.surface}
         tintColor={colors.focus}
         fontStyle={{ color: colors.textMuted }}
-        activeFontStyle={{ color: colors.onPrimary, fontWeight: "600" }}
+        activeFontStyle={{ color: colors.onPrimary, fontWeight: "600", fontFamily: fontFamily.semiBold }}
         appearance={isDark ? "dark" : "light"}
         accessibilityLabel={accessibilityLabel}
       />
