@@ -19,6 +19,7 @@ import { TasksProvider } from "../context/TasksContext";
 import { ThemeProvider, useTheme } from "../context/ThemeContext";
 import { TimerProvider } from "../context/TimerContext";
 import { useAppStateReconciliation } from "../hooks/useAppStateReconciliation";
+import { ErrorBoundary } from "./ui/ErrorBoundary";
 import { useFocusSoundscape } from "../hooks/useFocusSoundscape";
 import { useScheduleNotificationResponse } from "../hooks/useScheduleNotificationResponse";
 import { useTimerNotifications } from "../hooks/useTimerNotifications";
@@ -125,9 +126,11 @@ const HydratedApp: React.FC = () => {
     <TimerProvider initialSnapshot={snapshot} settings={settings}>
       <SoundscapeProvider>
         <FocusModeProvider>
-          <TimerSideEffects />
-          <SoundscapeSideEffects />
-          <RootStack />
+          <ErrorBoundary>
+            <TimerSideEffects />
+            <SoundscapeSideEffects />
+            <RootStack />
+          </ErrorBoundary>
         </FocusModeProvider>
       </SoundscapeProvider>
     </TimerProvider>
