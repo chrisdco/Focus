@@ -31,7 +31,6 @@ import {
   shiftDateKey,
   yearMonthOf,
 } from "../../domain/schedule";
-import { cardElevation } from "../../theme/shadows";
 import { displayFont } from "../../theme/fonts";
 import type { ScheduleBlock } from "../../types/schedule";
 import { toDateKey } from "../../utils/timer";
@@ -39,7 +38,7 @@ import { toDateKey } from "../../utils/timer";
 type CalendarView = "day" | "month";
 
 const CalendarScreen: React.FC = () => {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const { settings } = useSettings();
   const { tasks, planTasksForDate } = useTasks();
   const { blocks, upsertBlock, deleteBlock } = useSchedule();
@@ -125,13 +124,7 @@ const CalendarScreen: React.FC = () => {
         navText: { color: colors.text, fontWeight: "600" },
         dateLabel: { color: colors.text, fontSize: 16, fontWeight: "600" },
         summary: {
-          backgroundColor: colors.surface,
-          borderRadius: 16,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: colors.border,
           marginBottom: 12,
-          ...cardElevation(isDark),
         },
         summaryText: { color: colors.text, fontSize: 15, fontWeight: "600" },
         summaryMeta: { color: colors.textMuted, marginTop: 4, fontSize: 13 },
@@ -150,7 +143,7 @@ const CalendarScreen: React.FC = () => {
         actionText: { color: colors.onPrimary, fontWeight: "600" },
         actionTextSecondary: { color: colors.text },
       }),
-    [colors, isDark]
+    [colors]
   );
 
   const openCreate = () => {

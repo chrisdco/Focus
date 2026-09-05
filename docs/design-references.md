@@ -62,6 +62,9 @@ selection, agenda rows as grouped cards, gradient CTA + quiet secondary.
   with numbers.
 - One action color per view; destructive and status colors reserved.
 - Cards group by proximity and tone, not by outlines (dark mode especially).
+- Cards are earned, not default: heroes, tappable rows, and chart
+  containers may be cards; settings, profile groups, summaries, and
+  sheet interiors stay flat with dividers.
 
 ## Deliberate deviations
 
