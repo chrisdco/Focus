@@ -1,6 +1,6 @@
+import { BottomSheet, RNHostView } from "@expo/ui";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -9,7 +9,6 @@ import {
 } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
-import { cardElevation } from "../../theme/shadows";
 import { type as typeScale } from "../../theme/typography";
 import type { Task } from "../../types/task";
 
@@ -28,7 +27,7 @@ export const PlanTomorrowModal: React.FC<PlanTomorrowModalProps> = ({
   onClose,
   onConfirm,
 }) => {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   // Include inbox + overdue + already-due-tomorrow tasks so tomorrow-due
@@ -62,21 +61,13 @@ export const PlanTomorrowModal: React.FC<PlanTomorrowModalProps> = ({
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        overlay: {
+        scroll: {
           flex: 1,
-          justifyContent: "flex-end",
-          backgroundColor: colors.overlay,
         },
-        sheet: {
-          backgroundColor: colors.surface,
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
-          padding: 20,
+        content: {
+          paddingHorizontal: 20,
+          paddingTop: 8,
           paddingBottom: 32,
-          maxHeight: "80%",
-          borderWidth: 1,
-          borderColor: colors.border,
-          ...cardElevation(isDark),
         },
         title: {
           ...typeScale.sheetTitle,
@@ -120,7 +111,7 @@ export const PlanTomorrowModal: React.FC<PlanTomorrowModalProps> = ({
         saveText: { color: colors.onPrimary, fontWeight: "600", fontSize: 16 },
         empty: { color: colors.textMuted, textAlign: "center", paddingVertical: 24 },
       }),
-    [colors, isDark]
+    [colors]
   );
 
   const toggle = (id: string) => {
@@ -136,15 +127,27 @@ export const PlanTomorrowModal: React.FC<PlanTomorrowModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.sheet}>
-          <Text style={styles.title}>Plan tomorrow</Text>
-          <Text style={styles.hint}>
-            Choose inbox tasks to schedule for {tomorrowKey}. They will show on
-            the timer as today&apos;s plan tomorrow morning.
-          </Text>
-          <ScrollView>
+    <BottomSheet
+      isPresented={visible}
+      onDismiss={onClose}
+      snapPoints={["half", "full"]}
+      containerColor={colors.surface}
+      contentPadding={0}
+    >
+      <RNHostView>
+        <>
+          <View style={styles.content}>
+            <Text style={styles.title}>Plan tomorrow</Text>
+            <Text style={styles.hint}>
+              Choose inbox tasks to schedule for {tomorrowKey}. They will show
+              on the timer as today&apos;s plan tomorrow morning.
+            </Text>
+          </View>
+          <ScrollView
+            style={styles.scroll}
+            nestedScrollEnabled
+            showsVerticalScrollIndicator={false}
+          >
             {inbox.length === 0 ? (
               <Text style={styles.empty}>No inbox tasks to plan.</Text>
             ) : (
@@ -166,23 +169,25 @@ export const PlanTomorrowModal: React.FC<PlanTomorrowModalProps> = ({
               })
             )}
           </ScrollView>
-          <Pressable
-            style={styles.save}
-            onPress={() => {
-              onConfirm([...selected]);
-              onClose();
-            }}
-            accessibilityRole="button"
-          >
-            <Text style={styles.saveText}>
-              Plan {selected.size} task{selected.size === 1 ? "" : "s"}
-            </Text>
-          </Pressable>
-          <Pressable onPress={onClose} style={{ alignItems: "center", marginTop: 12 }}>
-            <Text style={{ color: colors.textMuted }}>Cancel</Text>
-          </Pressable>
-        </View>
-      </View>
-    </Modal>
+          <View style={styles.content}>
+            <Pressable
+              style={styles.save}
+              onPress={() => {
+                onConfirm([...selected]);
+                onClose();
+              }}
+              accessibilityRole="button"
+            >
+              <Text style={styles.saveText}>
+                Plan {selected.size} task{selected.size === 1 ? "" : "s"}
+              </Text>
+            </Pressable>
+            <Pressable onPress={onClose} style={{ alignItems: "center", marginTop: 12 }}>
+              <Text style={{ color: colors.textMuted }}>Cancel</Text>
+            </Pressable>
+          </View>
+        </>
+      </RNHostView>
+    </BottomSheet>
   );
 };
