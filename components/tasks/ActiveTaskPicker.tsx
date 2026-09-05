@@ -98,7 +98,7 @@ export const ActiveTaskPicker: React.FC<ActiveTaskPickerProps> = ({
             <Pressable style={styles.row} onPress={() => selectTask(item)}>
               <Text style={styles.rowTitle}>{item.title}</Text>
               <Text style={styles.rowMeta}>
-                🍅 {item.completedPomodoros}/{item.estimatedPomodoros}
+                {item.completedPomodoros}/{item.estimatedPomodoros} pomodoros
                 {activeTaskId === item.id ? " • Active" : ""}
               </Text>
             </Pressable>

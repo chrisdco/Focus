@@ -36,53 +36,67 @@ interface DurationStepperProps {
   onChange: (value: number) => void;
   min?: number;
   max?: number;
+  /** Last row in its group: no divider below (proximity). */
+  last?: boolean;
 }
 
 const DurationStepper: React.FC<
   DurationStepperProps & { colors: ReturnType<typeof useTheme>["colors"] }
-> = ({ label, value, onChange, min = 1, max = 60, colors }) => (
-  <View style={styles.stepperRow}>
-    <Text style={[styles.stepperLabel, { color: colors.text }]}>{label}</Text>
-    <View style={styles.stepperControls}>
-      <Pressable
-        style={[styles.stepperButton, { backgroundColor: colors.track }]}
-        onPress={() => onChange(Math.max(min, value - 1))}
-        hitSlop={8}
-      >
-        <Text style={[styles.stepperButtonText, { color: colors.text }]}>−</Text>
-      </Pressable>
-      <Text style={[styles.stepperValue, { color: colors.text }]}>
-        {value} min
-      </Text>
-      <Pressable
-        style={[styles.stepperButton, { backgroundColor: colors.track }]}
-        onPress={() => onChange(Math.min(max, value + 1))}
-        hitSlop={8}
-      >
-        <Text style={[styles.stepperButtonText, { color: colors.text }]}>+</Text>
-      </Pressable>
+> = ({ label, value, onChange, min = 1, max = 60, last = false, colors }) => (
+  <>
+    <View style={styles.stepperRow}>
+      <Text style={[styles.stepperLabel, { color: colors.text }]}>{label}</Text>
+      <View style={styles.stepperControls}>
+        <Pressable
+          style={[styles.stepperButton, { backgroundColor: colors.track }]}
+          onPress={() => onChange(Math.max(min, value - 1))}
+          hitSlop={8}
+        >
+          <Text style={[styles.stepperButtonText, { color: colors.text }]}>−</Text>
+        </Pressable>
+        <Text style={[styles.stepperValue, { color: colors.text }]}>
+          {value} min
+        </Text>
+        <Pressable
+          style={[styles.stepperButton, { backgroundColor: colors.track }]}
+          onPress={() => onChange(Math.min(max, value + 1))}
+          hitSlop={8}
+        >
+          <Text style={[styles.stepperButtonText, { color: colors.text }]}>+</Text>
+        </Pressable>
+      </View>
     </View>
-  </View>
+    {last ? null : (
+      <View style={[styles.divider, { backgroundColor: colors.border }]} />
+    )}
+  </>
 );
 
 interface ToggleRowProps {
   label: string;
   value: boolean;
   onValueChange: (value: boolean) => void;
+  /** Last row in its group: no divider below (proximity). */
+  last?: boolean;
 }
 
 const ToggleRow: React.FC<
   ToggleRowProps & { colors: ReturnType<typeof useTheme>["colors"] }
-> = ({ label, value, onValueChange, colors }) => (
-  <View style={styles.toggleRow}>
-    <Text style={[styles.toggleLabel, { color: colors.text }]}>{label}</Text>
-    <Switch
-      value={value}
-      onValueChange={onValueChange}
-      trackColor={{ false: colors.border, true: colors.focus }}
-      thumbColor={colors.onPrimary}
-    />
-  </View>
+> = ({ label, value, onValueChange, last = false, colors }) => (
+  <>
+    <View style={styles.toggleRow}>
+      <Text style={[styles.toggleLabel, { color: colors.text }]}>{label}</Text>
+      <Switch
+        value={value}
+        onValueChange={onValueChange}
+        trackColor={{ false: colors.border, true: colors.focus }}
+        thumbColor={colors.onPrimary}
+      />
+    </View>
+    {last ? null : (
+      <View style={[styles.divider, { backgroundColor: colors.border }]} />
+    )}
+  </>
 );
 
 const SettingsScreen: React.FC = () => {
@@ -407,6 +421,7 @@ const SettingsScreen: React.FC = () => {
             onChange={(v) => updateSettings({ sessionsBeforeLongBreak: v })}
             min={2}
             max={8}
+            last
           />
         </View>
 
@@ -423,6 +438,7 @@ const SettingsScreen: React.FC = () => {
             label="Auto-enter focus mode"
             value={settings.autoEnterFocusMode}
             onValueChange={(v) => updateSettings({ autoEnterFocusMode: v })}
+            last
           />
         </View>
 
@@ -451,6 +467,7 @@ const SettingsScreen: React.FC = () => {
             label="Focus background animation"
             value={settings.focusAnimationsEnabled}
             onValueChange={(v) => updateSettings({ focusAnimationsEnabled: v })}
+            last
           />
         </View>
 
@@ -467,6 +484,7 @@ const SettingsScreen: React.FC = () => {
             label="Notifications"
             value={settings.notificationsEnabled}
             onValueChange={(v) => updateSettings({ notificationsEnabled: v })}
+            last
           />
           {!notificationsAvailable ? (
             <Text style={screenStyles.note}>
@@ -531,5 +549,9 @@ const styles = StyleSheet.create({
   },
   toggleLabel: {
     fontSize: 16,
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    opacity: 0.6,
   },
 });

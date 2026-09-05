@@ -35,10 +35,6 @@ export const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
           backgroundColor: colors.overlay,
           zIndex: 10,
         },
-        emoji: {
-          fontSize: 64,
-          marginBottom: 12,
-        },
         message: {
           ...typeScale.sheetTitle,
           color: colors.onPrimary,
@@ -73,7 +69,6 @@ export const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
 
   return (
     <Animated.View style={[styles.overlay, animatedStyle]} pointerEvents="none">
-      <Text style={styles.emoji}>🎉</Text>
       <Text style={styles.message}>{message}</Text>
     </Animated.View>
   );

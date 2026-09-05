@@ -69,3 +69,24 @@ selection, agenda rows as grouped cards, gradient CTA + quiet secondary.
   copy Opal's gem or Forest's tree — one living metaphor only.
 - Month paging instead of Health's infinite scroll (testability).
 - Forms stay on native Modal; display content uses native sheets.
+
+## Professional principles audit (Expo, Solerieu)
+
+Applied across the app; re-check on every visual change:
+
+- **Contrast** — one gradient CTA per view; status colors reserved for
+  meaning; tab tint stays quiet so it never outshouts the CTA.
+- **Hierarchy** — ring, then CTA, then quiet buttons, then footnote. The
+  personality line sits below the actions at caption size, never above
+  the conversion point.
+- **Alignment** — one 20px container axis; the centered ring cluster is
+  the single deliberate exception (radial hero).
+- **Proximity** — hairline dividers between same-type settings rows;
+  heterogeneous blocks separated by spacing instead.
+- **Repetition** — one title scale, one sheet title, one stepper shape,
+  one chip language (pills) vs one segmented language (squarish).
+- **Balance** — hero mass on top, CTA as fulcrum, quiet rows anchor.
+- **White space** — 16px section rhythm, 20px insets; space is the calm.
+- **Unity** — no emoji in rows or overlays, tab titles match screen
+  titles, one accent family throughout.
+

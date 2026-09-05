@@ -194,9 +194,9 @@ const TimerScreen: React.FC = () => {
         },
         personalityMessage: {
           textAlign: "center",
-          color: colors.textSecondary,
-          fontSize: 15,
-          marginBottom: 16,
+          color: colors.textMuted,
+          fontSize: 13,
+          marginTop: 12,
           fontStyle: "italic",
           paddingHorizontal: 16,
         },
@@ -231,7 +231,7 @@ const TimerScreen: React.FC = () => {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        {showChrome && <Text style={styles.title}>Foco</Text>}
+        {showChrome && <Text style={styles.title}>Timer</Text>}
 
         {showChrome && <TodayStrip />}
 
@@ -322,10 +322,6 @@ const TimerScreen: React.FC = () => {
             </Text>
           )}
 
-          {showChrome && personalityMessage.length > 0 && (
-            <Text style={styles.personalityMessage}>{personalityMessage}</Text>
-          )}
-
           <GradientButton
             label={isRunning ? "Pause" : `Start ${modeLabels[mode]}`}
             onPress={handlePrimaryPress}
@@ -348,6 +344,10 @@ const TimerScreen: React.FC = () => {
               />
             )}
           </View>
+
+          {showChrome && personalityMessage.length > 0 && (
+            <Text style={styles.personalityMessage}>{personalityMessage}</Text>
+          )}
         </View>
       </ScrollView>
 
