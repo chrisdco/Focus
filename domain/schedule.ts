@@ -123,3 +123,67 @@ export const kindLabel = (kind: ScheduleBlockKind): string => {
   }
   return "Focus";
 };
+
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+export const monthLabel = (year: number, month: number): string =>
+  `${MONTH_NAMES[Math.max(0, Math.min(11, month))]} ${year}`;
+
+/** Sunday-first grid cells for a month: dateKeys with null leading blanks. */
+export const getMonthCells = (year: number, month: number): (string | null)[] => {
+  const first = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells: (string | null)[] = [];
+  for (let i = 0; i < first.getDay(); i += 1) {
+    cells.push(null);
+  }
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    cells.push(toDateKey(new Date(year, month, day).getTime()));
+  }
+  return cells;
+};
+
+export const addMonths = (
+  year: number,
+  month: number,
+  delta: number
+): { year: number; month: number } => {
+  const total = year * 12 + month + delta;
+  const nextYear = Math.floor(total / 12);
+  const nextMonth = ((total % 12) + 12) % 12;
+  return { year: nextYear, month: nextMonth };
+};
+
+export const yearMonthOf = (dateKey: string): { year: number; month: number } => {
+  const date = new Date(`${dateKey}T00:00:00`);
+  return { year: date.getFullYear(), month: date.getMonth() };
+};
+
+/** Scheduled-block counts per day for a month (agenda dots). */
+export const countBlocksByDate = (
+  blocks: ScheduleBlock[],
+  year: number,
+  month: number
+): Record<string, number> => {
+  const counts: Record<string, number> = {};
+  for (const block of blocks) {
+    const parsed = yearMonthOf(block.dateKey);
+    if (parsed.year === year && parsed.month === month) {
+      counts[block.dateKey] = (counts[block.dateKey] ?? 0) + 1;
+    }
+  }
+  return counts;
+};

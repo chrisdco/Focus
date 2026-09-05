@@ -3,17 +3,22 @@ import { describe, expect, it } from "vitest";
 import type { ScheduleBlock } from "../types/schedule";
 import type { Task } from "../types/task";
 import {
+  addMonths,
   blocksOverlap,
+  countBlocksByDate,
   formatClock,
   getBlocksForDate,
+  getMonthCells,
   getPlannedPomodoroCount,
   getPlannedTaskPomodoros,
   getScheduledPomodoros,
   hasOverlap,
+  monthLabel,
   parseClock,
   pomodorosFromMinutes,
   reminderDate,
   shiftDateKey,
+  yearMonthOf,
 } from "./schedule";
 
 const block = (
@@ -147,5 +152,32 @@ describe("schedule helpers", () => {
 
     expect(when.getHours()).toBe(8);
     expect(when.getMinutes()).toBe(55);
+  });
+
+  it("labels months and navigates across year boundaries", () => {
+    expect(monthLabel(2026, 8)).toBe("September 2026");
+    expect(addMonths(2026, 11, 1)).toEqual({ year: 2027, month: 0 });
+    expect(addMonths(2026, 0, -1)).toEqual({ year: 2025, month: 11 });
+    expect(yearMonthOf("2026-09-03")).toEqual({ year: 2026, month: 8 });
+  });
+
+  it("builds a Sunday-first month grid", () => {
+    // Sept 2026 starts on a Tuesday -> two leading blanks, 30 days.
+    const cells = getMonthCells(2026, 8);
+
+    expect(cells.slice(0, 2)).toEqual([null, null]);
+    expect(cells[2]).toBe("2026-09-01");
+    expect(cells[cells.length - 1]).toBe("2026-09-30");
+    expect(cells.length).toBe(32);
+  });
+
+  it("counts blocks per day within the month only", () => {
+    const blocks = [
+      block({ id: "a", dateKey: "2026-09-03" }),
+      block({ id: "b", dateKey: "2026-09-03" }),
+      block({ id: "c", dateKey: "2026-10-01" }),
+    ];
+
+    expect(countBlocksByDate(blocks, 2026, 8)).toEqual({ "2026-09-03": 2 });
   });
 });
