@@ -28,8 +28,6 @@ const PERIODS: { key: StatsPeriod; label: string }[] = [
   { key: "month", label: "Month" },
 ];
 
-const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
 const WEEKDAY_LABELS_BY_DAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const weekdayLabelForDateKey = (dateKey: string): string =>
@@ -46,8 +44,6 @@ const StatsScreen: React.FC = () => {
     formatPeriodDelta,
     getHeatmapActivity,
     getPersonalRecords,
-    getProductivityByHour,
-    getProductivityByWeekday,
     getFocusByProject,
     getRecentSessions,
     getTodayPomodoroCount,
@@ -69,17 +65,6 @@ const StatsScreen: React.FC = () => {
   );
   const records = useMemo(
     () => getPersonalRecords(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [logs]
-  );
-  const hourCounts = useMemo(
-    () => getProductivityByHour(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [logs]
-  );
-  const maxHour = Math.max(...hourCounts, 1);
-  const weekdayCounts = useMemo(
-    () => getProductivityByWeekday(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [logs]
   );
@@ -173,12 +158,6 @@ const StatsScreen: React.FC = () => {
           marginBottom: 8,
           paddingHorizontal: 4,
         },
-        patternLabel: {
-          fontSize: 14,
-          fontWeight: "600",
-          color: colors.textSecondary,
-          marginBottom: 8,
-        },
         periodRow: {
           flexDirection: "row",
           gap: 8,
@@ -225,18 +204,6 @@ const StatsScreen: React.FC = () => {
         },
         deltaFlat: {
           color: colors.textMuted,
-        },
-        miniChart: {
-          flexDirection: "row",
-          alignItems: "flex-end",
-          height: 60,
-          gap: 3,
-        },
-        miniBar: {
-          flex: 1,
-          backgroundColor: colors.focus,
-          borderRadius: 2,
-          minHeight: 2,
         },
         recordRow: {
           flexDirection: "row",
@@ -402,25 +369,6 @@ const StatsScreen: React.FC = () => {
               {records.averageSessionMinutes}m
             </Text>
           </View>
-        </CollapsibleSection>
-
-        <CollapsibleSection title="Patterns">
-          <Text style={styles.patternLabel}>Peak focus hours</Text>
-          <View style={styles.miniChart}>
-            {hourCounts.map((count, hour) => (
-              <View
-                key={hour}
-                style={[
-                  styles.miniBar,
-                  { height: `${(count / maxHour) * 100}%` },
-                ]}
-              />
-            ))}
-          </View>
-          <Text style={[styles.patternLabel, { marginTop: 16 }]}>
-            Focus by weekday
-          </Text>
-          <BarChart values={weekdayCounts} labels={WEEKDAY_LABELS} />
         </CollapsibleSection>
 
         <CollapsibleSection title="Focus by project">
