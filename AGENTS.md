@@ -23,6 +23,9 @@ Expo Router + TypeScript Pomodoro app. Local-first; no backend yet.
 - One gradient CTA per view (`GradientButton`); secondary actions stay quiet.
 - Sheets: `@expo/ui` BottomSheet + RNHostView. Forms stay on native Modal.
 - No emoji in UI. Tab titles match screen titles.
+- Styling is hybrid NativeWind: layout/spacing/type in `className`, dynamic
+  colors always via `useTheme()` (accents + own dark mode can't be static
+  classes). Animated styles stay in StyleSheet.
 - References: `docs/design-references.md` (Opal/Health specs + mapping). The 8-principle audit at its bottom must still hold after any visual change.
 
 ## Code rules
