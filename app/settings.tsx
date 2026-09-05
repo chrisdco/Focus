@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { Ionicons } from "@expo/vector-icons";
 import { BREAK_SOUNDS, COMPLETION_SOUNDS } from "../data/cueSounds";
 import { useSchedule } from "../context/ScheduleContext";
 import { useSettings } from "../context/SettingsContext";
@@ -26,7 +27,6 @@ import { DEFAULT_SETTINGS } from "../types/settings";
 import { getDurationForMode } from "../domain/timerMachine";
 import { ACCENT_PRESETS } from "../theme/accents";
 import { cardElevation } from "../theme/shadows";
-import { type as typeScale } from "../theme/typography";
 import type { TimerLayout } from "../types/settings";
 import { playCue } from "../utils/playCue";
 
@@ -78,14 +78,33 @@ interface ToggleRowProps {
   onValueChange: (value: boolean) => void;
   /** Last row in its group: no divider below (proximity). */
   last?: boolean;
+  icon: React.ComponentProps<typeof Ionicons>["name"];
+  subtitle?: string;
 }
 
 const ToggleRow: React.FC<
   ToggleRowProps & { colors: ReturnType<typeof useTheme>["colors"] }
-> = ({ label, value, onValueChange, last = false, colors }) => (
+> = ({ label, value, onValueChange, last = false, icon, subtitle, colors }) => (
   <>
     <View style={styles.toggleRow}>
-      <Text style={[styles.toggleLabel, { color: colors.text }]}>{label}</Text>
+      <View
+        style={[
+          styles.iconTile,
+          { backgroundColor: colors.track },
+        ]}
+      >
+        <Ionicons name={icon} size={18} color={colors.textMuted} />
+      </View>
+      <View style={styles.toggleText}>
+        <Text style={[styles.toggleLabel, { color: colors.text }]}>
+          {label}
+        </Text>
+        {subtitle ? (
+          <Text style={[styles.toggleSubtitle, { color: colors.textMuted }]}>
+            {subtitle}
+          </Text>
+        ) : null}
+      </View>
       <Switch
         value={value}
         onValueChange={onValueChange}
@@ -132,9 +151,13 @@ const SettingsScreen: React.FC = () => {
           ...cardElevation(isDark),
         },
         sectionTitle: {
-          ...typeScale.section,
+          fontSize: 12,
+          fontWeight: "600",
+          letterSpacing: 1.5,
+          textTransform: "uppercase",
           color: colors.textMuted,
-          marginBottom: 12,
+          marginBottom: 8,
+          paddingHorizontal: 4,
         },
         chipRow: {
           flexDirection: "row",
@@ -250,6 +273,8 @@ const SettingsScreen: React.FC = () => {
           <ToggleRow
             colors={colors}
             label="Dark mode"
+            subtitle="Easier on the eyes at night"
+            icon="moon-outline"
             value={settings.darkMode}
             onValueChange={(v) => updateSettings({ darkMode: v })}
           />
@@ -311,6 +336,8 @@ const SettingsScreen: React.FC = () => {
           <ToggleRow
             colors={colors}
             label="Sound"
+            subtitle="Chimes for completions and breaks"
+            icon="volume-high-outline"
             value={settings.soundEnabled}
             onValueChange={(v) => updateSettings({ soundEnabled: v })}
           />
@@ -430,12 +457,16 @@ const SettingsScreen: React.FC = () => {
           <ToggleRow
             colors={colors}
             label="Auto-start next session"
+            subtitle="Flow straight into breaks and focus"
+            icon="repeat-outline"
             value={settings.autoStartNextSession}
             onValueChange={(v) => updateSettings({ autoStartNextSession: v })}
           />
           <ToggleRow
             colors={colors}
             label="Auto-enter focus mode"
+            subtitle="Full screen as soon as focus starts"
+            icon="expand-outline"
             value={settings.autoEnterFocusMode}
             onValueChange={(v) => updateSettings({ autoEnterFocusMode: v })}
             last
@@ -447,24 +478,32 @@ const SettingsScreen: React.FC = () => {
           <ToggleRow
             colors={colors}
             label="Ambient sounds"
+            subtitle="Rain, cafe, and forest mixes"
+            icon="musical-notes-outline"
             value={settings.ambientSoundEnabled}
             onValueChange={(v) => updateSettings({ ambientSoundEnabled: v })}
           />
           <ToggleRow
             colors={colors}
             label="Auto-play on focus start"
+            subtitle="Fade in your mix automatically"
+            icon="play-outline"
             value={settings.autoPlaySoundscape}
             onValueChange={(v) => updateSettings({ autoPlaySoundscape: v })}
           />
           <ToggleRow
             colors={colors}
             label="Continue during breaks"
+            subtitle="Keep the mix through breaks"
+            icon="hourglass-outline"
             value={settings.continueSoundscapeOnBreak}
             onValueChange={(v) => updateSettings({ continueSoundscapeOnBreak: v })}
           />
           <ToggleRow
             colors={colors}
             label="Focus background animation"
+            subtitle="Gentle motion behind the timer"
+            icon="sparkles-outline"
             value={settings.focusAnimationsEnabled}
             onValueChange={(v) => updateSettings({ focusAnimationsEnabled: v })}
             last
@@ -476,12 +515,16 @@ const SettingsScreen: React.FC = () => {
           <ToggleRow
             colors={colors}
             label="Haptics"
+            subtitle="Subtle vibration feedback"
+            icon="phone-portrait-outline"
             value={settings.hapticsEnabled}
             onValueChange={(v) => updateSettings({ hapticsEnabled: v })}
           />
           <ToggleRow
             colors={colors}
             label="Notifications"
+            subtitle="Chimes even outside the app"
+            icon="notifications-outline"
             value={settings.notificationsEnabled}
             onValueChange={(v) => updateSettings({ notificationsEnabled: v })}
             last
@@ -542,10 +585,24 @@ const styles = StyleSheet.create({
   },
   toggleRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 10,
     minHeight: 44,
+    gap: 12,
+  },
+  iconTile: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  toggleText: {
+    flex: 1,
+  },
+  toggleSubtitle: {
+    fontSize: 13,
+    marginTop: 2,
   },
   toggleLabel: {
     fontSize: 16,
