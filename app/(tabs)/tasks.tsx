@@ -122,7 +122,7 @@ const TasksScreen: React.FC = () => {
     projects.find((project) => project.id === projectId);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <View style={styles.container}>
         <ScreenTitle title="Tasks" />
 

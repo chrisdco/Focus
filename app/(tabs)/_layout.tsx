@@ -10,16 +10,19 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      initialRouteName="index"
       screenOptions={{
         headerShown: false,
         tabBarStyle: isFocusMode
           ? { display: "none" }
           : {
-              backgroundColor: colors.surface,
-              borderTopColor: colors.border,
+              backgroundColor: colors.background,
+              borderTopWidth: 0,
+              elevation: 0,
             },
         tabBarActiveTintColor: colors.focus,
         tabBarInactiveTintColor: colors.textMuted,
+        sceneStyle: { backgroundColor: colors.background },
       }}
     >
       <Tabs.Screen
