@@ -18,6 +18,7 @@ import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import { useTimerContext } from "../../context/TimerContext";
 import { ScreenTitle } from "../../components/ui/ScreenTitle";
+import { isNotificationsAvailable } from "../../utils/notifications";
 import {
   clearAllData,
   clearTimerSnapshot,
@@ -92,6 +93,8 @@ const SettingsScreen: React.FC = () => {
   const { resetTasks } = useTasks();
   const { resetSchedule } = useSchedule();
   const { dispatch: timerDispatch } = useTimerContext();
+  // Static per launch: false on web and on Android Expo Go (module stripped).
+  const notificationsAvailable = isNotificationsAvailable();
 
   const screenStyles = useMemo(
     () =>
@@ -177,6 +180,11 @@ const SettingsScreen: React.FC = () => {
           fontSize: 13,
           color: colors.textMuted,
           textAlign: "center",
+        },
+        note: {
+          marginTop: 8,
+          fontSize: 13,
+          color: colors.textMuted,
         },
       }),
     [colors, isDark]
@@ -463,6 +471,12 @@ const SettingsScreen: React.FC = () => {
             value={settings.notificationsEnabled}
             onValueChange={(v) => updateSettings({ notificationsEnabled: v })}
           />
+          {!notificationsAvailable ? (
+            <Text style={screenStyles.note}>
+              Scheduled chimes need a development build on Android — Expo Go
+              does not include notifications support.
+            </Text>
+          ) : null}
         </View>
 
         <Pressable style={screenStyles.dangerButton} onPress={handleResetAll}>

@@ -1,15 +1,18 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Platform } from "react-native";
-import * as Notifications from "expo-notifications";
 
-import { useSettings } from "../context/SettingsContext";
 import { useTimerContext } from "../context/TimerContext";
+import { useSettings } from "../context/SettingsContext";
 import { modeLabels } from "../theme/colors";
 import {
-  TIMER_CHANNEL_ID,
+  areNotificationsGranted,
+  cancelNotificationById,
   ensureAndroidChannels,
+  listTimerNotificationIds,
+  requestNotificationPermissions,
+  scheduleTimerCompletion,
   setupForegroundPresentation,
-} from "../utils/notificationChannels";
+} from "../utils/notifications";
 
 setupForegroundPresentation();
 
@@ -24,11 +27,7 @@ export const useTimerNotifications = (): void => {
     if (notificationIdRef.current) {
       const id = notificationIdRef.current;
       notificationIdRef.current = null;
-      try {
-        await Notifications.cancelScheduledNotificationAsync(id);
-      } catch {
-        // Already fired or unsupported platform.
-      }
+      await cancelNotificationById(id);
     }
   }, []);
 
@@ -47,26 +46,15 @@ export const useTimerNotifications = (): void => {
     let cancelled = false;
     const setup = async () => {
       try {
-        const permissions = await Notifications.getPermissionsAsync();
-
-        const granted =
-          permissions.granted ||
-          permissions.ios?.status ===
-            Notifications.IosAuthorizationStatus.PROVISIONAL;
-
-        if (!granted) {
-          const requested = await Notifications.requestPermissionsAsync();
-          if (!cancelled) {
-            permissionGrantedRef.current =
-              requested.granted ||
-              requested.ios?.status ===
-                Notifications.IosAuthorizationStatus.PROVISIONAL;
-          }
+        const granted = await areNotificationsGranted();
+        if (!cancelled && granted) {
+          permissionGrantedRef.current = true;
           return;
         }
 
+        const requested = await requestNotificationPermissions();
         if (!cancelled) {
-          permissionGrantedRef.current = true;
+          permissionGrantedRef.current = requested;
         }
       } catch {
         if (!cancelled) {
@@ -84,26 +72,12 @@ export const useTimerNotifications = (): void => {
   // Clear timer orphans from a previous launch (block reminders use
   // `foco-block-*` identifiers and are left alone; ScheduleProvider re-syncs).
   useEffect(() => {
-    const cleanup = async () => {
-      try {
-        const scheduled =
-          await Notifications.getAllScheduledNotificationsAsync();
-        await Promise.all(
-          scheduled
-            .filter((n) => !n.identifier.startsWith("foco-block-"))
-            .map((n) =>
-              Notifications.cancelScheduledNotificationAsync(n.identifier).catch(
-                () => undefined
-              )
-            )
-        );
-      } catch {
-        // Unsupported platform (e.g. web).
-      }
-    };
-
     if (!state.isRunning) {
-      void cleanup();
+      const cleanup = async () => {
+        const ids = await listTimerNotificationIds();
+        await Promise.all(ids.map((id) => cancelNotificationById(id)));
+      };
+      void cleanup().catch(() => undefined);
     }
     // Once on mount only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -138,30 +112,21 @@ export const useTimerNotifications = (): void => {
         return;
       }
 
-      try {
-        const id = await Notifications.scheduleNotificationAsync({
-          content: {
-            title: `${modeLabels[state.mode]} complete`,
-            body: "Your timer session has finished.",
-            sound: settings.soundEnabled ? "default" : undefined,
-          },
-          trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-            seconds: secondsUntilEnd,
-            repeats: false,
-            channelId: TIMER_CHANNEL_ID,
-          },
-        });
+      const id = await scheduleTimerCompletion({
+        title: `${modeLabels[state.mode]} complete`,
+        body: "Your timer session has finished.",
+        sound: settings.soundEnabled,
+        seconds: secondsUntilEnd,
+      }).catch(() => null);
 
-        if (seq === syncSeqRef.current) {
-          notificationIdRef.current = id;
-        } else {
-          await Notifications.cancelScheduledNotificationAsync(id).catch(
-            () => undefined
-          );
-        }
-      } catch {
-        // Scheduling unsupported (e.g. web) — timer still works.
+      if (id === null) {
+        return;
+      }
+
+      if (seq === syncSeqRef.current) {
+        notificationIdRef.current = id;
+      } else {
+        await cancelNotificationById(id);
       }
     };
 
