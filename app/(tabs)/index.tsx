@@ -9,6 +9,7 @@ import Animated, {
 import { CelebrationOverlay } from "../../components/timer/CelebrationOverlay";
 import { CircularTimer } from "../../components/timer/CircularTimer";
 import { TimerButton } from "../../components/timer/TimerButton";
+import { GradientButton } from "../../components/ui/GradientButton";
 import { ActiveTaskPicker } from "../../components/tasks/ActiveTaskPicker";
 import { TodayStrip } from "../../components/calendar/TodayStrip";
 import { OnboardingGate } from "../../components/ui/OnboardingGate";
@@ -335,14 +336,12 @@ const TimerScreen: React.FC = () => {
             <Text style={styles.personalityMessage}>{personalityMessage}</Text>
           )}
 
+          <GradientButton
+            label={isRunning ? "Pause" : `Start ${modeLabels[mode]}`}
+            onPress={handlePrimaryPress}
+            accessibilityLabel={`${primaryLabel} ${modeLabels[mode]} timer`}
+          />
           <View style={styles.buttonsRow}>
-            <TimerButton
-              label={primaryLabel}
-              variant="primary"
-              style={{ backgroundColor: accentColor }}
-              onPress={handlePrimaryPress}
-              accessibilityLabel={`${primaryLabel} ${modeLabels[mode]} timer`}
-            />
             {showSkip && (isFocusMode || !isMinimalLayout) && (
               <TimerButton
                 label={skipLabel}

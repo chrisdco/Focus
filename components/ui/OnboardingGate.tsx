@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Modal,
-  Pressable,
   StyleSheet,
   Switch,
   Text,
@@ -11,6 +10,7 @@ import {
 import { useSettings } from "../../context/SettingsContext";
 import { useTheme } from "../../context/ThemeContext";
 import { type as typeScale } from "../../theme/typography";
+import { GradientButton } from "./GradientButton";
 import {
   loadHasSeenOnboarding,
   saveHasSeenOnboarding,
@@ -76,18 +76,6 @@ export const OnboardingGate: React.FC = () => {
           marginTop: 4,
           marginBottom: 12,
         },
-        begin: {
-          backgroundColor: colors.focus,
-          borderRadius: 12,
-          minHeight: 48,
-          alignItems: "center",
-          justifyContent: "center",
-        },
-        beginText: {
-          color: colors.onPrimary,
-          fontWeight: "600",
-          fontSize: 16,
-        },
       }),
     [colors]
   );
@@ -135,14 +123,11 @@ export const OnboardingGate: React.FC = () => {
               accessibilityLabel="Session reminders"
             />
           </View>
-          <Pressable
-            style={styles.begin}
+          <GradientButton
+            label="Begin"
             onPress={dismiss}
-            accessibilityRole="button"
             accessibilityLabel="Begin focusing"
-          >
-            <Text style={styles.beginText}>Begin</Text>
-          </Pressable>
+          />
         </View>
       </View>
     </Modal>

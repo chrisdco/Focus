@@ -8,13 +8,15 @@ import {
   lightColors,
   type ColorPalette,
 } from "../theme/colors";
-import { getAccentColor } from "../theme/accents";
+import { getAccentColor, getAccentGradient } from "../theme/accents";
 import type { TimerMode } from "../types/timer";
 import { useSettings } from "./SettingsContext";
 
 interface ThemeContextValue {
   colors: ColorPalette;
   modeColors: Record<TimerMode, string>;
+  /** Signature gradient for primary CTAs; follows the accent. */
+  gradient: [string, string];
   isDark: boolean;
 }
 
@@ -36,6 +38,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     return {
       colors: palette,
       modeColors: getModeColors(palette),
+      gradient: getAccentGradient(settings.accentId),
       isDark: settings.darkMode,
     };
   }, [settings.accentId, settings.darkMode]);
