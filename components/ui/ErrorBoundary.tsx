@@ -2,6 +2,7 @@ import React, { Component, type ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 
 interface Props {
   children: ReactNode;
@@ -65,8 +66,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 24,
   },
-  title: { fontSize: 20, fontWeight: "700" },
-  body: { fontSize: 15, textAlign: "center", marginTop: 8, marginBottom: 16 },
+  title: {
+    fontSize: 20,
+    fontWeight: "700",
+    fontFamily: fontFamily.bold,
+  },
+  body: {
+    fontSize: 15,
+    textAlign: "center",
+    marginTop: 8,
+    marginBottom: 16,
+    fontFamily: fontFamily.regular,
+  },
   retry: {
     borderRadius: 12,
     minHeight: 48,
@@ -74,5 +85,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  retryText: { fontWeight: "600", fontSize: 16 },
+  retryText: {
+    fontWeight: "600",
+    fontFamily: fontFamily.semiBold,
+    fontSize: 16,
+  },
 });

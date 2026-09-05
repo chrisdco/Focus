@@ -2,6 +2,7 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 import type { Project, Task } from "../../types/task";
 import { PRIORITY_COLORS } from "../../types/task";
 
@@ -104,6 +105,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: fontFamily.semiBold,
   },
   metaRow: {
     flexDirection: "row",
@@ -123,5 +125,6 @@ const styles = StyleSheet.create({
   startLabel: {
     fontSize: 14,
     fontWeight: "600",
+    fontFamily: fontFamily.semiBold,
   },
 });

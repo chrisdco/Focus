@@ -11,6 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 
 interface BreakBreatherProps {
   animationsEnabled?: boolean;
@@ -59,9 +60,15 @@ export const BreakBreather: React.FC<BreakBreatherProps> = ({
         cue: {
           fontSize: 17,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           color: colors.textSecondary,
         },
-        hint: { fontSize: 12, color: colors.textMuted, marginTop: 4 },
+        hint: {
+          fontSize: 12,
+          color: colors.textMuted,
+          marginTop: 4,
+          fontFamily: fontFamily.regular,
+        },
       }),
     [colors]
   );

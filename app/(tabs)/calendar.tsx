@@ -31,7 +31,7 @@ import {
   shiftDateKey,
   yearMonthOf,
 } from "../../domain/schedule";
-import { displayFont } from "../../theme/fonts";
+import { fontFamily } from "../../theme/fonts";
 import type { ScheduleBlock } from "../../types/schedule";
 import { toDateKey } from "../../utils/timer";
 
@@ -99,7 +99,7 @@ const CalendarScreen: React.FC = () => {
           color: colors.text,
           marginTop: 12,
           marginBottom: 8,
-          fontFamily: displayFont.semiBold,
+          fontFamily: fontFamily.semiBold,
         },
         agendaRow: {
           flexDirection: "row",
@@ -112,8 +112,18 @@ const CalendarScreen: React.FC = () => {
           borderColor: colors.border,
           marginBottom: 12,
         },
-        agendaText: { fontSize: 15, color: colors.text, fontWeight: "600" },
-        agendaMeta: { fontSize: 13, color: colors.textMuted, marginTop: 2 },
+        agendaText: {
+          fontSize: 15,
+          color: colors.text,
+          fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
+        },
+        agendaMeta: {
+          fontSize: 13,
+          color: colors.textMuted,
+          marginTop: 2,
+          fontFamily: fontFamily.regular,
+        },
         navButton: {
           paddingHorizontal: 12,
           paddingVertical: 8,
@@ -121,13 +131,32 @@ const CalendarScreen: React.FC = () => {
           borderWidth: 1,
           borderColor: colors.border,
         },
-        navText: { color: colors.text, fontWeight: "600" },
-        dateLabel: { color: colors.text, fontSize: 16, fontWeight: "600" },
+        navText: {
+          color: colors.text,
+          fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
+        },
+        dateLabel: {
+          color: colors.text,
+          fontSize: 16,
+          fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
+        },
         summary: {
           marginBottom: 12,
         },
-        summaryText: { color: colors.text, fontSize: 15, fontWeight: "600" },
-        summaryMeta: { color: colors.textMuted, marginTop: 4, fontSize: 13 },
+        summaryText: {
+          color: colors.text,
+          fontSize: 15,
+          fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
+        },
+        summaryMeta: {
+          color: colors.textMuted,
+          marginTop: 4,
+          fontSize: 13,
+          fontFamily: fontFamily.regular,
+        },
         actions: { flexDirection: "row", gap: 8, marginBottom: 12, flexWrap: "wrap" },
         action: {
           paddingHorizontal: 14,
@@ -140,8 +169,12 @@ const CalendarScreen: React.FC = () => {
           borderWidth: 1,
           borderColor: colors.border,
         },
-        actionText: { color: colors.onPrimary, fontWeight: "600" },
-        actionTextSecondary: { color: colors.text },
+        actionText: {
+          color: colors.onPrimary,
+          fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
+        },
+        actionTextSecondary: { color: colors.text, fontFamily: fontFamily.regular },
       }),
     [colors]
   );

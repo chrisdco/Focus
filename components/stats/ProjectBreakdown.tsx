@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 import type { ProjectFocusStat } from "../../domain/statsCalculator";
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 
 interface ProjectBreakdownProps {
   data: ProjectFocusStat[];
@@ -27,10 +28,12 @@ export const ProjectBreakdown: React.FC<ProjectBreakdownProps> = ({ data }) => {
           fontSize: 14,
           color: colors.text,
           fontWeight: "500",
+          fontFamily: fontFamily.medium,
         },
         value: {
           fontSize: 13,
           color: colors.textMuted,
+          fontFamily: fontFamily.regular,
         },
         track: {
           height: 8,

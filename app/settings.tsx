@@ -26,6 +26,7 @@ import {
 import { DEFAULT_SETTINGS } from "../types/settings";
 import { getDurationForMode } from "../domain/timerMachine";
 import { ACCENT_PRESETS } from "../theme/accents";
+import { fontFamily } from "../theme/fonts";
 import type { TimerLayout } from "../types/settings";
 import { playCue } from "../utils/playCue";
 
@@ -146,6 +147,7 @@ const SettingsScreen: React.FC = () => {
         sectionTitle: {
           fontSize: 12,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           letterSpacing: 1.5,
           textTransform: "uppercase",
           color: colors.textMuted,
@@ -181,6 +183,7 @@ const SettingsScreen: React.FC = () => {
         optionText: {
           fontSize: 13,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           color: colors.textSecondary,
         },
         optionTextActive: {
@@ -203,17 +206,20 @@ const SettingsScreen: React.FC = () => {
           color: colors.danger,
           fontSize: 16,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
         },
         hint: {
           marginTop: 12,
           fontSize: 13,
           color: colors.textMuted,
           textAlign: "center",
+          fontFamily: fontFamily.regular,
         },
         note: {
           marginTop: 8,
           fontSize: 13,
           color: colors.textMuted,
+          fontFamily: fontFamily.regular,
         },
       }),
     [colors]
@@ -554,6 +560,7 @@ const styles = StyleSheet.create({
   },
   stepperLabel: {
     fontSize: 16,
+    fontFamily: fontFamily.regular,
   },
   stepperControls: {
     flexDirection: "row",
@@ -570,11 +577,13 @@ const styles = StyleSheet.create({
   stepperButtonText: {
     fontSize: 22,
     fontWeight: "500",
+    fontFamily: fontFamily.medium,
   },
   stepperValue: {
     fontSize: 16,
     minWidth: 56,
     textAlign: "center",
+    fontFamily: fontFamily.regular,
   },
   toggleRow: {
     flexDirection: "row",
@@ -596,9 +605,11 @@ const styles = StyleSheet.create({
   toggleSubtitle: {
     fontSize: 13,
     marginTop: 2,
+    fontFamily: fontFamily.regular,
   },
   toggleLabel: {
     fontSize: 16,
+    fontFamily: fontFamily.regular,
   },
   divider: {
     height: StyleSheet.hairlineWidth,

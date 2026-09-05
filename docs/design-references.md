@@ -91,5 +91,7 @@ Applied across the app; re-check on every visual change:
 - **Balance** — hero mass on top, CTA as fulcrum, quiet rows anchor.
 - **White space** — 16px section rhythm, 20px insets; space is the calm.
 - **Unity** — no emoji in rows or overlays, tab titles match screen
-  titles, one accent family throughout.
+  titles, one accent family throughout, Nunito on every text role
+  (`theme/fonts.ts` is the only source of families; Android needs exact
+  names, so no bare fontWeight anywhere; tabular numerals on the timer).
 

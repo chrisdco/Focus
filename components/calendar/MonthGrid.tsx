@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 import { getMonthCells } from "../../domain/schedule";
 
 const WEEKDAY_HEADER = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -39,6 +40,7 @@ export const MonthGrid: React.FC<MonthGridProps> = ({
         headerText: {
           fontSize: 11,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           letterSpacing: 0.5,
           color: colors.textMuted,
         },
@@ -52,9 +54,21 @@ export const MonthGrid: React.FC<MonthGridProps> = ({
           margin: 2,
         },
         cellSelected: { backgroundColor: colors.focus },
-        dayText: { fontSize: 15, color: colors.text },
-        dayTextSelected: { color: colors.onPrimary, fontWeight: "700" },
-        dayTextToday: { fontWeight: "700", color: colors.focus },
+        dayText: {
+          fontSize: 15,
+          color: colors.text,
+          fontFamily: fontFamily.medium,
+        },
+        dayTextSelected: {
+          color: colors.onPrimary,
+          fontWeight: "700",
+          fontFamily: fontFamily.bold,
+        },
+        dayTextToday: {
+          fontWeight: "700",
+          fontFamily: fontFamily.bold,
+          color: colors.focus,
+        },
         dots: { flexDirection: "row", gap: 2, marginTop: 2, minHeight: 5 },
         dot: { width: 5, height: 5, borderRadius: 3 },
       }),

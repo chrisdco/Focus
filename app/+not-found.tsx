@@ -3,6 +3,7 @@ import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { useTheme } from "../context/ThemeContext";
+import { fontFamily } from "../theme/fonts";
 
 export default function NotFound() {
   const { colors } = useTheme();
@@ -17,15 +18,26 @@ export default function NotFound() {
           backgroundColor: colors.background,
           paddingHorizontal: 24,
         },
-        title: { fontSize: 20, fontWeight: "700", color: colors.text },
+        title: {
+          fontSize: 20,
+          fontWeight: "700",
+          fontFamily: fontFamily.bold,
+          color: colors.text,
+        },
         body: {
           fontSize: 15,
           color: colors.textMuted,
           textAlign: "center",
           marginTop: 8,
           marginBottom: 16,
+          fontFamily: fontFamily.regular,
         },
-        link: { fontSize: 16, fontWeight: "600", color: colors.focus },
+        link: {
+          fontSize: 16,
+          fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
+          color: colors.focus,
+        },
       }),
     [colors]
   );

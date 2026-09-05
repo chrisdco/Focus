@@ -21,7 +21,7 @@ import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import type { StatsPeriod } from "../../domain/statsCalculator";
 import { cardElevation } from "../../theme/shadows";
-import { displayFont } from "../../theme/fonts";
+import { fontFamily } from "../../theme/fonts";
 
 const PERIODS: { key: StatsPeriod; label: string }[] = [
   { key: "day", label: "Day" },
@@ -128,12 +128,13 @@ const StatsScreen: React.FC = () => {
           fontWeight: "700",
           color: colors.text,
           letterSpacing: 0.5,
-          fontFamily: displayFont.bold,
+          fontFamily: fontFamily.bold,
         },
         heroLabel: {
           fontSize: 14,
           color: colors.textMuted,
           marginTop: 4,
+          fontFamily: fontFamily.regular,
         },
         section: {
           backgroundColor: colors.surface,
@@ -149,11 +150,12 @@ const StatsScreen: React.FC = () => {
           fontWeight: "600",
           color: colors.text,
           marginBottom: 14,
-          fontFamily: displayFont.semiBold,
+          fontFamily: fontFamily.semiBold,
         },
         groupLabel: {
           fontSize: 13,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           color: colors.textMuted,
           textTransform: "uppercase",
           letterSpacing: 0.5,
@@ -172,11 +174,13 @@ const StatsScreen: React.FC = () => {
         periodMetric: {
           fontSize: 14,
           color: colors.text,
+          fontFamily: fontFamily.regular,
         },
         periodDelta: {
           fontSize: 13,
           color: colors.textMuted,
           marginTop: 4,
+          fontFamily: fontFamily.regular,
         },
         deltaUp: {
           color: colors.shortBreak,
@@ -197,10 +201,12 @@ const StatsScreen: React.FC = () => {
         recordLabel: {
           fontSize: 14,
           color: colors.textSecondary,
+          fontFamily: fontFamily.regular,
         },
         recordValue: {
           fontSize: 14,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           color: colors.text,
         },
         emptyHint: {
@@ -208,6 +214,7 @@ const StatsScreen: React.FC = () => {
           color: colors.textMuted,
           textAlign: "center",
           paddingVertical: 12,
+          fontFamily: fontFamily.regular,
         },
       }),
     [colors, isDark]

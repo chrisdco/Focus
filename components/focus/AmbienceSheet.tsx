@@ -3,6 +3,7 @@ import React, { useMemo } from "react";
 import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 import { type as typeScale } from "../../theme/typography";
 import { SoundMixer } from "./SoundMixer";
 
@@ -38,6 +39,7 @@ export const AmbienceSheet: React.FC<AmbienceSheetProps> = ({
         doneText: {
           color: colors.onPrimary,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           fontSize: 16,
         },
       }),

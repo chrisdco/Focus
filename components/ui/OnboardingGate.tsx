@@ -10,6 +10,7 @@ import {
 
 import { useSettings } from "../../context/SettingsContext";
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 import { type as typeScale } from "../../theme/typography";
 import { GradientButton } from "./GradientButton";
 import {
@@ -61,8 +62,18 @@ export const OnboardingGate: React.FC = () => {
           marginBottom: 12,
         },
         row: { marginBottom: 12 },
-        rowTitle: { fontSize: 15, fontWeight: "600", color: colors.text },
-        rowBody: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
+        rowTitle: {
+          fontSize: 15,
+          fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
+          color: colors.text,
+        },
+        rowBody: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          marginTop: 2,
+          fontFamily: fontFamily.regular,
+        },
         reminderRow: {
           flexDirection: "row",
           alignItems: "center",

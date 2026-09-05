@@ -14,7 +14,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTheme } from "../../context/ThemeContext";
-import { displayFont } from "../../theme/fonts";
+import { fontFamily } from "../../theme/fonts";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -80,7 +80,7 @@ export const TimerButton: React.FC<TimerButtonProps> = ({
               color: isPrimary ? colors.onPrimary : colors.textSecondary,
               fontSize: isPrimary ? 18 : 16,
               fontWeight: isPrimary ? "600" : "500",
-              fontFamily: displayFont.semiBold,
+              fontFamily: fontFamily.semiBold,
             },
             pressed && styles.pressedLabel,
           ]}

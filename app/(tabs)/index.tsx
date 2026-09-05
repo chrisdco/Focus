@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Alert, AppState, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { displayFont } from "../../theme/fonts";
+import { fontFamily } from "../../theme/fonts";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -184,7 +184,7 @@ const TimerScreen: React.FC = () => {
             className="text-left mb-2 text-[28px] font-bold"
             style={{
               color: colors.text,
-              fontFamily: displayFont.bold,
+              fontFamily: fontFamily.bold,
               letterSpacing: 0.2,
             }}
           >
@@ -216,7 +216,11 @@ const TimerScreen: React.FC = () => {
         {isFocusMode && (
           <Text
             className="text-center mb-2 text-sm uppercase"
-            style={{ color: colors.textMuted, letterSpacing: 1 }}
+            style={{
+              color: colors.textMuted,
+              letterSpacing: 1,
+              fontFamily: fontFamily.regular,
+            }}
           >
             Focus mode
           </Text>
@@ -225,7 +229,7 @@ const TimerScreen: React.FC = () => {
         {mode === "focus" && showChrome && (
           <Text
             className="text-center mb-4 text-base"
-            style={{ color: colors.textMuted }}
+            style={{ color: colors.textMuted, fontFamily: fontFamily.regular }}
           >
             Session {sessionNumber} of {sessionsBeforeLongBreak}
           </Text>
@@ -234,7 +238,7 @@ const TimerScreen: React.FC = () => {
         {isFocusMode && activeTask && (
           <Text
             className="text-[15px] font-semibold text-left mt-0.5"
-            style={{ color: colors.text }}
+            style={{ color: colors.text, fontFamily: fontFamily.semiBold }}
             numberOfLines={1}
           >
             {activeTask.title}
@@ -261,7 +265,7 @@ const TimerScreen: React.FC = () => {
           {showChrome && (
             <Text
               className="text-center mb-3 text-base font-semibold"
-              style={{ color: accentColor }}
+              style={{ color: accentColor, fontFamily: fontFamily.semiBold }}
             >
               {modeLabels[mode]} • {formatDurationLabel(durationMs)}
             </Text>
@@ -293,7 +297,7 @@ const TimerScreen: React.FC = () => {
           {showChrome && personalityMessage.length > 0 && (
             <Text
               className="text-center mt-3 px-4 text-[13px] italic"
-              style={{ color: colors.textMuted }}
+              style={{ color: colors.textMuted, fontFamily: fontFamily.regular }}
             >
               {personalityMessage}
             </Text>

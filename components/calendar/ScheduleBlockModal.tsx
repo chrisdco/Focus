@@ -10,6 +10,7 @@ import {
 } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 import { formatClock, parseClock } from "../../domain/schedule";
 import { type as typeScale } from "../../theme/typography";
 import type {
@@ -111,10 +112,15 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
           ...typeScale.sheetTitle,
           color: colors.text,
         },
-        close: { color: colors.textMuted, fontSize: 16 },
+        close: {
+          color: colors.textMuted,
+          fontSize: 16,
+          fontFamily: fontFamily.regular,
+        },
         label: {
           fontSize: 14,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
           color: colors.textMuted,
           marginBottom: 8,
           marginTop: 12,
@@ -128,8 +134,18 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
           alignItems: "center",
           justifyContent: "center",
         },
-        stepperText: { fontSize: 20, color: colors.text },
-        value: { fontSize: 16, color: colors.text, minWidth: 72, textAlign: "center" },
+        stepperText: {
+          fontSize: 20,
+          color: colors.text,
+          fontFamily: fontFamily.regular,
+        },
+        value: {
+          fontSize: 16,
+          color: colors.text,
+          minWidth: 72,
+          textAlign: "center",
+          fontFamily: fontFamily.regular,
+        },
         chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
         chip: {
           paddingHorizontal: 12,
@@ -142,7 +158,12 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
           backgroundColor: colors.focus,
           borderColor: colors.focus,
         },
-        chipText: { color: colors.textSecondary, fontSize: 13, fontWeight: "600" },
+        chipText: {
+          color: colors.textSecondary,
+          fontSize: 13,
+          fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
+        },
         chipTextActive: { color: colors.onPrimary },
         save: {
           marginTop: 20,
@@ -152,9 +173,18 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
           alignItems: "center",
           justifyContent: "center",
         },
-        saveText: { color: colors.onPrimary, fontWeight: "600", fontSize: 16 },
+        saveText: {
+          color: colors.onPrimary,
+          fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
+          fontSize: 16,
+        },
         delete: { marginTop: 12, alignItems: "center", minHeight: 44, justifyContent: "center" },
-        deleteText: { color: colors.danger, fontWeight: "600" },
+        deleteText: {
+          color: colors.danger,
+          fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
+        },
       }),
     [colors]
   );

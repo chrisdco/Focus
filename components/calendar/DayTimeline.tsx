@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 import {
   DAY_END_HOUR,
   DAY_START_HOUR,
@@ -44,6 +45,7 @@ export const DayTimeline: React.FC<DayTimelineProps> = ({
           fontSize: 12,
           color: colors.textMuted,
           marginTop: -8,
+          fontFamily: fontFamily.regular,
         },
         gutter: { flex: 1 },
         block: {
@@ -58,10 +60,12 @@ export const DayTimeline: React.FC<DayTimelineProps> = ({
         blockTitle: {
           fontSize: 13,
           fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
         },
         blockMeta: {
           fontSize: 11,
           marginTop: 2,
+          fontFamily: fontFamily.regular,
         },
       }),
     [colors, height]
