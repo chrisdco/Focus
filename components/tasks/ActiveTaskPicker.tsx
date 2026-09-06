@@ -111,7 +111,7 @@ export const ActiveTaskPicker: React.FC<ActiveTaskPickerProps> = ({
           )}
           ListEmptyComponent={
             <Text style={[styles.rowMeta, { paddingHorizontal: 20 }]}>
-              No active tasks. Add one from the Tasks tab.
+              No active tasks. Add one from the Plan tab.
             </Text>
           }
           ListFooterComponent={

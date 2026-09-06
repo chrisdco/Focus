@@ -1,35 +1,9 @@
-import React, { useMemo } from "react";
-import { StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Redirect } from "expo-router";
+import React from "react";
 
-import { CalendarSection } from "../../components/calendar/CalendarSection";
-import { ScreenTitle } from "../../components/ui/ScreenTitle";
-import { useTheme } from "../../context/ThemeContext";
-
-const CalendarScreen: React.FC = () => {
-  const { colors } = useTheme();
-
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
-        safeArea: { flex: 1, backgroundColor: colors.background },
-        container: {
-          flex: 1,
-          paddingHorizontal: 20,
-          paddingTop: 16,
-        },
-      }),
-    [colors]
-  );
-
-  return (
-    <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <View style={styles.container}>
-        <ScreenTitle title="Calendar" />
-        <CalendarSection />
-      </View>
-    </SafeAreaView>
-  );
+/** Merged into the Plan tab (M6.14); kept so old links keep resolving. */
+const CalendarRedirect: React.FC = () => {
+  return <Redirect href="/plan" />;
 };
 
-export default CalendarScreen;
+export default CalendarRedirect;
