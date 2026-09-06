@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { DayActivity } from "../../domain/statsCalculator";
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
 
 interface FocusHeatmapProps {
   activity: DayActivity[];
@@ -37,6 +38,7 @@ export const FocusHeatmap: React.FC<FocusHeatmapProps> = ({
           fontSize: 13,
           color: colors.textMuted,
           textAlign: "center",
+          fontFamily: fontFamily.regular,
         },
       }),
     [colors]
@@ -64,6 +66,8 @@ export const FocusHeatmap: React.FC<FocusHeatmapProps> = ({
             key={day.dateKey}
             style={[styles.cell, { backgroundColor: cellColor(day.pomodoros) }]}
             onPress={() => setSelected(day)}
+            accessibilityRole="button"
+            accessibilityLabel={`${day.dateKey}, ${day.pomodoros} pomodoros`}
           />
         ))}
       </View>

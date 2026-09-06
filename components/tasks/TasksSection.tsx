@@ -114,6 +114,9 @@ export const TasksSection: React.FC<TasksSectionProps> = ({
             },
           ]}
           onPress={() => setSelectedProjectId(null)}
+          accessibilityRole="button"
+          accessibilityState={{ selected: selectedProjectId === null }}
+          accessibilityLabel="All projects"
         >
           <Text
             style={{
@@ -126,17 +129,20 @@ export const TasksSection: React.FC<TasksSectionProps> = ({
           </Text>
         </Pressable>
         {projects.map((project) => (
-          <Pressable
-            key={project.id}
-            style={[
-              styles.projectChip,
-              selectedProjectId === project.id && {
-                borderColor: project.color,
-                backgroundColor: `${project.color}18`,
-              },
-            ]}
-            onPress={() => setSelectedProjectId(project.id)}
-          >
+            <Pressable
+              key={project.id}
+              style={[
+                styles.projectChip,
+                selectedProjectId === project.id && {
+                  borderColor: project.color,
+                  backgroundColor: `${project.color}18`,
+                },
+              ]}
+              onPress={() => setSelectedProjectId(project.id)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: selectedProjectId === project.id }}
+              accessibilityLabel={`Project ${project.name}`}
+            >
             <Text
               style={{
                 color: project.color,

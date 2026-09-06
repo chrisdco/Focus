@@ -17,6 +17,15 @@ export const useTimerPersistence = (): void => {
   const prevStateRef = useRef(state);
   // Dedupe key for the last logged completion (mode/counter/end-time).
   const handledCompletionRef = useRef<string | null>(null);
+  const autoStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (autoStartTimerRef.current !== null) {
+        clearTimeout(autoStartTimerRef.current);
+      }
+    };
+  }, []);
 
   const recordFocusCompletion = useCallback(
     (durationMs: number) => {
@@ -71,10 +80,12 @@ export const useTimerPersistence = (): void => {
       if (settings.autoStartNextSession) {
         // Defer so the paused-at-zero state commits first: celebration,
         // sound, and TICK effects observe the completion before running on.
-        const id = setTimeout(() => {
+        if (autoStartTimerRef.current !== null) {
+          clearTimeout(autoStartTimerRef.current);
+        }
+        autoStartTimerRef.current = setTimeout(() => {
           dispatch({ type: "START", now: Date.now() });
         }, 0);
-        void id;
       }
     },
     [dispatch, recordFocusCompletion, settings]

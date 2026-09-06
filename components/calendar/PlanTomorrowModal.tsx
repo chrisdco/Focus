@@ -85,7 +85,7 @@ export const PlanTomorrowModal: React.FC<PlanTomorrowModalProps> = ({
           flexDirection: "row",
           alignItems: "center",
           paddingVertical: 12,
-          borderBottomWidth: 1,
+          borderBottomWidth: StyleSheet.hairlineWidth,
           borderBottomColor: colors.border,
           gap: 12,
         },

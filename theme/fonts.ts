@@ -18,24 +18,4 @@ export const fontFamily = {
   medium: family("Nunito_500Medium"),
   semiBold: family("Nunito_600SemiBold"),
   bold: family("Nunito_700Bold"),
-  extraBold: family("Nunito_800ExtraBold"),
 } as const;
-
-export type FontWeightName = keyof typeof fontFamily;
-
-export const fontFamilyForWeight = (
-  weight: "400" | "500" | "600" | "700" | "800"
-): string => {
-  switch (weight) {
-    case "400":
-      return fontFamily.regular;
-    case "500":
-      return fontFamily.medium;
-    case "600":
-      return fontFamily.semiBold;
-    case "700":
-      return fontFamily.bold;
-    case "800":
-      return fontFamily.extraBold;
-  }
-};
