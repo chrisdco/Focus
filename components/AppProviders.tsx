@@ -73,6 +73,7 @@ const RootStack: React.FC = () => {
 
   return (
     <Stack
+      initialRouteName="index"
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.background },
