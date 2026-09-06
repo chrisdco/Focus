@@ -2,6 +2,7 @@ import React, { useEffect, useMemo } from "react";
 import { StyleSheet, Text } from "react-native";
 import Animated, {
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withDelay,
   withSequence,
@@ -15,13 +16,17 @@ import { type as typeScale } from "../../theme/typography";
 interface CelebrationOverlayProps {
   visible: boolean;
   message?: string;
+  animationsEnabled?: boolean;
 }
 
 export const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
   visible,
   message = "Session complete!",
+  animationsEnabled = true,
 }) => {
   const { colors } = useTheme();
+  const reduceMotion = useReducedMotion();
+  const animated = animationsEnabled && !reduceMotion;
   const opacity = useSharedValue(0);
   const scale = useSharedValue(0.5);
 
@@ -47,6 +52,11 @@ export const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
 
   useEffect(() => {
     if (visible) {
+      if (!animated) {
+        opacity.value = 1;
+        scale.value = 1;
+        return;
+      }
       opacity.value = withSequence(
         withTiming(1, { duration: 200 }),
         withDelay(1800, withTiming(0, { duration: 400 }))
@@ -56,7 +66,7 @@ export const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
       opacity.value = 0;
       scale.value = 0.5;
     }
-  }, [visible, opacity, scale]);
+  }, [visible, animated, opacity, scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

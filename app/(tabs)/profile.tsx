@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useMemo } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useStats } from "../../context/StatsContext";
@@ -27,7 +27,12 @@ const ProfileScreen: React.FC = () => {
     () =>
       StyleSheet.create({
         safeArea: { flex: 1, backgroundColor: colors.background },
-        container: { flex: 1, paddingHorizontal: 20, paddingTop: 16 },
+        container: {
+          flexGrow: 1,
+          paddingHorizontal: 20,
+          paddingTop: 16,
+          paddingBottom: 32,
+        },
         header: {
           flexDirection: "row",
           alignItems: "center",
@@ -79,7 +84,10 @@ const ProfileScreen: React.FC = () => {
           paddingHorizontal: 16,
           minHeight: 48,
         },
-        rowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
+        rowBorder: {
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: colors.border,
+        },
         rowLabel: { fontSize: 16, color: colors.text, fontFamily: fontFamily.regular },
         rowValue: {
           fontSize: 15,
@@ -98,7 +106,11 @@ const ProfileScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <View style={styles.container}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Profile</Text>
           <Pressable
@@ -154,7 +166,7 @@ const ProfileScreen: React.FC = () => {
         </View>
 
         <Text style={styles.version}>Foco {APP_VERSION}</Text>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

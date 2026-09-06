@@ -180,7 +180,7 @@ export const SoundMixer: React.FC = () => {
   const persistMix = (nextMix: SoundMixLayer[], presetId: string | null) => {
     updateSettings({
       soundMix: nextMix,
-      activePresetId: presetId,
+      activeSoundscapePresetId: presetId,
     });
     if (isPreviewing) {
       previewMix(nextMix);
@@ -252,7 +252,7 @@ export const SoundMixer: React.FC = () => {
 
       <View style={styles.presetRow}>
         {SOUNDSCAPE_PRESETS.map((preset) => {
-          const active = settings.activePresetId === preset.id;
+          const active = settings.activeSoundscapePresetId === preset.id;
           const summary = preset.layers
             .map((layer) => SOUNDSCAPE_TRACKS[layer.id]?.label ?? layer.id)
             .join(" · ");
@@ -303,24 +303,30 @@ export const SoundMixer: React.FC = () => {
                   <Text style={styles.trackLabel}>
                     {track.emoji} {track.label}
                   </Text>
-                  <Pressable
-                    style={[styles.trackToggle, active && styles.trackToggleActive]}
-                    onPress={() => toggleTrack(id)}
-                  >
+              <Pressable
+                style={[styles.trackToggle, active && styles.trackToggleActive]}
+                onPress={() => toggleTrack(id)}
+                accessibilityRole="switch"
+                accessibilityState={{ checked: active }}
+                accessibilityLabel={`${track.label} track`}
+              >
                     <Text style={styles.trackToggleText}>
                       {active ? "On" : "Off"}
                     </Text>
                   </Pressable>
                 </View>
 
-                <Pressable
-                  onLayout={(event) => {
-                    sliderWidths.current[id] = event.nativeEvent.layout.width;
-                  }}
-                  onPress={(event) =>
-                    handleSliderPress(id, event.nativeEvent.locationX)
-                  }
-                >
+              <Pressable
+                accessibilityRole="adjustable"
+                accessibilityLabel={`${track.label} volume`}
+                accessibilityValue={{ now: Math.round(volume * 100), min: 0, max: 100 }}
+                onLayout={(event) => {
+                  sliderWidths.current[id] = event.nativeEvent.layout.width;
+                }}
+                onPress={(event) =>
+                  handleSliderPress(id, event.nativeEvent.locationX)
+                }
+              >
                   <View style={styles.sliderTrack}>
                     <View
                       style={[styles.sliderFill, { width: `${volume * 100}%` }]}

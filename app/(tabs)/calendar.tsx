@@ -214,7 +214,11 @@ const CalendarScreen: React.FC = () => {
             >
               <Text style={styles.navText}>Prev</Text>
             </Pressable>
-            <Pressable onPress={() => setDateKey(todayKey)}>
+            <Pressable
+              onPress={() => setDateKey(todayKey)}
+              accessibilityRole="button"
+              accessibilityLabel="Go to today"
+            >
               <Text style={styles.dateLabel}>
                 {dateKey === todayKey ? `Today · ${dateKey}` : dateKey}
               </Text>
@@ -311,13 +315,19 @@ const CalendarScreen: React.FC = () => {
         </View>
 
         <View style={styles.actions}>
-          <Pressable style={styles.action} onPress={openCreate} accessibilityRole="button">
+          <Pressable
+            style={styles.action}
+            onPress={openCreate}
+            accessibilityRole="button"
+            accessibilityLabel="Add block"
+          >
             <Text style={styles.actionText}>Add block</Text>
           </Pressable>
           <Pressable
             style={[styles.action, styles.actionSecondary]}
             onPress={() => setPlanVisible(true)}
             accessibilityRole="button"
+            accessibilityLabel="Plan tomorrow"
           >
             <Text style={[styles.actionText, styles.actionTextSecondary]}>
               Plan tomorrow

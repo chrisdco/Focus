@@ -2,10 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Alert, AppState, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+import { GradientButton } from "../../components/ui/GradientButton";
 import { fontFamily } from "../../theme/fonts";
 import Animated, {
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
@@ -31,7 +32,7 @@ import { modeLabels } from "../../theme/colors";
 import { formatDurationLabel } from "../../utils/timer";
 
 const TimerScreen: React.FC = () => {
-  const { colors, gradient, modeColors } = useTheme();
+  const { colors, modeColors } = useTheme();
   const { settings } = useSettings();
   const { isFocusMode, toggleFocusMode } = useFocusMode();
   const { activeTask } = useTasks();
@@ -88,10 +89,16 @@ const TimerScreen: React.FC = () => {
   });
 
   const contentScale = useSharedValue(1);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
-    contentScale.value = withTiming(isFocusMode ? 1.08 : 1, { duration: 300 });
-  }, [isFocusMode, contentScale]);
+    const target = isFocusMode ? 1.08 : 1;
+    if (!settings.focusAnimationsEnabled || reduceMotion) {
+      contentScale.value = target;
+      return;
+    }
+    contentScale.value = withTiming(target, { duration: 300 });
+  }, [isFocusMode, contentScale, settings.focusAnimationsEnabled, reduceMotion]);
 
   const timerSectionStyle = useAnimatedStyle(() => ({
     transform: [{ scale: contentScale.value }],
@@ -139,11 +146,13 @@ const TimerScreen: React.FC = () => {
   const accentColor = modeColors[mode];
   const canReset = remainingMs !== durationMs || isRunning;
   const strictFocus = settings.strictMode && mode === "focus";
-  const showSkip =
-    !strictFocus && (isRunning || remainingMs !== durationMs);
   const skipLabel = mode === "focus" ? "Skip" : "Skip break";
   const isMinimalLayout = settings.timerLayout === "minimal";
   const showChrome = !isFocusMode && !isMinimalLayout;
+  // Skip is always available mid-session (even minimal): without it there
+  // is no escape path. Reset shows in chrome and fullscreen; strict hides both.
+  const showSkip = !strictFocus && (isRunning || remainingMs !== durationMs);
+  const showReset = !strictFocus && (showChrome || isFocusMode);
 
   const styles = useMemo(
     () =>
@@ -160,13 +169,6 @@ const TimerScreen: React.FC = () => {
           // Never crush the ring below its size: on short screens the
           // column scrolls instead of overlapping the controls.
           minHeight: isFocusMode ? 332 : 292,
-        },
-        playButton: {
-          width: 88,
-          height: 88,
-          borderRadius: 44,
-          alignItems: "center",
-          justifyContent: "center",
         },
         iconButton: {
           width: 48,
@@ -195,7 +197,7 @@ const TimerScreen: React.FC = () => {
     <SafeAreaView
       className="flex-1"
       style={{ backgroundColor: colors.background }}
-      edges={["top"]}
+      edges={isFocusMode ? ["top", "bottom"] : ["top"]}
     >
       <FocusBackground
         active={isFocusMode && settings.focusAnimationsEnabled}
@@ -215,6 +217,7 @@ const TimerScreen: React.FC = () => {
       )}
 
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
@@ -298,29 +301,22 @@ const TimerScreen: React.FC = () => {
           )}
 
           <View className="items-center">
-            <Pressable
-              onPress={handlePrimaryPress}
-              accessibilityRole="button"
-              accessibilityLabel={`${primaryLabel} ${modeLabels[mode]} timer`}
-              hitSlop={12}
-            >
-              <LinearGradient
-                colors={gradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.playButton}
-              >
+            <GradientButton
+              circular
+              icon={
                 <Ionicons
                   name={isRunning ? "pause" : "play"}
                   size={38}
                   color={colors.onPrimary}
                   style={isRunning ? undefined : { marginLeft: 4 }}
                 />
-              </LinearGradient>
-            </Pressable>
+              }
+              onPress={handlePrimaryPress}
+              accessibilityLabel={`${primaryLabel} ${modeLabels[mode]} timer`}
+            />
           </View>
           <View className="flex-row justify-center items-center mt-4">
-            {showSkip && (isFocusMode || !isMinimalLayout) && (
+            {showSkip && (
               <Pressable
                 style={styles.iconButton}
                 onPress={handleSkipPress}
@@ -335,7 +331,7 @@ const TimerScreen: React.FC = () => {
                 />
               </Pressable>
             )}
-            {showChrome && !strictFocus && (
+            {showReset && (
               <Pressable
                 style={[styles.iconButton, !canReset && styles.iconDisabled]}
                 onPress={reset}
@@ -383,6 +379,7 @@ const TimerScreen: React.FC = () => {
       <CelebrationOverlay
         visible={showCelebration}
         message={celebrationMessage}
+        animationsEnabled={settings.focusAnimationsEnabled}
       />
 
       <ActiveTaskPicker

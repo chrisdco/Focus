@@ -286,6 +286,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
             <View style={styles.stepperRow}>
               <Pressable
                 style={styles.stepperButton}
+                accessibilityRole="button"
+                accessibilityLabel="Decrease estimate"
                 onPress={() =>
                   setDraft((prev) => ({
                     ...prev,
@@ -306,6 +308,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
               </Text>
               <Pressable
                 style={styles.stepperButton}
+                accessibilityRole="button"
+                accessibilityLabel="Increase estimate"
                 onPress={() =>
                   setDraft((prev) => ({
                     ...prev,
@@ -330,6 +334,9 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                     },
                   ]}
                   onPress={() => setDraft((prev) => ({ ...prev, priority }))}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: draft.priority === priority }}
+                  accessibilityLabel={`${priority} priority`}
                 >
                   <Text style={styles.chipText}>{priority}</Text>
                 </Pressable>
@@ -349,6 +356,9 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                     },
                   ]}
                   onPress={() => setDue(option)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isDueActive(option) }}
+                  accessibilityLabel={`Due ${option === "none" ? "no date" : option}`}
                 >
                   <Text style={styles.chipText}>
                     {option === "none" ? "No date" : option}
@@ -371,6 +381,11 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                   onPress={() =>
                     setDraft((prev) => ({ ...prev, projectId: project.id }))
                   }
+                  accessibilityRole="button"
+                  accessibilityState={{
+                    selected: draft.projectId === project.id,
+                  }}
+                  accessibilityLabel={`Project ${project.name}`}
                 >
                   <Text style={[styles.chipText, { color: project.color }]}>
                     {project.name}
@@ -399,13 +414,20 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
               placeholderTextColor={colors.textMuted}
             />
 
-            <Pressable style={styles.saveButton} onPress={handleSave}>
+            <Pressable
+              style={styles.saveButton}
+              onPress={handleSave}
+              accessibilityRole="button"
+              accessibilityLabel={initialTask ? "Save task" : "Create task"}
+            >
               <Text style={styles.saveButtonText}>Save task</Text>
             </Pressable>
 
             {initialTask && onDelete && (
               <Pressable
                 style={styles.deleteButton}
+                accessibilityRole="button"
+                accessibilityLabel={`Delete ${initialTask.title}`}
                 onPress={() => {
                   Alert.alert("Delete task", "This cannot be undone.", [
                     { text: "Cancel", style: "cancel" },

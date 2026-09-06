@@ -19,9 +19,9 @@ Expo Router + TypeScript Pomodoro app. Local-first; no backend yet.
 ## Design system (the law)
 
 - Tokens live in `theme/`: `type` roles (title, sheetTitle, eyebrow, section, body, caption, timer), `space` scale, palette + per-accent gradients.
-- 20px screen insets, 16px section rhythm, 48px touch rows, hairline dividers between same-type rows.
-- One gradient CTA per view (`GradientButton`); secondary actions stay quiet.
-- Sheets: `@expo/ui` BottomSheet + RNHostView. Forms stay on native Modal.
+- 20px screen insets, 16px section rhythm, 44px minimum touch rows, hairline dividers between same-type rows.
+- One gradient CTA per view (`GradientButton`, circular variant on timer); secondary actions stay quiet.
+- Sheets: `@expo/ui` BottomSheet + RNHostView for display and forms alike.
 - No emoji in UI. Tab titles match screen titles.
 - Styling is hybrid NativeWind: layout/spacing/type in `className`, dynamic
   colors always via `useTheme()` (accents + own dark mode can't be static
@@ -33,5 +33,7 @@ Expo Router + TypeScript Pomodoro app. Local-first; no backend yet.
 - Pure domain logic in `domain/` + `utils/` with vitest coverage; providers stay thin.
 - Storage loaders validate shapes and fall back safely (`storage/index.ts`).
 - Never statically import `expo-notifications` — use `utils/notifications.ts` facade (Expo Go Android strips the module).
-- State updaters must be pure (no nested setState); completion paths dedupe by key.
+- State updaters compute payloads before dispatch; persistence inside
+  functional updaters is idempotent by construction (same payload on
+  re-invoke), never fresh IDs or timestamps. Completion paths dedupe by key.
 - Respect `focusAnimationsEnabled` and OS reduced motion for all animation.

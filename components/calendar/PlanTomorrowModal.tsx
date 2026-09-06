@@ -198,12 +198,18 @@ export const PlanTomorrowModal: React.FC<PlanTomorrowModalProps> = ({
                 onClose();
               }}
               accessibilityRole="button"
+              accessibilityLabel={`Plan ${selected.size} tasks for tomorrow`}
             >
               <Text style={styles.saveText}>
                 Plan {selected.size} task{selected.size === 1 ? "" : "s"}
               </Text>
             </Pressable>
-          <Pressable onPress={onClose} style={{ alignItems: "center", marginTop: 12 }}>
+            <Pressable
+              onPress={onClose}
+              style={{ alignItems: "center", marginTop: 12 }}
+              accessibilityRole="button"
+              accessibilityLabel="Cancel planning"
+            >
             <Text
               style={{ color: colors.textMuted, fontFamily: fontFamily.regular }}
             >
