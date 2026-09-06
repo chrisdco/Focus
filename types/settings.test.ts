@@ -133,10 +133,12 @@ describe("timer presets", () => {
 
   it("matches the classic defaults", () => {
     const classic = TIMER_PRESETS.find((preset) => preset.id === "classic");
-    expect(classic).toBeDefined();
-    expect(matchesTimerPreset(DEFAULT_SETTINGS, classic!)).toBe(true);
+    if (!classic) {
+      throw new Error("classic preset missing");
+    }
+    expect(matchesTimerPreset(DEFAULT_SETTINGS, classic)).toBe(true);
     expect(
-      matchesTimerPreset({ ...DEFAULT_SETTINGS, focusDurationMinutes: 50 }, classic!)
+      matchesTimerPreset({ ...DEFAULT_SETTINGS, focusDurationMinutes: 50 }, classic)
     ).toBe(false);
   });
 });

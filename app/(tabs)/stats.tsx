@@ -22,6 +22,7 @@ import { useTheme } from "../../context/ThemeContext";
 import type { StatsPeriod } from "../../domain/statsCalculator";
 import { cardElevation } from "../../theme/shadows";
 import { fontFamily } from "../../theme/fonts";
+import { type as typeScale } from "../../theme/typography";
 
 const PERIODS: { key: StatsPeriod; label: string }[] = [
   { key: "day", label: "Day" },
@@ -153,12 +154,8 @@ const StatsScreen: React.FC = () => {
           fontFamily: fontFamily.semiBold,
         },
         groupLabel: {
-          fontSize: 13,
-          fontWeight: "600",
-          fontFamily: fontFamily.semiBold,
+          ...typeScale.eyebrow,
           color: colors.textMuted,
-          textTransform: "uppercase",
-          letterSpacing: 0.5,
           marginTop: 8,
           marginBottom: 8,
           paddingHorizontal: 4,

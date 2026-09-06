@@ -156,11 +156,9 @@ const HydratedApp: React.FC = () => {
     <TimerProvider initialSnapshot={snapshot} settings={settings}>
       <SoundscapeProvider>
         <FocusModeProvider>
-          <ErrorBoundary>
-            <TimerSideEffects />
-            <SoundscapeSideEffects />
-            <RootStack />
-          </ErrorBoundary>
+          <TimerSideEffects />
+          <SoundscapeSideEffects />
+          <RootStack />
         </FocusModeProvider>
       </SoundscapeProvider>
     </TimerProvider>
@@ -173,13 +171,15 @@ export const AppProviders: React.FC = () => {
       <GestureHandlerRootView style={styles.gestureRoot}>
         <SettingsProvider>
           <ThemeProvider>
-            <StatsProvider>
-              <TasksProvider>
-                <ScheduleProvider>
-                  <HydratedApp />
-                </ScheduleProvider>
-              </TasksProvider>
-            </StatsProvider>
+            <ErrorBoundary>
+              <StatsProvider>
+                <TasksProvider>
+                  <ScheduleProvider>
+                    <HydratedApp />
+                  </ScheduleProvider>
+                </TasksProvider>
+              </StatsProvider>
+            </ErrorBoundary>
           </ThemeProvider>
         </SettingsProvider>
       </GestureHandlerRootView>

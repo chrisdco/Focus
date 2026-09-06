@@ -27,6 +27,7 @@ import { DEFAULT_SETTINGS, TIMER_PRESETS, matchesTimerPreset } from "../types/se
 import { getDurationForMode } from "../domain/timerMachine";
 import { ACCENT_PRESETS } from "../theme/accents";
 import { fontFamily } from "../theme/fonts";
+import { type as typeScale } from "../theme/typography";
 import type { TimerLayout } from "../types/settings";
 import { playCue } from "../utils/playCue";
 
@@ -44,28 +45,32 @@ const DurationStepper: React.FC<
   DurationStepperProps & { colors: ReturnType<typeof useTheme>["colors"] }
 > = ({ label, value, onChange, min = 1, max = 60, last = false, colors }) => (
   <>
-    <View style={styles.stepperRow}>
-      <Text style={[styles.stepperLabel, { color: colors.text }]}>{label}</Text>
-      <View style={styles.stepperControls}>
-        <Pressable
-          style={[styles.stepperButton, { backgroundColor: colors.track }]}
-          onPress={() => onChange(Math.max(min, value - 1))}
-          hitSlop={8}
-        >
-          <Text style={[styles.stepperButtonText, { color: colors.text }]}>−</Text>
-        </Pressable>
-        <Text style={[styles.stepperValue, { color: colors.text }]}>
-          {value} min
-        </Text>
-        <Pressable
-          style={[styles.stepperButton, { backgroundColor: colors.track }]}
-          onPress={() => onChange(Math.min(max, value + 1))}
-          hitSlop={8}
-        >
-          <Text style={[styles.stepperButtonText, { color: colors.text }]}>+</Text>
-        </Pressable>
-      </View>
+  <View style={styles.stepperRow}>
+    <Text style={[styles.stepperLabel, { color: colors.text }]}>{label}</Text>
+    <View style={styles.stepperControls}>
+      <Pressable
+        style={[styles.stepperButton, { backgroundColor: colors.track }]}
+        onPress={() => onChange(Math.max(min, value - 1))}
+        accessibilityRole="button"
+        accessibilityLabel={`Decrease ${label}`}
+        hitSlop={8}
+      >
+        <Text style={[styles.stepperButtonText, { color: colors.text }]}>−</Text>
+      </Pressable>
+      <Text style={[styles.stepperValue, { color: colors.text }]}>
+        {value} min
+      </Text>
+      <Pressable
+        style={[styles.stepperButton, { backgroundColor: colors.track }]}
+        onPress={() => onChange(Math.min(max, value + 1))}
+        accessibilityRole="button"
+        accessibilityLabel={`Increase ${label}`}
+        hitSlop={8}
+      >
+        <Text style={[styles.stepperButtonText, { color: colors.text }]}>+</Text>
+      </Pressable>
     </View>
+  </View>
     {last ? null : (
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
     )}
@@ -136,7 +141,7 @@ const SettingsScreen: React.FC = () => {
           backgroundColor: colors.background,
         },
         container: {
-          flex: 1,
+          flexGrow: 1,
           paddingHorizontal: 20,
           paddingTop: 16,
           paddingBottom: 32,
@@ -145,11 +150,7 @@ const SettingsScreen: React.FC = () => {
           marginBottom: 24,
         },
         sectionTitle: {
-          fontSize: 12,
-          fontWeight: "600",
-          fontFamily: fontFamily.semiBold,
-          letterSpacing: 1.5,
-          textTransform: "uppercase",
+          ...typeScale.eyebrow,
           color: colors.textMuted,
           marginBottom: 8,
           paddingHorizontal: 4,
@@ -261,10 +262,10 @@ const SettingsScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={screenStyles.safeArea}>
+    <SafeAreaView style={screenStyles.safeArea} edges={["bottom"]}>
       <ScrollView
-        style={screenStyles.container}
-        contentContainerStyle={{ paddingBottom: 40 }}
+        style={{ flex: 1 }}
+        contentContainerStyle={screenStyles.container}
         showsVerticalScrollIndicator={false}
       >
         <View style={screenStyles.section}>
@@ -351,6 +352,7 @@ const SettingsScreen: React.FC = () => {
                   key={option.id}
                   accessibilityRole="button"
                   accessibilityLabel={`Completion sound ${option.label}`}
+                  accessibilityState={{ selected: active }}
                   onPress={() => {
                     updateSettings({ completionSoundId: option.id });
                     void playCue(option.source);
@@ -383,6 +385,7 @@ const SettingsScreen: React.FC = () => {
                   key={option.id}
                   accessibilityRole="button"
                   accessibilityLabel={`Break sound ${option.label}`}
+                  accessibilityState={{ selected: active }}
                   onPress={() => {
                     updateSettings({ breakSoundId: option.id });
                     void playCue(option.source);
@@ -420,8 +423,7 @@ const SettingsScreen: React.FC = () => {
 
         <View style={screenStyles.section}>
           <Text style={screenStyles.sectionTitle}>Durations</Text>
-          <View style={{ marginBottom: 12 }}>
-          <View style={screenStyles.chipRow}>
+          <View style={[screenStyles.chipRow, { marginBottom: 12 }]}>
             {TIMER_PRESETS.map((preset) => {
               const active = matchesTimerPreset(settings, preset);
               return (
@@ -456,7 +458,6 @@ const SettingsScreen: React.FC = () => {
                 </Pressable>
               );
             })}
-          </View>
           </View>
           <DurationStepper
             colors={colors}
@@ -582,7 +583,12 @@ const SettingsScreen: React.FC = () => {
           ) : null}
         </View>
 
-        <Pressable style={screenStyles.dangerButton} onPress={handleResetAll}>
+        <Pressable
+          style={screenStyles.dangerButton}
+          onPress={handleResetAll}
+          accessibilityRole="button"
+          accessibilityLabel="Reset all data"
+        >
           <Text style={screenStyles.dangerButtonText}>Reset all data</Text>
         </Pressable>
 

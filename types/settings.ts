@@ -33,7 +33,7 @@ export interface Settings {
   continueSoundscapeOnBreak: boolean;
   focusAnimationsEnabled: boolean;
   soundMix: SoundMixLayer[];
-  activePresetId: string | null;
+  activeSoundscapePresetId: string | null;
   accentId: AccentId;
   timerLayout: TimerLayout;
   completionSoundId: CompletionSoundId;
@@ -58,7 +58,7 @@ export const DEFAULT_SETTINGS: Settings = {
   continueSoundscapeOnBreak: false,
   focusAnimationsEnabled: true,
   soundMix: [{ id: "whiteNoise", volume: 0.35 }],
-  activePresetId: "deep_focus",
+  activeSoundscapePresetId: "deep_focus",
   accentId: DEFAULT_ACCENT_ID,
   timerLayout: "standard",
   completionSoundId: DEFAULT_COMPLETION_SOUND,
@@ -115,9 +115,58 @@ const clampInt = (
   return Math.max(min, Math.min(max, n));
 };
 
+const normalizeBoolean = (value: unknown, fallback: boolean): boolean =>
+  typeof value === "boolean" ? value : fallback;
+
 export const normalizeSettings = (stored: Partial<Settings>): Settings => ({
   ...DEFAULT_SETTINGS,
   ...stored,
+  // Legacy key from before the timer-preset rename; migrate silently.
+  activeSoundscapePresetId:
+    typeof stored.activeSoundscapePresetId === "string"
+      ? stored.activeSoundscapePresetId
+      : typeof (stored as Record<string, unknown>).activePresetId === "string"
+        ? ((stored as Record<string, unknown>).activePresetId as string)
+        : DEFAULT_SETTINGS.activeSoundscapePresetId,
+  // Booleans coerce strictly: corrupt payloads (strings, numbers) fall
+  // back instead of flipping a toggle.
+  hapticsEnabled: normalizeBoolean(
+    stored.hapticsEnabled,
+    DEFAULT_SETTINGS.hapticsEnabled
+  ),
+  soundEnabled: normalizeBoolean(
+    stored.soundEnabled,
+    DEFAULT_SETTINGS.soundEnabled
+  ),
+  darkMode: normalizeBoolean(stored.darkMode, DEFAULT_SETTINGS.darkMode),
+  notificationsEnabled: normalizeBoolean(
+    stored.notificationsEnabled,
+    DEFAULT_SETTINGS.notificationsEnabled
+  ),
+  autoStartNextSession: normalizeBoolean(
+    stored.autoStartNextSession,
+    DEFAULT_SETTINGS.autoStartNextSession
+  ),
+  autoEnterFocusMode: normalizeBoolean(
+    stored.autoEnterFocusMode,
+    DEFAULT_SETTINGS.autoEnterFocusMode
+  ),
+  ambientSoundEnabled: normalizeBoolean(
+    stored.ambientSoundEnabled,
+    DEFAULT_SETTINGS.ambientSoundEnabled
+  ),
+  autoPlaySoundscape: normalizeBoolean(
+    stored.autoPlaySoundscape,
+    DEFAULT_SETTINGS.autoPlaySoundscape
+  ),
+  continueSoundscapeOnBreak: normalizeBoolean(
+    stored.continueSoundscapeOnBreak,
+    DEFAULT_SETTINGS.continueSoundscapeOnBreak
+  ),
+  focusAnimationsEnabled: normalizeBoolean(
+    stored.focusAnimationsEnabled,
+    DEFAULT_SETTINGS.focusAnimationsEnabled
+  ),
   focusDurationMinutes: clampInt(
     stored.focusDurationMinutes,
     1,
@@ -153,7 +202,10 @@ export const normalizeSettings = (stored: Partial<Settings>): Settings => ({
   timerLayout: normalizeTimerLayout(stored.timerLayout),
   completionSoundId: normalizeCompletionSoundId(stored.completionSoundId),
   breakSoundId: normalizeBreakSoundId(stored.breakSoundId),
-  strictMode: stored.strictMode === true,
+  strictMode: normalizeBoolean(
+    stored.strictMode,
+    DEFAULT_SETTINGS.strictMode
+  ),
 });
 
 export interface TimerPreset {

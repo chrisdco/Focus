@@ -30,13 +30,14 @@ export const FocusModeProvider: React.FC<FocusModeProviderProps> = ({
 }) => {
   const { settings } = useSettings();
   const { state } = useTimerContext();
-  // Manual override; cleared on every session transition so it can never
-  // strand the UI (e.g. stuck fullscreen while browsing stats).
+  // Manual override; cleared whenever the session mode changes so it can
+  // never strand the UI (e.g. stuck fullscreen while browsing stats).
+  // Pausing and resuming keep the override — only a mode change clears it.
   const [override, setOverride] = useState<boolean | null>(null);
 
   useEffect(() => {
     setOverride(null);
-  }, [state.isRunning, state.mode]);
+  }, [state.mode]);
 
   const auto =
     settings.autoEnterFocusMode &&
@@ -45,8 +46,8 @@ export const FocusModeProvider: React.FC<FocusModeProviderProps> = ({
   const isFocusMode = override ?? auto;
 
   const toggleFocusMode = useCallback(() => {
-    setOverride(!isFocusMode);
-  }, [isFocusMode]);
+    setOverride((prev) => !(prev ?? auto));
+  }, [auto]);
 
   const value = useMemo(
     () => ({ isFocusMode, toggleFocusMode }),

@@ -95,7 +95,13 @@ export const ActiveTaskPicker: React.FC<ActiveTaskPickerProps> = ({
             </View>
           }
           renderItem={({ item }) => (
-            <Pressable style={styles.row} onPress={() => selectTask(item)}>
+            <Pressable
+              style={styles.row}
+              onPress={() => selectTask(item)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: activeTaskId === item.id }}
+              accessibilityLabel={`Work on ${item.title}`}
+            >
               <Text style={styles.rowTitle}>{item.title}</Text>
               <Text style={styles.rowMeta}>
                 {item.completedPomodoros}/{item.estimatedPomodoros} pomodoros
@@ -110,13 +116,15 @@ export const ActiveTaskPicker: React.FC<ActiveTaskPickerProps> = ({
           }
           ListFooterComponent={
             activeTaskId ? (
-              <Pressable
-                style={styles.clearButton}
-                onPress={() => {
-                  setActiveTaskId(null);
-                  onClose();
-                }}
-              >
+            <Pressable
+              style={styles.clearButton}
+              accessibilityRole="button"
+              accessibilityLabel="Clear active task"
+              onPress={() => {
+                setActiveTaskId(null);
+                onClose();
+              }}
+            >
                 <Text style={styles.clearText}>Clear active task</Text>
               </Pressable>
             ) : null

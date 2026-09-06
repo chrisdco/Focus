@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useTheme } from "../../context/ThemeContext";
 import { fontFamily } from "../../theme/fonts";
@@ -38,7 +38,14 @@ export const SessionCard: React.FC<SessionCardProps> = ({
     >
       <Pressable
         className="flex-row items-center px-4 min-h-[52px] gap-3"
-        style={showAmbience ? { borderBottomWidth: 1, borderBottomColor: colors.border } : undefined}
+        style={
+          showAmbience
+            ? {
+                borderBottomWidth: StyleSheet.hairlineWidth,
+                borderBottomColor: colors.border,
+              }
+            : undefined
+        }
         onPress={onTaskPress}
         accessibilityRole="button"
         accessibilityLabel={taskLabel}

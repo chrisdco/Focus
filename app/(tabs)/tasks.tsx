@@ -195,6 +195,7 @@ const TasksScreen: React.FC = () => {
         </View>
 
         <FlatList
+          style={{ flex: 1 }}
           data={tasks}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (

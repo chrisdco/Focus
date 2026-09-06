@@ -225,7 +225,11 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
             <Text style={styles.title}>
               {initial ? "Edit block" : "Schedule block"}
             </Text>
-            <Pressable onPress={onClose} accessibilityRole="button">
+            <Pressable
+              onPress={onClose}
+              accessibilityRole="button"
+              accessibilityLabel="Close block editor"
+            >
               <Text style={styles.close}>Close</Text>
             </Pressable>
           </View>
@@ -240,6 +244,8 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
             <View style={styles.row}>
               <Pressable
                 style={styles.stepper}
+                accessibilityRole="button"
+                accessibilityLabel="Decrease hour"
                 onPress={() => setHour((value) => Math.max(0, value - 1))}
               >
                 <Text style={styles.stepperText}>−</Text>
@@ -247,6 +253,8 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
               <Text style={styles.value}>{formatClock(parseClock(hour, minute))}</Text>
               <Pressable
                 style={styles.stepper}
+                accessibilityRole="button"
+                accessibilityLabel="Increase hour"
                 onPress={() => setHour((value) => Math.min(23, value + 1))}
               >
                 <Text style={styles.stepperText}>+</Text>
@@ -273,6 +281,8 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
             <View style={styles.row}>
               <Pressable
                 style={styles.stepper}
+                accessibilityRole="button"
+                accessibilityLabel="Decrease duration"
                 onPress={() => setDuration((value) => Math.max(5, value - 5))}
               >
                 <Text style={styles.stepperText}>−</Text>
@@ -280,6 +290,8 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
               <Text style={styles.value}>{duration} min</Text>
               <Pressable
                 style={styles.stepper}
+                accessibilityRole="button"
+                accessibilityLabel="Increase duration"
                 onPress={() => setDuration((value) => Math.min(180, value + 5))}
               >
                 <Text style={styles.stepperText}>+</Text>
@@ -295,6 +307,9 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
                     key={item.key}
                     style={[styles.chip, active && styles.chipActive]}
                     onPress={() => setKind(item.key)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                    accessibilityLabel={`${item.label} block type`}
                   >
                     <Text style={[styles.chipText, active && styles.chipTextActive]}>
                       {item.label}
@@ -324,11 +339,14 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
                   {activeTasks.map((task) => {
                     const active = taskId === task.id;
                     return (
-                      <Pressable
-                        key={task.id}
-                        style={[styles.chip, active && styles.chipActive]}
-                        onPress={() => setTaskId(task.id)}
-                      >
+                  <Pressable
+                    key={task.id}
+                    style={[styles.chip, active && styles.chipActive]}
+                    onPress={() => setTaskId(task.id)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                    accessibilityLabel={`Link ${task.title}`}
+                  >
                         <Text
                           style={[styles.chipText, active && styles.chipTextActive]}
                         >
@@ -341,7 +359,12 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
               </>
             )}
 
-            <Pressable style={styles.save} onPress={handleSave} accessibilityRole="button">
+            <Pressable
+              style={styles.save}
+              onPress={handleSave}
+              accessibilityRole="button"
+              accessibilityLabel="Save block"
+            >
               <Text style={styles.saveText}>Save</Text>
             </Pressable>
             {onDelete && (
