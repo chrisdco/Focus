@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   AppState,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -35,18 +34,7 @@ import { toDateKey } from "../../utils/timer";
 
 type CalendarView = "day" | "month";
 
-interface CalendarSectionProps {
-  /**
-   * When true (tab usage) the section fills its parent and scrolls
-   * internally. When false (composed screens like Plan) it sizes to
-   * content and lets the parent scroll.
-   */
-  scrollable?: boolean;
-}
-
-export const CalendarSection: React.FC<CalendarSectionProps> = ({
-  scrollable = true,
-}) => {
+export const CalendarSection: React.FC = () => {
   const { colors } = useTheme();
   const { settings } = useSettings();
   const { tasks, planTasksForDate } = useTasks();
@@ -94,12 +82,6 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        root: {
-          flex: 1,
-        },
-        scrollContent: {
-          paddingBottom: 40,
-        },
         nav: {
           flexDirection: "row",
           alignItems: "center",
@@ -407,17 +389,8 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
   );
 
   return (
-    <View style={scrollable ? styles.root : undefined}>
-      {scrollable ? (
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {content}
-        </ScrollView>
-      ) : (
-        content
-      )}
+    <>
+      {content}
 
       <ScheduleBlockModal
         visible={editorVisible}
@@ -444,6 +417,6 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
         onClose={() => setPlanVisible(false)}
         onConfirm={(taskIds) => planTasksForDate(taskIds, tomorrowKey)}
       />
-    </View>
+    </>
   );
 };

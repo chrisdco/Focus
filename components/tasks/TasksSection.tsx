@@ -1,14 +1,12 @@
 import React, { useMemo, useState } from "react";
 import {
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { router } from "expo-router";
 
-import { TaskFormModal } from "./TaskFormModal";
 import { TaskRow } from "./TaskRow";
 import { QuickAdd } from "./QuickAdd";
 import { EmptyState } from "../ui/EmptyState";
@@ -19,7 +17,6 @@ import { toDateKey } from "../../utils/timer";
 import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
 import type { Task, TaskView } from "../../types/task";
-import { cardElevation } from "../../theme/shadows";
 
 const VIEWS: { key: TaskView; label: string }[] = [
   { key: "inbox", label: "Inbox" },
@@ -28,18 +25,14 @@ const VIEWS: { key: TaskView; label: string }[] = [
 ];
 
 interface TasksSectionProps {
-  /**
-   * When true (tab usage) the section fills its parent and scrolls
-   * internally. When false (composed screens like Plan) it sizes to
-   * content and lets the parent scroll — FAB then anchors to the section.
-   */
-  scrollable?: boolean;
+  /** Edit an existing task. */
+  onEditTask: (task: Task) => void;
 }
 
 export const TasksSection: React.FC<TasksSectionProps> = ({
-  scrollable = true,
+  onEditTask,
 }) => {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const {
     projects,
     selectedProjectId,
@@ -47,23 +40,15 @@ export const TasksSection: React.FC<TasksSectionProps> = ({
     getTasksForView,
     setActiveTaskId,
     createTask,
-    updateTask,
-    deleteTask,
-    createProject,
   } = useTasks();
 
   const [view, setView] = useState<TaskView>("inbox");
-  const [formVisible, setFormVisible] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const tasks = getTasksForView(view);
 
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        root: {
-          flex: 1,
-        },
         projectRow: {
           flexDirection: "row",
           flexWrap: "wrap",
@@ -86,38 +71,9 @@ export const TasksSection: React.FC<TasksSectionProps> = ({
           paddingHorizontal: 24,
           fontFamily: fontFamily.regular,
         },
-        addButton: {
-          position: "absolute",
-          right: 24,
-          bottom: 24,
-          width: 56,
-          height: 56,
-          borderRadius: 28,
-          backgroundColor: colors.focus,
-          alignItems: "center",
-          justifyContent: "center",
-          ...cardElevation(isDark),
-        },
-        addLabel: {
-          color: colors.onPrimary,
-          fontSize: 28,
-          fontWeight: "400",
-          fontFamily: fontFamily.regular,
-          marginTop: -2,
-        },
       }),
-    [colors, isDark]
+    [colors]
   );
-
-  const openCreate = () => {
-    setEditingTask(null);
-    setFormVisible(true);
-  };
-
-  const openEdit = (task: Task) => {
-    setEditingTask(task);
-    setFormVisible(true);
-  };
 
   const handleStart = (task: Task) => {
     setActiveTaskId(task.id);
@@ -209,7 +165,7 @@ export const TasksSection: React.FC<TasksSectionProps> = ({
             key={item.id}
             task={item}
             project={getProject(item.projectId)}
-            onPress={() => openEdit(item)}
+            onPress={() => onEditTask(item)}
             onStart={() => handleStart(item)}
           />
         ))
@@ -217,47 +173,5 @@ export const TasksSection: React.FC<TasksSectionProps> = ({
     </>
   );
 
-  return (
-    <View style={scrollable ? styles.root : undefined}>
-      {scrollable ? (
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingBottom: 100 }}
-          showsVerticalScrollIndicator={false}
-        >
-          {content}
-        </ScrollView>
-      ) : (
-        // Clearance for the anchored FAB; the parent scrolls.
-        <View style={{ paddingBottom: 88 }}>{content}</View>
-      )}
-
-      <Pressable
-        style={styles.addButton}
-        onPress={openCreate}
-        accessibilityRole="button"
-        accessibilityLabel="Add task"
-      >
-        <Text style={styles.addLabel}>+</Text>
-      </Pressable>
-
-      <TaskFormModal
-        visible={formVisible}
-        projects={projects}
-        initialTask={editingTask}
-        onClose={() => setFormVisible(false)}
-        onCreateProject={createProject}
-        onSave={(draft) => {
-          if (editingTask) {
-            updateTask(editingTask.id, draft);
-          } else {
-            createTask(draft);
-          }
-        }}
-        onDelete={
-          editingTask ? () => deleteTask(editingTask.id) : undefined
-        }
-      />
-    </View>
-  );
+  return <>{content}</>;
 };
