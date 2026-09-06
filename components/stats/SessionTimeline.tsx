@@ -26,7 +26,7 @@ export const SessionTimeline: React.FC<SessionTimelineProps> = ({
           justifyContent: "space-between",
           alignItems: "center",
           paddingVertical: 12,
-          borderBottomWidth: 1,
+          borderBottomWidth: StyleSheet.hairlineWidth,
           borderBottomColor: colors.border,
         },
         title: {

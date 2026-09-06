@@ -44,7 +44,7 @@ export const ActiveTaskPicker: React.FC<ActiveTaskPickerProps> = ({
         row: {
           paddingVertical: 14,
           paddingHorizontal: 20,
-          borderBottomWidth: 1,
+          borderBottomWidth: StyleSheet.hairlineWidth,
           borderBottomColor: colors.border,
         },
         rowTitle: {

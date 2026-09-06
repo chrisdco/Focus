@@ -32,8 +32,8 @@ Still open on the roadmap: sync/export (M7), blocking (M8), social (M9), AI (M10
 ## Run
 
 ```bash
-npm install
-npx expo start
+bun install
+bun run start
 ```
 
 Then open Expo Go, an emulator, or a development build. Duration and mix changes apply to future / next playback, not the in-progress session.
@@ -46,7 +46,8 @@ Then open Expo Go, an emulator, or a development build. Duration and mix changes
 
 | Command | Purpose |
 |---------|---------|
-| `npm start` | Expo dev server |
-| `npm run lint` | ESLint via `expo lint` |
-| `npm test` | Vitest unit tests (domain logic, reducer, helpers) |
+| `bun run start` | Expo dev server |
+| `bun run lint` | ESLint via `expo lint` |
+| `bun run test` | Vitest unit tests (domain logic, reducer, helpers) |
+| `bun run typecheck` | `tsc --noEmit` |
 | `npx expo-doctor` | SDK / dependency checks |

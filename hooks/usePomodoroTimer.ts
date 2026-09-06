@@ -47,7 +47,9 @@ export const usePomodoroTimer = () => {
     }
 
     if (settings.hapticsEnabled) {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+        () => undefined
+      );
     }
 
     dispatch({ type: "START", now: Date.now() });
@@ -59,7 +61,9 @@ export const usePomodoroTimer = () => {
     }
 
     if (settings.hapticsEnabled) {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(
+        () => undefined
+      );
     }
 
     dispatch({ type: "PAUSE", now: Date.now() });
@@ -76,7 +80,9 @@ export const usePomodoroTimer = () => {
   const skipToMode = useCallback(
     (nextMode: TimerMode, nextCompletedSessions: number) => {
       if (settings.hapticsEnabled) {
-        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+          () => undefined
+        );
       }
 
       if (isRunning) {

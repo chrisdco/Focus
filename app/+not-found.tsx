@@ -16,7 +16,7 @@ export default function NotFound() {
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: colors.background,
-          paddingHorizontal: 24,
+          paddingHorizontal: 20,
         },
         title: {
           fontSize: 20,

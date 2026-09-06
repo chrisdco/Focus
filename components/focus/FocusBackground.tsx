@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import Animated, {
   Easing,
@@ -29,7 +29,7 @@ export const FocusBackground: React.FC<FocusBackgroundProps> = ({
   const drift = useSharedValue(0);
   const depth = Math.max(0, Math.min(1, intensity));
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (reduceMotion) {
       drift.value = 0.5;
       return;

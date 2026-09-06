@@ -192,7 +192,7 @@ const StatsScreen: React.FC = () => {
           flexDirection: "row",
           justifyContent: "space-between",
           paddingVertical: 8,
-          borderBottomWidth: 1,
+          borderBottomWidth: StyleSheet.hairlineWidth,
           borderBottomColor: colors.border,
         },
         recordLabel: {

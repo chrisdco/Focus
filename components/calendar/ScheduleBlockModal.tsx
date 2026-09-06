@@ -326,6 +326,9 @@ export const ScheduleBlockModal: React.FC<ScheduleBlockModalProps> = ({
                   <Pressable
                     style={[styles.chip, taskId === null && styles.chipActive]}
                     onPress={() => setTaskId(null)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: taskId === null }}
+                    accessibilityLabel="No linked task"
                   >
                     <Text
                       style={[

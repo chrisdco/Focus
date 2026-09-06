@@ -36,7 +36,7 @@ export const DayTimeline: React.FC<DayTimelineProps> = ({
         },
         hourRow: {
           height: HOUR_HEIGHT,
-          borderTopWidth: 1,
+          borderTopWidth: StyleSheet.hairlineWidth,
           borderTopColor: colors.border,
           flexDirection: "row",
         },

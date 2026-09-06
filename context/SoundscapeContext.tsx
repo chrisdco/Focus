@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import {
   createAudioPlayer,
@@ -24,14 +25,11 @@ const FADE_MS = 500;
 const FADE_STEPS = 10;
 
 interface SoundscapeContextValue {
-  isPlaying: boolean;
   isPreviewing: boolean;
-  applyMix: (mix: SoundMixLayer[]) => void;
   fadeInMix: (mix: SoundMixLayer[]) => void;
   fadeOutMix: () => void;
   previewMix: (mix: SoundMixLayer[]) => void;
   stopPreview: () => void;
-  setLayerVolume: (id: SoundscapeId, volume: number) => void;
 }
 
 const SoundscapeContext = createContext<SoundscapeContextValue | undefined>(
@@ -42,14 +40,6 @@ interface SoundscapeProviderProps {
   children: ReactNode;
 }
 
-const layerVolumeMap = (mix: SoundMixLayer[]): Map<SoundscapeId, number> => {
-  const map = new Map<SoundscapeId, number>();
-  for (const layer of mix) {
-    map.set(layer.id, layer.volume);
-  }
-  return map;
-};
-
 export const SoundscapeProvider: React.FC<SoundscapeProviderProps> = ({
   children,
 }) => {
@@ -58,10 +48,8 @@ export const SoundscapeProvider: React.FC<SoundscapeProviderProps> = ({
     new Map()
   );
   const activeMixRef = useRef<SoundMixLayer[]>([]);
-  const isPlayingRef = useRef(false);
   const isPreviewingRef = useRef(false);
-  const [isPlaying, setIsPlaying] = React.useState(false);
-  const [isPreviewing, setIsPreviewing] = React.useState(false);
+  const [isPreviewing, setIsPreviewing] = useState(false);
 
   useEffect(() => {
     setAudioModeAsync({
@@ -182,9 +170,6 @@ export const SoundscapeProvider: React.FC<SoundscapeProviderProps> = ({
         targets.set(layer.id, layer.volume);
       }
       fadeVolumes(targets);
-      const hasAudio = mix.some((layer) => layer.volume > 0);
-      isPlayingRef.current = hasAudio;
-      setIsPlaying(hasAudio);
     },
     [fadeVolumes]
   );
@@ -206,9 +191,7 @@ export const SoundscapeProvider: React.FC<SoundscapeProviderProps> = ({
     }
 
     fadeVolumes(targets, () => {
-      isPlayingRef.current = false;
       isPreviewingRef.current = false;
-      setIsPlaying(false);
       setIsPreviewing(false);
     });
   }, [fadeVolumes]);
@@ -229,49 +212,15 @@ export const SoundscapeProvider: React.FC<SoundscapeProviderProps> = ({
     fadeOutMix();
   }, [fadeOutMix]);
 
-  const setLayerVolume = useCallback(
-    (id: SoundscapeId, volume: number) => {
-      const mixMap = layerVolumeMap(activeMixRef.current);
-      if (volume <= 0) {
-        mixMap.delete(id);
-      } else {
-        mixMap.set(id, volume);
-      }
-
-      activeMixRef.current = [...mixMap.entries()].map(([layerId, layerVolume]) => ({
-        id: layerId,
-        volume: layerVolume,
-      }));
-
-      setPlayerVolume(id, volume);
-      const hasAudio = activeMixRef.current.some((layer) => layer.volume > 0);
-      isPlayingRef.current = hasAudio;
-      setIsPlaying(hasAudio);
-    },
-    [setPlayerVolume]
-  );
-
   const value = useMemo(
     () => ({
-      isPlaying,
       isPreviewing,
-      applyMix,
       fadeInMix,
       fadeOutMix,
       previewMix,
       stopPreview,
-      setLayerVolume,
     }),
-    [
-      applyMix,
-      fadeInMix,
-      fadeOutMix,
-      isPlaying,
-      isPreviewing,
-      previewMix,
-      setLayerVolume,
-      stopPreview,
-    ]
+    [fadeInMix, fadeOutMix, isPreviewing, previewMix, stopPreview]
   );
 
   return (
