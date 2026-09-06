@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import {
+  Alert,
   Pressable,
   StyleSheet,
   Text,
@@ -40,11 +41,27 @@ export const TasksSection: React.FC<TasksSectionProps> = ({
     getTasksForView,
     setActiveTaskId,
     createTask,
+    deleteProject,
   } = useTasks();
 
   const [view, setView] = useState<TaskView>("inbox");
 
   const tasks = getTasksForView(view);
+
+  const confirmDeleteProject = (projectId: string, name: string) => {
+    Alert.alert(
+      "Delete project",
+      `Tasks move back to Inbox. Delete "${name}"?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteProject(projectId),
+        },
+      ]
+    );
+  };
 
   const styles = useMemo(
     () =>
@@ -128,7 +145,7 @@ export const TasksSection: React.FC<TasksSectionProps> = ({
             All
           </Text>
         </Pressable>
-        {projects.map((project) => (
+          {projects.map((project) => (
             <Pressable
               key={project.id}
               style={[
@@ -139,9 +156,13 @@ export const TasksSection: React.FC<TasksSectionProps> = ({
                 },
               ]}
               onPress={() => setSelectedProjectId(project.id)}
+              onLongPress={() =>
+                confirmDeleteProject(project.id, project.name)
+              }
               accessibilityRole="button"
               accessibilityState={{ selected: selectedProjectId === project.id }}
               accessibilityLabel={`Project ${project.name}`}
+              accessibilityHint="Long press to delete project"
             >
             <Text
               style={{
