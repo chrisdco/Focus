@@ -1,24 +1,36 @@
-import React, { useMemo } from "react";
-import { ScrollView, StyleSheet, Text } from "react-native";
+import React, { useMemo, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { CalendarSection } from "../../components/calendar/CalendarSection";
+import { TaskFormModal } from "../../components/tasks/TaskFormModal";
 import { TasksSection } from "../../components/tasks/TasksSection";
 import { ScreenTitle } from "../../components/ui/ScreenTitle";
+import { useTasks } from "../../context/TasksContext";
 import { useTheme } from "../../context/ThemeContext";
+import { fontFamily } from "../../theme/fonts";
+import { cardElevation } from "../../theme/shadows";
 import { type as typeScale } from "../../theme/typography";
+import type { Task } from "../../types/task";
 
 /**
  * Agenda-first planning: tasks on top, schedule below, one shared scroll.
  * Composes the same section components the old tabs rendered — no forks.
+ * The FAB is screen-anchored here so it never floats mid-content.
  */
 const PlanScreen: React.FC = () => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const { projects, createTask, updateTask, deleteTask, createProject } =
+    useTasks();
+
+  const [formVisible, setFormVisible] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const styles = useMemo(
     () =>
       StyleSheet.create({
         safeArea: { flex: 1, backgroundColor: colors.background },
+        root: { flex: 1 },
         container: {
           flexGrow: 1,
           paddingHorizontal: 20,
@@ -32,25 +44,88 @@ const PlanScreen: React.FC = () => {
           marginBottom: 8,
           paddingHorizontal: 4,
         },
+        scheduleGap: {
+          marginTop: 16,
+        },
+        addButton: {
+          position: "absolute",
+          right: 24,
+          bottom: 24,
+          width: 56,
+          height: 56,
+          borderRadius: 28,
+          backgroundColor: colors.focus,
+          alignItems: "center",
+          justifyContent: "center",
+          ...cardElevation(isDark),
+        },
+        addLabel: {
+          color: colors.onPrimary,
+          fontSize: 28,
+          fontWeight: "400",
+          fontFamily: fontFamily.regular,
+          marginTop: -2,
+        },
       }),
-    [colors]
+    [colors, isDark]
   );
+
+  const openCreate = () => {
+    setEditingTask(null);
+    setFormVisible(true);
+  };
+
+  const openEdit = (task: Task) => {
+    setEditingTask(task);
+    setFormVisible(true);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={styles.container}
-        showsVerticalScrollIndicator={false}
-      >
-        <ScreenTitle title="Plan" />
+      <View style={styles.root}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}
+        >
+          <ScreenTitle title="Plan" />
 
-        <Text style={styles.groupLabel}>Tasks</Text>
-        <TasksSection scrollable={false} />
+          <Text style={styles.groupLabel}>Tasks</Text>
+          <TasksSection onEditTask={openEdit} />
 
-        <Text style={styles.groupLabel}>Schedule</Text>
-        <CalendarSection scrollable={false} />
-      </ScrollView>
+          <View style={styles.scheduleGap}>
+            <Text style={styles.groupLabel}>Schedule</Text>
+            <CalendarSection />
+          </View>
+        </ScrollView>
+
+        <Pressable
+          style={styles.addButton}
+          onPress={openCreate}
+          accessibilityRole="button"
+          accessibilityLabel="Add task"
+        >
+          <Text style={styles.addLabel}>+</Text>
+        </Pressable>
+
+        <TaskFormModal
+          visible={formVisible}
+          projects={projects}
+          initialTask={editingTask}
+          onClose={() => setFormVisible(false)}
+          onCreateProject={createProject}
+          onSave={(draft) => {
+            if (editingTask) {
+              updateTask(editingTask.id, draft);
+            } else {
+              createTask(draft);
+            }
+          }}
+          onDelete={
+            editingTask ? () => deleteTask(editingTask.id) : undefined
+          }
+        />
+      </View>
     </SafeAreaView>
   );
 };
