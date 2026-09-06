@@ -20,8 +20,14 @@ import type { Task } from "../../types/task";
  */
 const PlanScreen: React.FC = () => {
   const { colors, isDark } = useTheme();
-  const { projects, createTask, updateTask, deleteTask, createProject } =
-    useTasks();
+  const {
+    projects,
+    createTask,
+    updateTask,
+    completeTask,
+    deleteTask,
+    createProject,
+  } = useTasks();
 
   const [formVisible, setFormVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -121,6 +127,17 @@ const PlanScreen: React.FC = () => {
               createTask(draft);
             }
           }}
+          onToggleStatus={
+            editingTask
+              ? () => {
+                  if (editingTask.status === "completed") {
+                    updateTask(editingTask.id, { status: "active" });
+                  } else {
+                    completeTask(editingTask.id);
+                  }
+                }
+              : undefined
+          }
           onDelete={
             editingTask ? () => deleteTask(editingTask.id) : undefined
           }

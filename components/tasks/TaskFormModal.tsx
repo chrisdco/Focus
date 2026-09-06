@@ -33,6 +33,7 @@ interface TaskFormModalProps {
   onClose: () => void;
   onSave: (draft: TaskDraft) => void;
   onDelete?: () => void;
+  onToggleStatus?: () => void;
   onCreateProject: (name: string, color: string) => Project;
 }
 
@@ -45,6 +46,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
   onClose,
   onSave,
   onDelete,
+  onToggleStatus,
   onCreateProject,
 }) => {
   const { colors, isDark } = useTheme();
@@ -176,6 +178,21 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
           alignItems: "center",
           minHeight: 44,
           justifyContent: "center",
+        },
+        statusButton: {
+          marginTop: 12,
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: 48,
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: colors.focus,
+        },
+        statusButtonText: {
+          color: colors.focus,
+          fontSize: 16,
+          fontWeight: "600",
+          fontFamily: fontFamily.semiBold,
         },
         deleteButtonText: {
           color: colors.danger,
@@ -422,6 +439,28 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
             >
               <Text style={styles.saveButtonText}>Save task</Text>
             </Pressable>
+
+            {initialTask && onToggleStatus && (
+              <Pressable
+                style={styles.statusButton}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  initialTask.status === "completed"
+                    ? `Reopen ${initialTask.title}`
+                    : `Mark ${initialTask.title} complete`
+                }
+                onPress={() => {
+                  onToggleStatus();
+                  onClose();
+                }}
+              >
+                <Text style={styles.statusButtonText}>
+                  {initialTask.status === "completed"
+                    ? "Reopen task"
+                    : "Mark complete"}
+                </Text>
+              </Pressable>
+            )}
 
             {initialTask && onDelete && (
               <Pressable
